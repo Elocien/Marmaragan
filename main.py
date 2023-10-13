@@ -20,18 +20,21 @@ def run_script():
 
         # Define the user message
         user_msg = 'Define neuron'
+        
+        model = "gpt-3.5-turbo-0613"  # or "gpt-4"
 
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # or "gpt-4"
+            model=model,
             messages=[{"role": "system", "content": system_msg},
                       {"role": "user", "content": user_msg}],
             max_tokens=30
         )
 
+
         output_finish_reason = response["choices"][0]["finish_reason"]
         output_content = response["choices"][0]["message"]["content"]
 
-        logging.info(f"Date and Time: {datetime.now()} | User Message: {user_msg} | Output Finish Reason: {output_finish_reason} | Output Content: {output_content}")
+        logging.info(f"Date and Time: {datetime.now()} | Model: {model} | User Message: {user_msg} | Output Finish Reason: {output_finish_reason} | Output Content: {output_content}")
 
         # Execute gnatprove
 
