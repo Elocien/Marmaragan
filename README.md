@@ -1,0 +1,2 @@
+# SparkyGPT
+Diplomarbeit
