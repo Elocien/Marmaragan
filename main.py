@@ -1,10 +1,11 @@
 from langchain.chat_models import ChatOpenAI
-from util.ada_to_json import ada_to_json
-from util.gnatprove import run_gnatprove
-from llm.langchain_impl import *
+from util import *
+from langchain_impl import *
+from langchain.chat_models import ChatOpenAI
+from langchain.callbacks import get_openai_callback
+import re
 
 import logging
-from datetime import datetime
 
 
 
@@ -16,7 +17,7 @@ llm_temperature = 0
 llm = ChatOpenAI(model_name=llm_model, temperature=llm_temperature)
 
 # ADA/SPARK2014 Project Location
-project_location = ""
+project_location = "/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example"
 
 # Input File
 input_file = '/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example/binary-search/search_lower_bound_p.adb'
@@ -45,25 +46,34 @@ ada_to_json(input_file, prompt_text)
 prompt = get_prompt("prompt.json")
 
 # Get the LLM Response
-response, tokens = generate_llm_response(llm_model, llm_temperature, prompt)
+llm = ChatOpenAI(model_name=llm_model, temperature=llm_temperature)
+    
+
+
+
+
+# LLM STUFF
+# TODO: Format and make pretty
+response = ""
+tokens = ""
+    
+with get_openai_callback() as cb:
+    response = llm.predict(prompt)
+    # response = sanitize_output(llm.predict(prompt))
+    tokens = re.findall(r"Tokens Used: (\d+)", str(cb))[0] if re.findall(r"Tokens Used: (\d+)", str(cb)) else "Error"
+
 
 
 # Take the response and write to file
-
+overwrite_ada_file(input_file, response)
 
 # Compile the project using Alire 
-run_gnatprove(project_location)
+gnatprove_output = run_gnatprove(project_location)
 
-
-
-
-
-
-
-
-
-
-
+# SWITCH: If compilation fails
+    # 1. Record result 
+    # 2. Generate new LLM response and try again 
+    
 
 
 
