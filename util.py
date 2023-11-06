@@ -71,18 +71,23 @@ def sanitize_output(api_output: str):
     """
     Extracts and returns Ada code blocks from the given GPT-4 API output.
     """
-    # Define the pattern to capture the code block between '''ada and '''
-    pattern = re.compile(r"'''ada(.*?)'''", re.DOTALL)
+    # Define the pattern to capture the code block between '''ada and ''' or ```ada and ```
+    pattern = re.compile(r"('''ada(.*?)'''|```ada(.*?)```)", re.DOTALL)
 
     # Search for the pattern in the input string
     match = pattern.search(api_output)
 
     # If a match is found, return the code block without the delimiters
     if match:
-        return match.group(1).strip()
+        # Check if either of the groups has a match
+        if match.group(2):
+            return match.group(2).strip()
+        elif match.group(3):
+            return match.group(3).strip()
 
     # If no match is found, return an empty string or None
     return None
+
 
 
 def overwrite_destination_file_with_string(file_path : os.path, content : str):
