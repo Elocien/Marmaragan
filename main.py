@@ -16,7 +16,8 @@ llm_temperature = 0
 project_location = "/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example"
 
 # Input File
-input_file = '/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example/binary-search/search_lower_bound_p.adb'
+input_adb_file = '/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example/binary-search/search_lower_bound_p.adb'
+input_ads_file = '/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example/binary-search/search_lower_bound_p.ads'
 
 # Prompt Text
 prompt_text = "Add appropriate pragma Loop_Invariant statements to the following ada/spark2014 code, so that gnatprove may be run without errors. Only return the code"
@@ -34,7 +35,7 @@ logging.basicConfig(filename='history.log', level=logging.INFO,
 
 
 # Convert given ada file into a prompt template (.json)
-ada_to_json(input_file, prompt_text)
+ada_to_json(input_adb_file, prompt_text, input_ads_file)
 
 
 # Load the prompt
@@ -44,12 +45,6 @@ prompt = get_prompt("prompt.json")
 # Get the LLM Response
 llm = ChatOpenAI(model_name=llm_model, temperature=llm_temperature)
     
-
-
-
-
-# LLM STUFF
-# TODO: Format and make pretty
 response = ""
 tokens = ""
     
@@ -60,7 +55,7 @@ with get_openai_callback() as cb:
 
 
 # Take the response and write to file
-overwrite_ada_file_with_string(input_file, response)
+overwrite_ada_file_with_string(input_adb_file, response)
 
 # Compile the project using Alire 
 gnatprove_output, prcoess_returncode = run_gnatprove(project_location)
@@ -80,4 +75,4 @@ overwrite_file(source_file, ada_file)
 
 
 # Log
-logging.info(f" Model: {llm_model} | Temperature: {llm_temperature} | Tokens Consumed: {tokens} \nUser Message: {prompt_text} \nInput File: {input_file} \nPrompt: \n{prompt} \n\nLLM Response: \n{response}\n\nGnatProve Output: \n{gnatprove_output}\n\n")
+logging.info(f" Model: {llm_model} | Temperature: {llm_temperature} | Tokens Consumed: {tokens} \nUser Message: {prompt_text} \nInput .adb File: {input_adb_file} \nInput .ads File: {input_ads_file}\nPrompt: \n{prompt} \n\nLLM Response: \n{response}\n\nGnatProve Output: \n{gnatprove_output}\n\n")

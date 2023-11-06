@@ -10,42 +10,67 @@ import select
 
 
 
-def ada_to_json(input_file : os.path, prompt_text : str):
+def ada_to_json(input_file: str, prompt_text: str, spec_file: str = None):
     """
-    Takes an .adb file as input in order to generate an LLM prompt which is written to a JSON file
+    Takes an .adb file as input and optionally an associated .ads file to generate an LLM prompt 
+    which is then written to a JSON file. Each code block from the .adb and .ads files is individually
+    delimited with markers for ADA code.
+    
+    Args:
+        input_file (str): The path to the .adb file.
+        prompt_text (str): The text to be used as part of the prompt.
+        spec_file (str, optional): The path to the .ads file. Defaults to None.
+        
+    Raises:
+        ValueError: If the provided input_file does not have an .adb or .ads extension.
     """
     valid_extensions = ('.adb', '.ads')
     
-    # TODO: Pass in .ads file, as well as .adb
-    
     # Extract the file extension from the input_file path
-    file_extension = os.path.splitext(input_file)[1]
+    input_file_extension = os.path.splitext(input_file)[1]
 
-    # Check if the file extension is either .adb or .ads
-    if file_extension not in valid_extensions:
-        raise ValueError("Invalid file extension. Please provide a file with .adb or .ads extension.")
-
+    # Check if the input_file extension is either .adb or .ads
+    if input_file_extension not in valid_extensions:
+        raise ValueError("Invalid file extension for the input file. Please provide a file with .adb or .ads extension.")
     
-    with open(input_file, 'r') as f:
-        content = f.read()
+    # Initialize the template content with the prompt text
+    template_content = f"{prompt_text}\n\n"
 
+    # Function to read file and enclose content in '''ada
+    def read_and_delimit_ada_code(file_path: str):
+        with open(file_path, 'r') as file:
+            return f"'''ada\n{file.read()}\n'''\n"
+
+    # Add the content of the input_file to the template with delimiters
+    template_content += read_and_delimit_ada_code(input_file)
+    
+    # If a spec_file is provided, add its content with delimiters
+    if spec_file:
+        spec_file_extension = os.path.splitext(spec_file)[1]
+        if spec_file_extension != '.ads':
+            raise ValueError("Invalid file extension for the spec file. Please provide a file with .ads extension.")
+        
+        template_content += read_and_delimit_ada_code(spec_file)
+
+    # Construct the data dictionary
     data = {
         "_type": "prompt",
-        "input_variables":[],
-        "template": f"{prompt_text}.\n\n'''ada\n{content}\n'''"
+        "input_variables": [],
+        "template": template_content.strip()  # Remove the last newline
     }
 
+    # Write the data dictionary to a JSON file
     with open('prompt.json', 'w') as f:
         json.dump(data, f, indent=4)
+
+
 
 
 def get_prompt(file_name : os.path):
     """
     Loads the prompt which is passed to the LLM from a JSON file. 
     """
-    prompt = load_prompt(file_name)
-    
-    return prompt.format()
+    return load_prompt(file_name).format()
 
 
 
