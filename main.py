@@ -49,8 +49,6 @@ ada_to_json(source_file, prompt_text, context_file)
 # Load the prompt
 prompt = get_prompt("prompt.json")
 
-print(prompt)
-
 
 # Get the LLM Response
 llm = ChatOpenAI(model_name=llm_model, temperature=llm_temperature)

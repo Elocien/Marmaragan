@@ -103,7 +103,6 @@ def overwrite_file(source_path, destination_path):
     """
     try:
         shutil.copyfile(source_path, destination_path)
-        print(f"The file {destination_path} has been successfully overwritten with the content of {source_path}.")
     except IOError as e:
         print(f"An error occurred: {e.strerror}")
 
@@ -162,7 +161,6 @@ def run_gnatprove(file_location: str):
 
         # Output everything we've captured from the pty
         complete_output = ''.join(output)
-        print(complete_output)
 
         if process.returncode == 0:
             print("alr gnatprove ran successfully.")
