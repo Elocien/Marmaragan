@@ -28,7 +28,7 @@ destination_file = '/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_e
 
 
 # Prompt Text
-prompt_text = "Write additional Contract_Cases for the supplied .ads specification file in ada/spark2014, so that gnatprove may be run without errors. Only return the code"
+prompt_text = "Write additional Contract_Cases for the supplied .ads specification file in ada/spark2014, so that gnatprove may be run without errors. Return the full file with the additional Contract_Cases implemented"
 # ---------------------------------------------------------------------------
 
 
