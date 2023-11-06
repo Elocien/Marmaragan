@@ -5,7 +5,6 @@ import subprocess
 import re
 import shutil
 import pty
-import tty
 import select
 
 
