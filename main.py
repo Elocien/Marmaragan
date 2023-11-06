@@ -1,6 +1,5 @@
 from langchain.chat_models import ChatOpenAI
 from util import *
-from langchain_impl import *
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks import get_openai_callback
 import re
@@ -14,7 +13,6 @@ import logging
 # Model
 llm_model = "gpt-3.5-turbo-0613" #or "gpt-4"
 llm_temperature = 0
-llm = ChatOpenAI(model_name=llm_model, temperature=llm_temperature)
 
 # ADA/SPARK2014 Project Location
 project_location = "/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example"
