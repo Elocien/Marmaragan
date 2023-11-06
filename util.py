@@ -10,16 +10,16 @@ import select
 
 
 
-def ada_to_json(input_file: str, prompt_text: str, spec_file: str = None):
+def ada_to_json(source_file: str, prompt_text: str, context_file: str = None):
     """
     Takes an .adb file as input and optionally an associated .ads file to generate an LLM prompt 
     which is then written to a JSON file. Each code block from the .adb and .ads files is individually
     delimited with markers for ADA code.
     
     Args:
-        input_file (str): The path to the .adb file.
+        input_file (str): The path to the source file.
         prompt_text (str): The text to be used as part of the prompt.
-        spec_file (str, optional): The path to the .ads file. Defaults to None.
+        spec_file (str, optional): The path to the context file. Defaults to None.
         
     Raises:
         ValueError: If the provided input_file does not have an .adb or .ads extension.
@@ -27,7 +27,7 @@ def ada_to_json(input_file: str, prompt_text: str, spec_file: str = None):
     valid_extensions = ('.adb', '.ads')
     
     # Extract the file extension from the input_file path
-    input_file_extension = os.path.splitext(input_file)[1]
+    input_file_extension = os.path.splitext(source_file)[1]
 
     # Check if the input_file extension is either .adb or .ads
     if input_file_extension not in valid_extensions:
@@ -42,15 +42,8 @@ def ada_to_json(input_file: str, prompt_text: str, spec_file: str = None):
             return f"'''ada\n{file.read()}\n'''\n"
 
     # Add the content of the input_file to the template with delimiters
-    template_content += read_and_delimit_ada_code(input_file)
-    
-    # If a spec_file is provided, add its content with delimiters
-    if spec_file:
-        spec_file_extension = os.path.splitext(spec_file)[1]
-        if spec_file_extension != '.ads':
-            raise ValueError("Invalid file extension for the spec file. Please provide a file with .ads extension.")
-        
-        template_content += read_and_delimit_ada_code(spec_file)
+    template_content += read_and_delimit_ada_code(source_file)
+    template_content += read_and_delimit_ada_code(context_file)
 
     # Construct the data dictionary
     data = {
@@ -92,13 +85,13 @@ def sanitize_output(api_output: str):
     return None
 
 
-def overwrite_ada_file_with_string(file_path : os.path, new_string : str):
+def overwrite_destination_file_with_string(file_path : os.path, content : str):
     '''
     Overwrites the input ada file with new content (in this case LLM output)
     '''
     try:
         with open(file_path, 'w') as file:
-            file.write(new_string)
+            file.write(content)
     except IOError:
         print(f"An error occurred while trying to overwrite the file {file_path}.")
 
