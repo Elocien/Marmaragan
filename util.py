@@ -6,6 +6,7 @@ import re
 import shutil
 import pty
 import select
+import difflib
 
 
 
@@ -110,6 +111,42 @@ def overwrite_file(source_path, destination_path):
         shutil.copyfile(source_path, destination_path)
     except IOError as e:
         print(f"An error occurred: {e.strerror}")
+        
+        
+def get_file_diff(file_path1, file_path2):
+    """
+    Compares two text files and returns a string detailing only the differences.
+
+    This function uses the `difflib` module to perform a line-by-line comparison
+    between two files, identifying lines that are different. Only lines that are
+    added or removed are returned, unchanged lines are omitted.
+
+    Parameters:
+    - file_path1 (str): The path to the first file to compare.
+    - file_path2 (str): The path to the second file to compare.
+
+    Returns:
+    - str: A string containing the line-by-line differences between the two files.
+           Lines present only in the first file are prefixed with a '-',
+           lines present only in the second file are prefixed with a '+'. 
+    """
+    # Open and read the files
+    with open(file_path1, 'r') as file1:
+        file1_text = file1.read().splitlines()
+
+    with open(file_path2, 'r') as file2:
+        file2_text = file2.read().splitlines()
+
+    # Create a Differ object and calculate the difference
+    differ = difflib.Differ()
+    diff_gen = differ.compare(file1_text, file2_text)
+
+    # Filter out lines that have not changed
+    diff = [line for line in diff_gen if line.startswith(
+        '+ ') or line.startswith('- ')]
+
+    # Return the list of differences as a single string
+    return '\n'.join(diff)
 
 
 def run_gnatprove(file_location: str):

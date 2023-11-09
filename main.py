@@ -9,7 +9,7 @@ import logging
 #Params
 # ---------------------------------------------------------------------------
 # Model
-llm_model = "gpt-4"  #or "gpt-3.5-turbo-0613"
+llm_model = "gpt-4-1106-preview"  # "gpt-3.5-turbo-1106" | "gpt-4-1106-preview"
 llm_temperature = 0
 
 # ADA/SPARK2014 Project Location
@@ -18,17 +18,17 @@ project_location = "/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_e
 # Input Files 
 
 # The file with given to the LLM as a prompt. Should be formatted to remove annotations and possibly provide comments on where to insert spark annotations 
-source_file = "/Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan/ada files/search_lower_bound_p.ads"
+source_file = 'ada files/lower_bound/search_lower_bound_p.ads'
 
 # Can be included in the prompt to provide either the .ads or .adb file as context for the LLM to work with
-context_file = '/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example/binary-search/search_lower_bound_p.adb'
+context_file = 'ada files/lower_bound/original_search_lower_bound_p.adb'
 
 # The project file to be overwritten with the LLM output. Should be identical to source, excepting the removed annotations
 destination_file = '/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example/binary-search/search_lower_bound_p.ads'
 
 
 # Prompt Text
-prompt_text = "Write additional Contract_Cases for the supplied .ads specification file in ada/spark2014, so that gnatprove may be run without errors. Return the full file with the additional Contract_Cases implemented"
+prompt_text = "Write an appropriate Pre condition for the supplied .ads specification file in ada/spark2014, so that gnatprove may be run without errors. Return the full file with the Pre condition implemented"
 # ---------------------------------------------------------------------------
 
 
@@ -66,8 +66,17 @@ sanitized_response = sanitize_output(response)
 
 # If the response contains ada code, continue, otherwise skip overwriting and gnatprove checking
 if sanitized_response is not None:
+    
     # Take the response and write to file
-    overwrite_destination_file_with_string(destination_file, sanitized_response)
+    overwrite_destination_file_with_string(
+        destination_file, sanitized_response)
+    
+    # Check for differences between the original file and the generated one
+    output_diff = get_file_diff(source_file, destination_file)
+    print(output_diff)
+    
+    # Catch if code beyond the generated annotations has been modified
+    
 
     # Compile the project using Alire 
     gnatprove_output, prcoess_returncode = run_gnatprove(project_location)
