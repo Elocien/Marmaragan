@@ -7,24 +7,23 @@ Marmaragan attempts to leverage the power of LLM's to generate verifiable progra
 
 ## Installation
 
-### Main Components:
-- Set Environment Variable for OpenAPI Key
+### Set Environment Variable for OpenAPI Key
 
-Either export for current session or add to shell config (.bashrc, .zshrc, etc.)
+Either export for current session or add to shell config (.bashrc, .zshrc, etc.)   
 ```export OPENAI_API_KEY=<OpenAPI-Key>```
 
 
-- Install requirements.txt
+ ### Install requirements.txt
 
 ```pip install requirements.txt```
 
 
-- Alire working directory with a spark project
+### Alire working directory with a spark project
 
 Have an initialised alire working directory with a spark project. Make sure ```alr gnatprove``` runs in this directory
 
 
-- Set parameters in ```main.py``` file. 
+### Set parameters in ```main.py``` file. 
 
 Set the paths for the alire directory, as well as setting the prompt and which files to generate annotations for
 
