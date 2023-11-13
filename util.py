@@ -103,50 +103,61 @@ def overwrite_destination_file_with_string(file_path : os.path, content : str):
 
 
 
-def overwrite_file(source_path, destination_path):
-    """
-    Overwrites the content of the destination file with the content of the source file.
-    """
-    try:
-        shutil.copyfile(source_path, destination_path)
-    except IOError as e:
-        print(f"An error occurred: {e.strerror}")
-        
-        
-def get_file_diff(file_path1, file_path2):
-    """
-    Compares two text files and returns a string detailing only the differences.
 
-    This function uses the `difflib` module to perform a line-by-line comparison
-    between two files, identifying lines that are different. Only lines that are
-    added or removed are returned, unchanged lines are omitted.
+def compare_files_and_check(original_file_path, modified_file_path):
+    """
+    Compare two files to determine if changes have been made to the original file,
+    except for a single block of new lines added at one place in the file,
+    and the potential removal of a comment.
 
     Parameters:
-    - file_path1 (str): The path to the first file to compare.
-    - file_path2 (str): The path to the second file to compare.
+    - original_file_path: path to the original file
+    - modified_file_path: path to the modified file
 
     Returns:
-    - str: A string containing the line-by-line differences between the two files.
-           Lines present only in the first file are prefixed with a '-',
-           lines present only in the second file are prefixed with a '+'. 
+    - True if the files are effectively the same (disregarding a single block of new lines and comment removal)
+    - False if there are other changes in the modified file
     """
-    # Open and read the files
-    with open(file_path1, 'r') as file1:
-        file1_text = file1.read().splitlines()
 
-    with open(file_path2, 'r') as file2:
-        file2_text = file2.read().splitlines()
+    with open(original_file_path, 'r') as file:
+        original_lines = file.readlines()
 
-    # Create a Differ object and calculate the difference
-    differ = difflib.Differ()
-    diff_gen = differ.compare(file1_text, file2_text)
+    with open(modified_file_path, 'r') as file:
+        modified_lines = file.readlines()
 
-    # Filter out lines that have not changed
-    diff = [line for line in diff_gen if line.startswith(
-        '+ ') or line.startswith('- ')]
+    # Strip comments
+    original_lines = [line.split('--')[0].strip() for line in original_lines]
+    modified_lines = [line.split('--')[0].strip() for line in modified_lines]
 
-    # Return the list of differences as a single string
-    return '\n'.join(diff)
+    # Strip whitespace
+    original_lines = [line for line in original_lines if line]
+    modified_lines = [line for line in modified_lines if line]
+
+    # Initialise Index
+    orig_index = 0
+    mod_index = 0
+    
+    # Flag to track if a block of new lines has been found, this may only occur once
+    block_of_new_lines_found = False
+
+    while orig_index < len(original_lines) and mod_index < len(modified_lines):
+        if original_lines[orig_index] == modified_lines[mod_index]:
+            orig_index += 1
+            mod_index += 1
+        elif not block_of_new_lines_found and modified_lines[mod_index] not in original_lines:
+            # We've encountered a new line; now check for a contiguous block of new lines
+            while mod_index + 1 < len(modified_lines) and modified_lines[mod_index + 1] not in original_lines:
+                mod_index += 1
+            mod_index += 1  # Move past the last line of the new block
+            block_of_new_lines_found = True
+        else:
+            # If we've already found a block of new lines or the line doesn't match and isn't a contiguous block, return False
+            return False
+
+    # If we've reached the end of the original file without finding multiple discrepancies, return True
+    # This means any remaining lines in the modified file are additions, which is allowed only if no block was found before
+    return orig_index == len(original_lines) and (not block_of_new_lines_found or mod_index == len(modified_lines))
+
 
 
 def run_gnatprove(file_location: str):
