@@ -1,5 +1,5 @@
 # Marmaragan
-Author: Lucian McIntyre
+Diplom Thesis by Lucian McIntyre
 
 ## Description
 Marmaragan attempts to leverage the power of LLM's to generate verifiable programs for the SPARK2014 subset of ADA.
@@ -30,7 +30,11 @@ Set the paths for the alire directory, as well as setting the prompt and which f
 
 ## Notes
 
+### Source File in main.py
+The source_file param in main.py should likely be a copy of the destination_file from the spark directory, with a given annotation removed and a possible comment giving the position and name of the annotation to be generated
 
+### Alire
+Documentation: https://alire.ada.dev/docs/
 
 
 
