@@ -3,48 +3,43 @@ import json
 import os
 import subprocess
 import re
-import shutil
 import pty
 import select
-import difflib
 
 
+import os
+import json
 
 
-def ada_to_json(source_file: str, prompt_text: str, context_file: str = None):
+def ada_to_json(source_file: str, prompt_text: str, *context_files) -> None:
     """
-    Takes an .adb file as input and optionally an associated .ads file to generate an LLM prompt 
+    Takes an .adb file as input and optionally associated .ads files to generate an LLM prompt 
     which is then written to a JSON file. Each code block from the .adb and .ads files is individually
     delimited with markers for ADA code.
     
     Args:
-        input_file (str): The path to the source file.
+        source_file (str): The path to the source file.
         prompt_text (str): The text to be used as part of the prompt.
-        spec_file (str, optional): The path to the context file. Defaults to None.
+        *context_files: Variable number of paths to the context files.
         
     Raises:
-        ValueError: If the provided input_file does not have an .adb or .ads extension.
+        ValueError: If the provided source_file or any of the context files do not have an .adb or .ads extension.
     """
     valid_extensions = ('.adb', '.ads')
-    
-    # Extract the file extension from the input_file path
-    input_file_extension = os.path.splitext(source_file)[1]
-
-    # Check if the input_file extension is either .adb or .ads
-    if input_file_extension not in valid_extensions:
-        raise ValueError("Invalid file extension for the input file. Please provide a file with .adb or .ads extension.")
-    
-    # Initialize the template content with the prompt text
-    template_content = f"{prompt_text}\n\n"
 
     # Function to read file and enclose content in '''ada
     def read_and_delimit_ada_code(file_path: str):
+        if os.path.splitext(file_path)[1] not in valid_extensions:
+            raise ValueError(
+                f"Invalid file extension for file: {file_path}. File must have .adb or .ads extension.")
         with open(file_path, 'r') as file:
             return f"'''ada\n{file.read()}\n'''\n"
 
-    # Add the content of the input_file to the template with delimiters
-    template_content += read_and_delimit_ada_code(source_file)
-    template_content += read_and_delimit_ada_code(context_file)
+    # Initialize the template content with the prompt text and process all files
+    template_content = f"{prompt_text}\n\n"
+    files_to_process = [source_file] + list(context_files)
+    for file in files_to_process:
+        template_content += read_and_delimit_ada_code(file)
 
     # Construct the data dictionary
     data = {
@@ -60,7 +55,9 @@ def ada_to_json(source_file: str, prompt_text: str, context_file: str = None):
 
 
 
-def get_prompt(file_name : os.path):
+
+
+def get_prompt(file_name : os.path) -> str:
     """
     Loads the prompt which is passed to the LLM from a JSON file. 
     """
@@ -68,7 +65,7 @@ def get_prompt(file_name : os.path):
 
 
 
-def sanitize_output(api_output: str):
+def sanitize_output(api_output: str) -> str | None:
     """
     Extracts and returns Ada code blocks from the given GPT-4 API output.
     """
@@ -91,7 +88,7 @@ def sanitize_output(api_output: str):
 
 
 
-def overwrite_destination_file_with_string(file_path : os.path, content : str):
+def overwrite_destination_file_with_string(file_path : os.path, content : str) -> None:
     '''
     Overwrites the input ada file with new content (in this case LLM output)
     '''
@@ -104,7 +101,7 @@ def overwrite_destination_file_with_string(file_path : os.path, content : str):
 
 
 
-def compare_files_and_check(original_file_path, modified_file_path):
+def compare_files_and_check(original_file_path, modified_file_path) -> bool:
     """
     Compare two files to determine if changes have been made to the original file,
     except for a single block of new lines added at one place in the file,
@@ -160,7 +157,7 @@ def compare_files_and_check(original_file_path, modified_file_path):
 
 
 
-def run_gnatprove(file_location: str):
+def run_gnatprove(file_location: str) -> (str, str):
     """
     Executes the 'alr gnatprove' command on a specific directory or project location using a pseudo-terminal (pty)
     to capture all types of output. The function changes the working directory to 'file_location' before executing
