@@ -12,22 +12,23 @@ llm_model = "gpt-4"  # "gpt-3.5-turbo-1106" | "gpt-4-1106-preview" | "gpt-4"
 llm_temperature = 0
 
 # ADA/SPARK2014 Project Location
-project_location = "/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example"
+project_location = "spark_projects/spark_by_example"
 
 # Input Files
 
 # The file with given to the LLM as a prompt. Should be formatted to remove annotations and possibly provide comments on where to insert spark annotations
-source_file = 'ada files/lower_bound/search_lower_bound_p.ads'
+source_file = 'spark_files/sort/original_is_sorted_p.adb'
 
 # Optional: Can be included in the prompt to provide either the .ads or .adb file, as context for the LLM to work with
-context_file = 'ada files/lower_bound/original_search_lower_bound_p.adb'
+context_file = 'spark_files/sort/original_is_sorted_p.ads'
+context_file2 = 'spark_files/sort/original_sorted_p.ads'
 
 # The project file to be overwritten with the LLM output. Should be identical to source, excepting the removed annotations and possible comments
-destination_file = '/Users/lucian/Documents/Uni/Projects/Diplomarbeit/spark_by_example/binary-search/search_lower_bound_p.ads'
+destination_file = 'spark_projects/spark_by_example/sorting/is_sorted_p.adb'
 
 
 # Prompt Text
-prompt_text = "Write an appropriate Pre condition for the supplied .ads specification file in ada/spark2014, so that gnatprove may be run without errors. Return only the full specification file with the Pre condition implemented"
+prompt_text = "Write an appropriate Loop Invariant for the supplied .adb implementation, specifically for the procedure 'Weakly_To_Sorted'. Return only the full file with the Loop Inavariant implementation replacing the comment"
 # ---------------------------------------------------------------------------
 
 
@@ -38,7 +39,7 @@ logging.basicConfig(filename='history.log', level=logging.INFO,
 
 
 # Convert given ada file into a prompt template (.json)
-ada_to_json(source_file, prompt_text, context_file)
+ada_to_json(source_file, prompt_text, context_file, context_file2)
 
 
 # Load the prompt
@@ -74,6 +75,8 @@ if sanitized_response is not None:
 
     # Catch if code beyond the generated annotations has been modified
     if is_valid_modification:
+        
+        log_checkpoint(f" Model: {llm_model} | Temperature: {llm_temperature} | Tokens Consumed: {tokens} \nUser Message: {prompt_text} \nInput Source File: {source_file} \nInput Context File: {context_file}\nPrompt: \n{prompt} \n\nLLM Response: \n{response}\n\n")
 
         # Compile the project using Alire
         gnatprove_output, prcoess_returncode = run_gnatprove(project_location)
