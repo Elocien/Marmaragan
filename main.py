@@ -8,7 +8,7 @@ import logging
 # Params
 # ---------------------------------------------------------------------------
 # Model
-llm_model = "gpt-4-1106-preview"  # "gpt-3.5-turbo-1106" | "gpt-4-1106-preview"
+llm_model = "gpt-4"  # "gpt-3.5-turbo-1106" | "gpt-4-1106-preview" | "gpt-4"
 llm_temperature = 0
 
 # ADA/SPARK2014 Project Location
