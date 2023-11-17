@@ -20,7 +20,9 @@ Either export for current session or add to shell config (.bashrc, .zshrc, etc.)
 
 ### Alire working directory with a spark project
 
-Have an initialised alire working directory with a spark project. Make sure ```alr gnatprove``` runs in this directory
+Have an initialised Alire working directory with a spark project. Make sure ```alr gnatprove``` runs in this directory  
+
+An example project is included, under ```spark_projects/spark-by-example```, initialised with an Alire config. The original project can be found here: [spark-by-example](https://github.com/tofgarion/spark-by-example)
 
 
 ### Set parameters in ```main.py``` file. 
