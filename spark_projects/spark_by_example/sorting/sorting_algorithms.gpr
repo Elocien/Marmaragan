@@ -1,0 +1,11 @@
+with "../spark_by_example_shared.gpr";
+
+project Sorting_Algorithms is
+
+  for Source_Dirs use (".", "../spec", "../lemmas", "../heap", "../mutating");
+
+  package Compiler renames Spark_By_Example_Shared.Compiler;
+
+  package Prove renames Spark_By_Example_Shared.Prove;
+
+end Sorting_Algorithms;

@@ -1,0 +1,17 @@
+with "../spark_by_example_shared.gpr";
+
+project Non_Mutating_Algorithms is
+
+   for Source_Dirs use (".", "../spec");
+
+   package Compiler renames Spark_By_Example_Shared.Compiler;
+
+   package Prove renames Spark_By_Example_Shared.Prove;
+
+   package Gnattest is
+      for Harness_Dir       use "../tests/harness";
+      for Tests_Dir         use "../tests";
+      for Skeletons_Default use "pass";
+   end Gnattest;
+
+end Non_Mutating_Algorithms;

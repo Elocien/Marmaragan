@@ -1,0 +1,94 @@
+# Created 2018-09-25 Tue 10:58
+#+OPTIONS: author:nil title:nil toc:nil
+#+EXPORT_FILE_NAME: ../../../heap/Sort_Heap.org
+
+* The Sort_Heap algorithm
+
+The ~Sort_Heap~ algorithm takes a ~Heap~ representing a heap data
+structure as parameter and sorts the elements in the heap. ITs
+signature is the following:
+
+#+BEGIN_SRC ada
+  procedure Sort_Heap (H : in out Heap)
+#+END_SRC
+
+** Specification of Sort_Heap
+
+The specification of ~Sort_Heap~ is as follows:
+
+#+BEGIN_SRC ada
+  procedure Sort_Heap (H : in out Heap) with
+     Pre  => Is_Heap_Def (H),
+     Post => Multiset_Unchanged (H.A, H.A'Old)
+     and then Sorted (H.A (1 .. H'Old.Size))
+     and then
+     (if H'Old.Size < MAX_SIZE then
+        H.A (H'Old.Size + 1 .. MAX_SIZE) =
+        H'Old.A (H'Old.Size + 1 .. MAX_SIZE));
+#+END_SRC
+
+The only precondition states that ~H~ should represent a heap data
+structure. The postcondition expresses that:
+- the occurrences of each element in ~H.A~ has not changed
+- ~H.A~ is sorted by ascending order on the indexes constituting
+  the heap *before* the call to the procedure
+- that the elements found at indexes greater than ~H'Old.Size~
+  remain unchanged.
+
+** Implementation of Sort_Heap
+
+With the help of the previously implemented procedure [[Pop_Heap.org][Pop_Heap]],
+~Sort_Heap~ is quite easy to implement:
+
+#+BEGIN_SRC ada
+  procedure Sort_Heap (H : in out Heap) is
+     Interm : Heap := H with
+        Ghost;
+     N : constant Integer := H.Size;
+  begin
+     Interm := H;
+     pragma Assert (Interm.Size <= N);
+     for J in reverse 1 .. N loop
+        Interm := H;
+  
+        Pop_Heap (H);
+  
+        pragma Loop_Invariant (H.A (J) >= H.A (1));
+        pragma Loop_Invariant (H.Size = J - 1);
+        pragma Loop_Invariant (Is_Heap_Def (H));
+        pragma Loop_Invariant (Multiset_Unchanged (H.A, H'Loop_Entry.A));
+        pragma Loop_Invariant (Lower_Bound (H.A (J .. N), H.A (J)));
+        pragma Loop_Invariant (Sorted (H.A (J .. N)));
+        pragma Loop_Invariant
+  	(if N < MAX_SIZE then
+  	   H.A (N + 1 .. MAX_SIZE) = H'Loop_Entry.A (N + 1 .. MAX_SIZE));
+     end loop;
+  end Sort_Heap;
+#+END_SRC
+
+The ghost variable ~Interm~ will be used to compare the state of
+~H~ during the execution of the loop with the previous iteration.
+~N~ stores the initial size of the heap, which will be useful to
+build a ~for~ loop.
+
+The working principle of the algorithm is the following: call the
+~Pop_Heap~ procedure on ~H~ as many times as there are elements in
+the heap.
+
+The loop invariants ensure that:
+- the current element being removed is greater that the new first
+  element of the heap. This loop invariant enables the provers to
+  verify that we are correctly sorting the array
+- ~H.Size = J-1~ gives a relation between ~J~ and ~H.Size~, needed
+  to prove that the ranges we are looping on are correct
+- ~H~ represents a heap data structure (between indexes ~1~ and
+  ~H.Size~, the other elements are either the sorted array, or
+  unspecified)
+- the array ~H.A~ can be obtained through permutations of the
+  elements of ~H~ at the entry of the loop.
+- ~H.A(J)~ is a lower bound of the array ~H.A(J .. N)~, i.e. a
+  lower bound for the elements already sorted
+- ~H.A~ is sorted between indexes ~J~ and ~N~
+- the values found at indexes greater than ~N~ remain unchanged.
+
+With those annotations, everything is proved by ~GNATprove~.

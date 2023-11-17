@@ -1,0 +1,54 @@
+SHELL = /bin/bash
+MEMCACHED_SERVER = localhost
+MEMCACHED_PORT = 11211
+
+_SUBPROG_FILTER = $(if $(SUBP_FILTER),--limit-subp=$(SUBP_FILTER),)
+_LINE_FILTER = $(if $(LINE_FILTER),--limit-line=$(LINE_FILTER),)
+_LEVEL = $(if $(LEVEL),--level=$(LEVEL),--level=0)
+_TIMEOUT = $(if $(TIMEOUT),--timeout=$(TIMEOUT),--timeout=0)
+_PARALLEL = $(if $(PARALLEL),-j $(PARALLEL),-j 0)
+_PROJECT = $(if $(PROJECT),-P $(PROJECT),-P spark_by_example.gpr)
+_WHYCONF = $(if $(WHYCONF),--why3-conf=$(WHYCONF),)
+_DEBUG = $(if $(DEBUG),-d -v,)
+_STATS_TIME = $(if $(STATS),/usr/bin/time -o ../stats/$(FILE).time.txt -f "%E" ,)
+_STATS = $(if $(STATS),> ../stats/$(FILE).stdout;python ../scripts/parse_stdout.py ../stats/$(FILE);\
+		cp gnatprove/gnatprove.out ../stats/$(FILE).out;python ../scripts/generate_csv_function.py ../stats/$(FILE);\
+		rm ../stats/$(FILE).out ../stats/$(FILE).stdout ,)
+_STATS_CHAPTER = $(if $(STATS), python ../scripts/generate_csv_chapter.py non-mutating; python ../scripts/generate_csv_chapter_stdout.py $(CHAPTER_NAME),)
+_MEMCACHED = $(if $(MEMCACHED),--memcached-server=$(MEMCACHED_SERVER):$(MEMCACHED_PORT),)
+
+GENERATE_DEP = $1_p.ads $1_p.adb
+
+.PHONY: prove prove-coq all pp clean distclean run-tests generate-tests
+
+pp:
+	gnatpp $(_PROJECT) -rnb --par-threshold=1
+
+clean:
+	gnatclean $(_PROJECT)
+	gprclean tests/harness/test_driver.gpr
+	- rm -rf *~
+
+distclean: clean
+	- rm -rf gnatprove auto.cgpr
+
+test_%: test_%.adb
+	gnatmake -gnata -gnateE -f $^
+	./$@
+
+generate-tests:
+	gnattest $(_PROJECT)
+
+run-tests:
+	gprbuild tests/harness/test_driver.gpr
+	./tests/harness/test_runner
+
+prove:
+	$(_STATS_TIME) gnatprove $(_PROJECT) --clean; gnatprove --proof-warnings $(_DEBUG) $(_PROJECT) -f $(_PARALLEL) $(_MEMCACHED) $(_LINE_FILTER) $(_SUBPROG_FILTER) $(_WHYCONF) $(_LEVEL) $(_TIMEOUT) $(FILE) $(_STATS)
+
+prove-coq:
+	$(_STATS_TIME) gnatprove --prover=coq --proof-warnings $(_PROJECT) -f $(_PARALLEL) $(_MEMCACHED) $(_LINE_FILTER) $(_SUBPROG_FILTER) $(_WHYCONF) $(FILE) $(_STATS)
+
+# Local Variables:
+# mode: makefile
+# End:

@@ -1,0 +1,7 @@
+name = "spark_by_example_shared"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+authors = ["Lucian"]
+maintainers = ["Lucian <lucianmcintyre@mailbox.org>"]
+maintainers-logins = ["Elocien"]

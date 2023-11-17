@@ -1,0 +1,55 @@
+# Created 2018-11-09 Fri 22:38
+#+OPTIONS: author:nil title:nil toc:nil
+#+EXPORT_FILE_NAME: ../../../mutating/Fill.org
+
+* The Fill algorithm
+
+The ~Fill~ algorithm initializes an array with a particular
+value. Here is its signature:
+
+#+BEGIN_SRC ada
+  procedure Fill (A : in out T_Arr; Val : T);
+#+END_SRC
+
+~A~ needs of course to be passed as a ~out~ parameter as it will be
+modified, but also as an ~in~ parameter because it will be used
+with the ~Constant_Range_From_Location~ predicate defined with the
+[[file:../non-mutating/Search_N.org][Search_N]] algorithm and ~Constant_Range_From_Location~ requires a
+~in~ parameter.
+
+** Specification of Fill
+
+The specification of ~Fill~ is very simple:
+
+#+BEGIN_SRC ada
+  procedure Fill
+    (A   : in out T_Arr;
+     Val :        T) with
+     Pre  => A'Length > 0,
+     Post => Constant_Range_From_Location (A, Val, A'First, A'Length);
+#+END_SRC
+
+** Implementation of Fill
+
+The implementation of ~Fill~ is the following:
+
+#+BEGIN_SRC ada
+  procedure Fill
+    (A   : in out T_Arr;
+     Val :        T)
+  is
+  begin
+     for I in A'Range loop
+        A (I) := Val;
+  
+        pragma Loop_Invariant
+  	(Constant_Range_From_Location (A, Val, A'First, I - A'First + 1));
+     end loop;
+  end Fill;
+#+END_SRC
+
+The loop invariant specify that there is a constant range of ~Val~
+values starting at index ~A'First~ with length ~I - A'First + 1~
+in ~A~.
+
+Everything is easily proved with ~GNATprove~.

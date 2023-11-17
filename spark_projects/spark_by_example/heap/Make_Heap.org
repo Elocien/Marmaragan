@@ -1,0 +1,304 @@
+# Created 2018-10-26 Fri 13:48
+#+OPTIONS: author:nil title:nil toc:nil
+#+EXPORT_FILE_NAME: ../../../heap/Make_Heap.org
+
+* The Make_Heap algorithm
+
+The ~Make_Heap~ algorithm takes an array and return a heap
+with the same values. Its signature is the following:
+
+#+BEGIN_SRC ada
+  function Make_Heap (A : T_Arr) return Heap
+#+END_SRC
+
+** Specification of Make_Heap
+
+The specification of ~Make_Heap~ is the following:
+
+#+BEGIN_SRC ada
+  function Make_Heap
+    (A : T_Arr)
+     return Heap with
+     Pre            => A'Length <= MAX_SIZE and A'Last < Positive'Last,
+     Contract_Cases =>
+     (A'Length > 0 =>
+        Make_Heap'Result.Size = A'Length
+        and then Is_Heap_Def (Make_Heap'Result)
+        and then Multiset_Unchanged
+  	(Make_Heap'Result.A (1 .. Make_Heap'Result.Size), A),
+      others => Make_Heap'Result = (A => (others => 0), Size => 0));
+#+END_SRC
+
+The function takes an array that should have a length less than
+the maximum size of a heap. The postconditions are expresse
+through contract cases:
+
+- if this array is empty, the returned heap will be also empty
+- if this array is not empty, the returned heap will have the same
+  size than the array and its encapsulated array will be a
+  permutation of the entry array and respect the properties of a
+  heap
+
+** Implementation of Make_Heap
+*** Implementation without lemmas
+
+The implementation of ~Make_Heap~ is the following:
+
+#+BEGIN_SRC ada
+  function Make_Heap
+    (A : T_Arr)
+     return Heap
+  is
+     Result : Heap;
+  begin
+     if A'Length > 0 then
+  
+        Result.A (1) := A (A'First);
+        Result.Size  := 1;
+  
+        for J in A'First + 1 .. A'Last loop
+  	 declare
+  	    Size : constant Positive := Result.Size + 1;
+  	 begin
+  	    Result.Size := Size;
+  	    Result.A (Size) := A (J);
+  
+  	    Push_Heap (Result);
+  
+  	    pragma Loop_Invariant
+  	      (Result.Size = J - A'First + 1 and Result.Size = Size);
+  	    pragma Loop_Invariant (Is_Heap_Def (Result));
+  	    pragma Loop_Invariant
+  	      (Multiset_Unchanged (A (A'First .. J), Result.A (1 .. Size)));
+  	 end;
+  
+        end loop;
+  
+     return Result;
+  end Make_Heap;
+#+END_SRC
+
+The loop invariants specify the fact that:
+- the size of the heap is increasing at each loop
+- the encapsulated array verifies the properties of a heap
+- the current slice of the encapsulated array of the heap is a
+  permutation of the corresponding slice of the input array.
+
+As usual, we need to help the prover with some lemmas to prove the
+multiset predicate.
+
+*** The Unchanged_Transitivity lemma
+
+This lemma helps proving the transitivity property of
+~Multiset_Unchanged~. Its specification is:
+
+#+BEGIN_SRC ada
+  procedure Unchanged_Transitivity (A, B, C : T_Arr) with
+     Pre => A'Length > 0 and then B'Length = A'Length
+     and then C'Length = B'Length and then Multiset_Unchanged (A, B)
+     and then (Multiset_Unchanged (B, C) or else B = C),
+     Post => Multiset_Unchanged (A, C);
+#+END_SRC
+
+Its implementation is:
+
+#+BEGIN_SRC ada
+  procedure Unchanged_Transitivity (A, B, C : T_Arr) is
+  begin
+     if B = C then
+        Equal_Implies_Multiset_Unchanged (B, C);
+     end if;
+  end Unchanged_Transitivity;
+#+END_SRC
+
+We use the predicate ~Equal_Implies_Multiset_Unchanged~ already
+defined in the case where ~B=C~.
+
+*** The New_Element lemma
+
+This lemma is used when we add the ~I~ th element of ~A~ at the
+end of the array of the heap. when their last element is removed,
+the two partial arrays are permutations of each other. It helps
+proving that when adding the same element at the end of both
+arrays they are still permutations.
+
+Its specification is:
+
+#+BEGIN_SRC ada
+  procedure New_Element (A, B : T_Arr) with
+     Pre => A'Length > 0 and then B'Length = A'Length
+     and then Multiset_Unchanged (Remove_Last (A), Remove_Last (B))
+     and then A (A'Last) = B (B'Last),
+     Post => Multiset_Unchanged (A, B);
+#+END_SRC
+
+Its trivial implementation is:
+
+#+BEGIN_SRC ada
+  procedure New_Element (A, B : T_Arr) is
+  begin
+     null;
+  end New_Element;
+#+END_SRC
+
+*** The Multiset_With_Eq lemma
+
+We also need a lemma to prove a property about
+~Multiset_Unchanged~. When ~Multiset_Unchanged (A, B)~ is
+verified and ~A (Eq .. A'Last) = B (Eq - A'First + B'First
+     .. B'Last)~ for a valid index ~Eq~, then ~Multiset_Unchanged(A
+     (A'First .. Eq - 1), B (B'First .. Eq - A'First + B'First - 1))~
+holds.
+
+We first define a ~Partial_Eq~ lemma to deal with the number of
+occurrences of a particular value. This lemma states that if a
+value ~E~ as the same number of occurrences in two arrays and
+that the arrays are equal starting from an index ~Eq~, then the
+number of occurrences of ~E~ before ~Eq~ in both arrays is the
+same. Its specification is:
+
+#+BEGIN_SRC ada
+  procedure Partial_Eq
+    (A, B : T_Arr;
+     Eq   : Positive;
+     E    : T) with
+     Pre => A'Length = B'Length and then A'Length >= 1
+     and then Eq in A'First + 1 .. A'Last
+     and then (for all J in Eq .. A'Last => A (J) = B (J - A'First + B'First))
+     and then Occ (A, E) = Occ (B, E),
+     Post => Occ (A (A'First .. Eq - 1), E) =
+     Occ (B (B'First .. Eq - A'First + B'First - 1), E);
+#+END_SRC
+
+Its implementation is:
+
+#+BEGIN_SRC ada
+  procedure Partial_Eq
+    (A, B : T_Arr;
+     Eq   : Positive;
+     E    : T)
+  is
+  begin
+     if A'Last = Eq then
+        return;
+     end if;
+  
+     if A (A'Last) = E then
+        pragma Assert (B (B'Last) = E);
+     else
+        pragma Assert (B (B'Last) /= E);
+     end if;
+  
+     Partial_Eq (Remove_Last (A), Remove_Last (B), Eq, E);
+  end Partial_Eq;
+#+END_SRC
+
+The implementation may seem very difficult but we just adapt the
+lemma for the cases where ~A~ and ~B~ does not have the same
+first index, to allow the user to use it outside of our function.
+
+We can now write the ~Multiset_With_Eq~ lemma:
+
+#+BEGIN_SRC ada
+  procedure Multiset_With_Eq
+    (A, B : T_Arr;
+     Eq   : Positive) with
+     Pre => A'Length = B'Length and then B'Last < Positive'Last
+     and then A'Length >= 1 and then Eq in A'First + 1 .. A'Last
+     and then Multiset_Unchanged (A, B)
+     and then
+     (for all J in Eq .. A'Last => A (J) = B (J - A'First + B'First)),
+     Post => Multiset_Unchanged
+       (A (A'First .. Eq - 1), B (B'First .. Eq - A'First + B'First - 1));
+#+END_SRC
+
+And its implementation is rather straightforward using
+~Partial_Eq~:
+
+#+BEGIN_SRC ada
+  procedure Multiset_With_Eq
+    (A, B : T_Arr;
+     Eq   : Positive)
+  is
+     Eq_B : constant Positive := Eq - A'First + B'First;
+  begin
+     for E in T loop
+        Partial_Eq (A, B, Eq, E);
+        pragma Loop_Invariant
+  	(for all F in T'First .. E =>
+  	   Occ (A (A'First .. Eq - 1), F) =
+  	   Occ (B (B'First .. Eq_B - 1), F));
+     end loop;
+  
+  end Multiset_With_Eq;
+#+END_SRC
+
+*** Final implementation of Make_Heap
+
+The final implementation of ~Make_Heap~ with all necessary calls
+to lemmas is:
+
+#+BEGIN_SRC ada
+  function Make_Heap
+    (A : T_Arr)
+     return Heap
+  is
+     Result : Heap;
+     A_Save : T_Arr := Result.A with
+        Ghost;
+  begin
+     if A'Length > 0 then
+  
+        Result.A (1) := A (A'First);
+        Result.Size  := 1;
+  
+        pragma Assert
+  	(Multiset_Unchanged (A (A'First .. A'First), Result.A (1 .. 1)));
+  
+        for J in A'First + 1 .. A'Last loop
+  	 declare
+  	    Size : constant Positive := Result.Size + 1;
+  	 begin
+  	    Result.Size := Size;
+  	    A_Save      := Result.A;
+  
+  	    Unchanged_Transitivity
+  	      (A (A'First .. J - 1), Result.A (1 .. Size - 1),
+  	       A_Save (1 .. Size - 1));
+  
+  	    Result.A (Size) := A (J);
+  
+  	    Unchanged_Transitivity
+  	      (A (A'First .. J - 1), A_Save (1 .. Size - 1),
+  	       Result.A (1 .. Size - 1));
+  	    New_Element (A (A'First .. J), Result.A (1 .. Size));
+  
+  	    A_Save := Result.A;
+  
+  	    Unchanged_Transitivity
+  	      (A (A'First .. J), Result.A (1 .. Size), A_Save (1 .. Size));
+  
+  	    Push_Heap (Result);
+  
+  	    if Size < MAX_SIZE then
+  	       Multiset_With_Eq (A_Save, Result.A, Size + 1);
+  	    end if;
+  
+  	    Unchanged_Transitivity
+  	      (A (A'First .. J), A_Save (1 .. Size), Result.A (1 .. Size));
+  
+  	    pragma Loop_Invariant
+  	      (Result.Size = J - A'First + 1 and Result.Size = Size);
+  	    pragma Loop_Invariant (Is_Heap_Def (Result));
+  	    pragma Loop_Invariant
+  	      (Multiset_Unchanged (A (A'First .. J), Result.A (1 .. Size)));
+  	 end;
+  
+        end loop;
+  
+     end if;
+     return Result;
+  end Make_Heap;
+#+END_SRC
+
+Everything is proved Using ~GNATprove~.
