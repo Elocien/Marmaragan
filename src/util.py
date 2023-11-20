@@ -104,8 +104,9 @@ def overwrite_destination_file_with_string(file_path : os.path, content : str) -
 def compare_files_and_check(original_file_path, modified_file_path) -> bool:
     """
     Compare two files to determine if changes have been made to the original file,
-    except for a single block of new lines added at one place in the file,
-    and the potential removal of a comment.
+    except for:
+    - A SINGLE block of new lines added at one place in the file, and
+    - The removal of comments (for the case where a comment indicates a location)
 
     Parameters:
     - original_file_path: path to the original file

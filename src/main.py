@@ -17,18 +17,18 @@ project_location = "spark_projects/spark_by_example"
 # Input Files
 
 # The file with given to the LLM as a prompt. Should be formatted to remove annotations and possibly provide comments on where to insert spark annotations
-source_file = 'spark_files/sort/is_sorted_p.ads'
+source_file = 'spark_files/sort/sorted_p.ads'
 
 # Optional: Can be included in the prompt to provide either the .ads or .adb file, as context for the LLM to work with
 context_file = 'spark_files/sort/original_is_sorted_p.adb'
-context_file2 = 'spark_files/sort/original_sorted_p.ads'
+context_file2 = 'spark_files/sort/original_is_sorted_p.ads'
 
 # The project file to be overwritten with the LLM output. Should be identical to source, excepting the removed annotations and possible comments
-destination_file = 'spark_projects/spark_by_example/sorting/is_sorted_p.ads'
+destination_file = 'spark_projects/spark_by_example/sorting/sorted_p.ads'
 
 
 # Prompt Text
-prompt_text = "Write a pre and post condition for the procedure Weakly_To_Sorted in the Is_Sorted specification, don't change any other code. The code is written in Spark2014. Return only the single file with the implemented pre and post condition"
+prompt_text = "Write a specification for the Sorted_P specification file. Return only the code, with the implementation complete. The following code is the following: the first file is where the implementation is to take place, the other two files are project context."
 # ---------------------------------------------------------------------------
 
 
@@ -92,7 +92,7 @@ if sanitized_response is not None:
     
     else:
         
-        print("Potential ILLEGAL FILE MODIFICATION:\nThere were changes to the original file beyond a section of successive lines and the removal of comments. See 'compare_files_and_check' function for the exact specification\n\n")
+        print("\n\nPOTENTIAL ILLEGAL FILE MODIFICATION:\nThere were changes to the original file beyond a section of successive lines and the removal of comments. See 'compare_files_and_check' function for the exact specification\n\n")
         
         # Still run Gnatprove
         gnatprove_output, prcoess_returncode = run_gnatprove(project_location)
