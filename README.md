@@ -2,7 +2,7 @@
 Diplom Thesis by Lucian McIntyre
 
 ## Description
-Marmaragan attempts to leverage the power of LLM's to generate verifiable programs for the SPARK2014 subset of ADA.
+Marmaragan attempts to leverage the power of LLM's to generate annotations for verifiable programs, for the SPARK2014 subset of ADA.
 
 
 ## Installation
