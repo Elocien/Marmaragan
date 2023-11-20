@@ -12,7 +12,7 @@ llm_model = "gpt-4"  # "gpt-3.5-turbo-1106" | "gpt-4-1106-preview" | "gpt-4"
 llm_temperature = 0
 
 # ADA/SPARK2014 Project Location
-project_location = "spark_projects/spark_by_example"
+project_location = "../spark_projects/spark_by_example"
 
 # Input Files
 
@@ -28,7 +28,7 @@ destination_file = 'spark_projects/spark_by_example/sorting/is_sorted_p.adb'
 
 
 # Prompt Text
-prompt_text = "Write an appropriate Loop Invariant for the Is_Sorted_p file, specifically for the procedure 'Weakly_To_Sorted'. Return only the full Is_Sorted_p file, with the Loop Inavariant implementation replacing the comment"
+prompt_text = "Write an appropriate Loop Invariant for the Is_Sorted_p file, specifically for the procedure 'Weakly_To_Sorted'. Return only the full Is_Sorted_p file, which is the first code block, with the Loop Inavariant implementation replacing the comment"
 # ---------------------------------------------------------------------------
 
 
