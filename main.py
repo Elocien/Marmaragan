@@ -17,7 +17,7 @@ project_location = "spark_projects/spark_by_example"
 # Input Files
 
 # The file with given to the LLM as a prompt. Should be formatted to remove annotations and possibly provide comments on where to insert spark annotations
-source_file = 'spark_files/sort/original_is_sorted_p.adb'
+source_file = 'spark_files/sort/is_sorted_p.adb'
 
 # Optional: Can be included in the prompt to provide either the .ads or .adb file, as context for the LLM to work with
 context_file = 'spark_files/sort/original_is_sorted_p.ads'
@@ -28,7 +28,7 @@ destination_file = 'spark_projects/spark_by_example/sorting/is_sorted_p.adb'
 
 
 # Prompt Text
-prompt_text = "Write an appropriate Loop Invariant for the supplied .adb implementation, specifically for the procedure 'Weakly_To_Sorted'. Return only the full file with the Loop Inavariant implementation replacing the comment"
+prompt_text = "Write an appropriate Loop Invariant for the Is_Sorted_p file, specifically for the procedure 'Weakly_To_Sorted'. Return only the full Is_Sorted_p file, with the Loop Inavariant implementation replacing the comment"
 # ---------------------------------------------------------------------------
 
 
@@ -75,8 +75,6 @@ if sanitized_response is not None:
 
     # Catch if code beyond the generated annotations has been modified
     if is_valid_modification:
-        
-        log_checkpoint(f" Model: {llm_model} | Temperature: {llm_temperature} | Tokens Consumed: {tokens} \nUser Message: {prompt_text} \nInput Source File: {source_file} \nInput Context File: {context_file}\nPrompt: \n{prompt} \n\nLLM Response: \n{response}\n\n")
 
         # Compile the project using Alire
         gnatprove_output, prcoess_returncode = run_gnatprove(project_location)
@@ -93,8 +91,12 @@ if sanitized_response is not None:
 
     
     else:
+        # Still run Gnatprove
+        gnatprove_output, prcoess_returncode = run_gnatprove(project_location)
+        
+        
         # Log illegal modification
-        logging.info(f" Model: {llm_model} | Temperature: {llm_temperature} | Tokens Consumed: {tokens} \nUser Message: {prompt_text} \nInput Source File: {source_file} \nInput Context File: {context_file}\nPrompt: \n{prompt} \n\nLLM Response: \n{response}\n\nGnatProve Output: \nILLEGAL FILE MODIFICATION:\nThere were changes to the original file beyond a section of successive lines and the removal of comments. See 'compare_files_and_check' function for the exact specification\n\n")
+        logging.info(f" Model: {llm_model} | Temperature: {llm_temperature} | Tokens Consumed: {tokens} \nUser Message: {prompt_text} \nInput Source File: {source_file} \nInput Context File: {context_file}\nPrompt: \n{prompt} \n\nLLM Response: \n{response}\n\nGnatProve Output: \n{gnatprove_output}\n\nError: \nPotential ILLEGAL FILE MODIFICATION:\nThere were changes to the original file beyond a section of successive lines and the removal of comments. See 'compare_files_and_check' function for the exact specification\n\n")
 
 
 # If the sanitization of the response fails, log but don't execute gnatprove

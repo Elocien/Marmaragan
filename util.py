@@ -227,20 +227,3 @@ def run_gnatprove(file_location: str) -> (str, str):
     finally:
         # Close the master FD
         os.close(master_fd)
-
-
-def log_checkpoint(message: str) -> None:
-    """
-    Writes a formatted log message to a file, replacing its content each time.
-
-    Args:
-        file_path (str): The path to the log file.
-        message (str): The message to log.
-    """
-    
-    file_path = "last_run.log"
-    
-    with open(file_path, 'w') as log_file:  # 'w' mode opens the file for writing and truncates the file to zero length
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        formatted_message = f"[{timestamp}] {message}\n"
-        log_file.write(formatted_message)
