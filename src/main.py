@@ -12,23 +12,23 @@ llm_model = "gpt-4"  # "gpt-3.5-turbo-1106" | "gpt-4-1106-preview" | "gpt-4"
 llm_temperature = 0
 
 # ADA/SPARK2014 Project Location
-project_location = "../spark_projects/spark_by_example"
+project_location = "spark_projects/spark_by_example"
 
 # Input Files
 
 # The file with given to the LLM as a prompt. Should be formatted to remove annotations and possibly provide comments on where to insert spark annotations
-source_file = 'spark_files/sort/is_sorted_p.adb'
+source_file = 'spark_files/sort/is_sorted_p.ads'
 
 # Optional: Can be included in the prompt to provide either the .ads or .adb file, as context for the LLM to work with
-context_file = 'spark_files/sort/original_is_sorted_p.ads'
+context_file = 'spark_files/sort/original_is_sorted_p.adb'
 context_file2 = 'spark_files/sort/original_sorted_p.ads'
 
 # The project file to be overwritten with the LLM output. Should be identical to source, excepting the removed annotations and possible comments
-destination_file = 'spark_projects/spark_by_example/sorting/is_sorted_p.adb'
+destination_file = 'spark_projects/spark_by_example/sorting/is_sorted_p.ads'
 
 
 # Prompt Text
-prompt_text = "Write an appropriate Loop Invariant for the Is_Sorted_p file, specifically for the procedure 'Weakly_To_Sorted'. Return only the full Is_Sorted_p file, which is the first code block, with the Loop Inavariant implementation replacing the comment"
+prompt_text = "Write a pre and post condition for the lemma Weakly_To_Sorted in the Is_Sorted specification, don't change any other code. The code is written in Spark2014. Return only the single file with the implemented pre and post condition"
 # ---------------------------------------------------------------------------
 
 
