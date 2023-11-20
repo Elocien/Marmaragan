@@ -28,7 +28,7 @@ destination_file = 'spark_projects/spark_by_example/sorting/is_sorted_p.ads'
 
 
 # Prompt Text
-prompt_text = "Write a pre and post condition for the lemma Weakly_To_Sorted in the Is_Sorted specification, don't change any other code. The code is written in Spark2014. Return only the single file with the implemented pre and post condition"
+prompt_text = "Write a pre and post condition for the procedure Weakly_To_Sorted in the Is_Sorted specification, don't change any other code. The code is written in Spark2014. Return only the single file with the implemented pre and post condition"
 # ---------------------------------------------------------------------------
 
 
@@ -91,6 +91,9 @@ if sanitized_response is not None:
 
     
     else:
+        
+        print("Potential ILLEGAL FILE MODIFICATION:\nThere were changes to the original file beyond a section of successive lines and the removal of comments. See 'compare_files_and_check' function for the exact specification\n\n")
+        
         # Still run Gnatprove
         gnatprove_output, prcoess_returncode = run_gnatprove(project_location)
         
