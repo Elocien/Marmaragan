@@ -2,4 +2,3 @@
 *.log
 *.pyc
 spark_files/
-spark_projects/

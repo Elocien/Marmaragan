@@ -1,0 +1,101 @@
+```{=org}
+#+EXPORT_FILE_NAME: ../../../non-mutating/Adjacent_Find.org
+```
+# The Adjacent_Find algorithm
+
+The `Adjacent_Find` algorithm is another finding algorithm. Its
+signature is the following:
+
+``` ada
+function Adjacent_Find (A : T_Arr) return Option
+```
+
+Given an array `A`, `Adjacent_Find` will either return:
+
+-   an `Option` whose value is a valid index `I` of `A` such that `A
+          (I) = A (I + 1)` and `I` is the smallest index verifying this
+    property
+-   an option with `Result` equal to `False` if no such index exists
+
+## The predicate Has~EqualNeighbors~
+
+As usual, we will first define a predicate to help us writing the
+specification. `Has_Equal_Neigbors (A)` is true if the array `A` has two
+consecutive elements that are equal:
+
+``` ada
+function Has_Equal_Neighbors
+  (A : T_Arr)
+   return Boolean is
+  (if (A'Length = 0) then False
+   else (for some I in A'First .. A'Last - 1 => A (I) = A (I + 1)));
+```
+
+Notice that we must take care of one boundary case, i.e., when `A` is
+empty, otherwise as `A'Last` can be less than `A'First` when
+`A'Length = 0`, it could take `Integer'First` as a value and an overflow
+would occur due to `A'Last - 1`.
+
+## Specification of Adjacent~Find~
+
+The specification of `Adjacent_Find` will use the following contract
+cases:
+
+-   either there are two adjacent elements in `A` that are equal and in
+    this case, `Adjacent_Find` must return an `Option` with a valid
+    index `I` such that `A (I) = A (I + 1)` and there is no adjacent
+    equal elements in `A` up to `I`
+-   or `Adjacent_Find` must return an `Option` specifying that such an
+    index does not exist
+
+``` ada
+function Adjacent_Find
+  (A : T_Arr)
+   return Option with
+   Contract_Cases =>
+   (Has_Equal_Neighbors (A) =>
+      (Adjacent_Find'Result.Exists = True)
+      and then
+      (A (Adjacent_Find'Result.Value) = A (Adjacent_Find'Result.Value + 1))
+      and then
+      (not Has_Equal_Neighbors (A (A'First .. Adjacent_Find'Result.Value))),
+    others => Adjacent_Find'Result.Exists = False);
+```
+
+## Implementation of Adjacent~Find~
+
+The implementation of `Adjacent_Find` goes through `A`, searching for
+two consecutive elements that are equal is defined as follows:
+
+``` ada
+function Adjacent_Find
+  (A : T_Arr)
+   return Option
+is
+   Result : Option := (Exists => False);
+begin
+   if A'Length <= 1 then
+      return Result;
+   end if;
+
+   for I in A'First .. A'Last - 1 loop
+      if A (I) = A (I + 1) then
+   Result := (Exists => True, Value => I);
+
+   return Result;
+      end if;
+
+      pragma Loop_Invariant
+  (not Has_Equal_Neighbors (A (A'First .. I + 1)));
+      pragma Loop_Invariant (not Result.Exists);
+   end loop;
+
+   return Result;
+end Adjacent_Find;
+```
+
+The invariants needed to prove the function are the following:
+
+-   two consecutive and equal elements have not been found yet in `A`
+-   the result specifies that there is no index respecting the expected
+    property

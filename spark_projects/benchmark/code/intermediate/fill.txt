@@ -1,0 +1,108 @@
+package body Fill_P with
+   Spark_Mode
+ is
+   procedure Fill
+     (A   : in out T_Arr;
+      Val :        T)
+   is
+   begin
+      for I in A'Range loop
+         A (I) := Val;
+
+         pragma Loop_Invariant
+           (Constant_Range_From_Location (A, Val, A'First, I - A'First + 1));
+      end loop;
+   end Fill;
+end Fill_P;
+
+
+
+with Types;                   use Types;
+with Has_Constant_Subrange_P; use Has_Constant_Subrange_P;
+
+package Fill_P with
+   Spark_Mode
+ is
+   procedure Fill
+     (A   : in out T_Arr;
+      Val :        T) with
+      Pre  => A'Length > 0,
+      Post => Constant_Range_From_Location (A, Val, A'First, A'Length);
+
+end Fill_P;
+
+
+
+package Types is
+
+   type T is new Integer;
+
+   type T_Arr is array (Positive range <>) of T;
+
+   type T_Option (OK : Boolean) is record
+      case OK is
+         when True =>
+            Value : T;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   MAX_SIZE : constant := 1000;
+
+   type Option (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Value : Integer;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type Option_Pair (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Lower : Integer;
+            Upper : Integer;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type Heap is record
+      A    : T_Arr (1 .. MAX_SIZE) := (others => 0);
+      Size : Natural               := 0;
+   end record;
+
+end Types;
+
+
+
+with Types; use Types;
+
+package Has_Constant_Subrange_P with
+   Spark_Mode,
+   Ghost
+ is
+
+   function Constant_Range_From_Location
+     (A      : T_Arr;
+      Val    : T;
+      Loc    : Positive;
+      Length : Positive)
+      return Boolean is
+     (Loc - 1 + Length <= A'Last
+      and then (for all I in Loc .. Loc - 1 + Length => A (I) = Val)) with
+      Pre => Loc >= A'First and then Loc <= A'Last - Length + 1
+      and then Loc - 1 + Length <= Positive'Last;
+
+   function Has_Constant_Subrange
+     (A   : T_Arr;
+      Val : T;
+      N   : Positive)
+      return Boolean is
+     (for some I in A'First .. A'Last - N + 1 =>
+        Constant_Range_From_Location (A, Val, I, N)) with
+      Pre => A'First <= A'Last;
+
+end Has_Constant_Subrange_P;

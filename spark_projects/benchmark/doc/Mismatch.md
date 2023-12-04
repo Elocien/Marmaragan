@@ -1,0 +1,168 @@
+```{=org}
+#+EXPORT_FILE_NAME: ../../../non-mutating/Equal_Mismatch.org
+```
+# The Equal and Mismatch algorithms
+
+`Equal` and `Mismatch` algorithms compare sequences. Their signatures
+are the following:
+
+``` ada
+function Equal (A : T_Arr; B : T_Arr) return Boolean;
+function Mismatch (A : T_Arr; B : T_Arr) return Option;
+```
+
+`Equal (A, B)` returns `True` if `A` and `B` have the same length and
+elements of `A` and `B` are equal when traversing `A` and `B` in the
+same order. `Mismatch` is not simply the negation of `Equal`: it returns
+the smallest valid index `J` of `A` such that `A (J)` differs from
+`B (J)` (an `Option` is used to consider the case where `A` and `B` are
+identical).
+
+In the following, we will first define `Mismatch` and then `Equal` using
+`Mismatch`.
+
+## The predicate Equal~Ranges~
+
+`Equal_Ranges` is a predicate specifying that two arrays are identical.
+Using Ada support for array types, we can directly use equality on
+arrays to define the predicate:
+
+``` ada
+function Equal_Ranges
+  (A : T_Arr;
+   B : T_Arr)
+   return Boolean is (A = B);
+```
+
+`Equal_Ranges (A, B)` will be false if `B` is longer than `A`, so we
+have to pay attention to the slices that will be used in `Mismatch`
+specification.
+
+We will also define an overloaded version of `Equal_Ranges` using an
+offset (this is just syntactic sugar as slices can also be used):
+
+``` ada
+function Equal_Ranges
+  (A      : T_Arr;
+   B      : T_Arr;
+   Offset : Natural)
+   return Boolean is
+  (A (A'First .. A'First + Offset) = B (B'First .. B'First + Offset)) with
+   Pre => Offset < A'Length and then Offset < B'Length;
+```
+
+We need to add a
+[precondition](http://docs.adacore.com/spark2014-docs/html/ug/en/source/subprogram_contracts.html#preconditions)
+to exclude invalid `Offset` values. Notice that running `GNATprove` on
+the corresponding file proves that there are no range errors.
+
+## Specification of Mismatch
+
+The specification of Mismatch is based on two contract cases:
+
+-   either `A` and `B` are equal on their first `A'Length` indexes, and
+    in this case, the returned `Option` is false.
+-   otherwise it means that the returned `Option` is true and contains a
+    positive value `I` such that
+    -   `A'First + I` is a valid index of `A`
+    -   `A` and `B` differ at offset `I` and all elements of `A` and `B`
+        are equal up to offset `I`
+
+``` ada
+function Mismatch
+  (A : T_Arr;
+   B : T_Arr)
+   return Option with
+   Pre            => A'Length = B'Length,
+   Contract_Cases => (Equal_Ranges (A, B) => not Mismatch'Result.Exists,
+    others =>
+      Mismatch'Result.Exists
+      and then
+      (A (A'First + Mismatch'Result.Value) /=
+       B (B'First + Mismatch'Result.Value))
+      and then
+      (if (Mismatch'Result.Value /= 0) then
+   Equal_Ranges (A, B, Mismatch'Result.Value - 1)));
+```
+
+Notice that we must add a precondition specifying that `A` has the same
+length than `B` to mimic ACSL by Example specification and to avoid
+possible overflows in the implementation of the algorithm.
+
+## Implementation of Mismatch
+
+The implementation of `Mismatch` is the following:
+
+``` ada
+function Mismatch
+  (A : T_Arr;
+   B : T_Arr)
+   return Option
+is
+   Result : Option := (Exists => False);
+begin
+   for I in 0 .. A'Length - 1 loop
+      if A (A'First + I) /= B (B'First + I) then
+   Result := (Exists => True, Value => I);
+
+   return Result;
+      end if;
+
+      pragma Loop_Invariant (Equal_Ranges (A, B, I));
+      pragma Loop_Invariant (not Result.Exists);
+   end loop;
+
+   return Result;
+end Mismatch;
+```
+
+The invariants are rather simple to write using the predicate
+`Equal_Ranges`.
+
+## Specification of Equal
+
+`Equal` is easily specified with the `Equal_Ranges` predicate. We
+suppose that `A` and `B` have the same length as in ACSL by Example.
+
+``` ada
+function Equal
+  (A : T_Arr;
+   B : T_Arr)
+   return Boolean with
+   Pre  => A'Length = B'Length,
+   Post => Equal'Result =
+   Equal_Ranges (A, B (B'First .. B'First - 1 + A'Length));
+```
+
+## Implementation of Equal
+
+`Equal` is easily implemented using `Mismatch`:
+
+``` ada
+function Equal
+  (A : T_Arr;
+   B : T_Arr)
+   return Boolean is
+  (not Mismatch (A, B (B'First .. B'First - 1 + A'Length)).Exists);
+```
+
+As `Equal` is defined with an expression function, we could also have
+directly give the implementation of `Equal` within its specification.
+
+## A \"reversed\" specification and implementation of Equal
+
+We can \"reverse\" the specification and the implementation of `Equal`
+by implementing `Equal` using equality on arrays and specifying as a
+postcondition that arrays `A` and `B` do not mismatch:
+
+``` ada
+function Equal
+  (A : T_Arr;
+   B : T_Arr)
+   return Boolean is (A = B (B'First .. B'First - 1 + A'Length)) with
+   Pre  => A'Length = B'Length,
+   Post => Equal'Result =
+   (not Mismatch (A, B (B'First .. B'First - 1 + A'Length)).Exists);
+```
+
+These specification and implementation of `Equal` can also be proved.

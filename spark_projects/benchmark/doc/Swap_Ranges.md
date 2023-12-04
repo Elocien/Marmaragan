@@ -1,0 +1,111 @@
+```{=org}
+#+EXPORT_FILE_NAME: ../../../mutating/Swap_Ranges.org
+```
+# The Swap~Ranges~ algorithm
+
+The `Swap_Ranges` algorithm exchanges the contents of two arrays. Its
+signature is the following:
+
+``` ada
+procedure Swap_Ranges (A : in out T_Arr; B: in out T_Arr);
+```
+
+## Specification of Swap~Ranges~
+
+The specification of `Swap_Ranges` is the following:
+
+``` ada
+procedure Swap_Ranges
+  (A : in out T_Arr;
+   B : in out T_Arr) with
+   Pre  => A'Length = B'Length,
+   Post => A'Old = B and then B'Old = A;
+```
+
+The precondition expresses the fact that `A` and `B` must have the same
+length. The postcondition expresses the fact that the values in `A` and
+`B` have actually been exchanged. Using SPARK syntax for arrays, the
+assertion are easy to write.
+
+## Implementation of Swap~Ranges~
+
+``` ada
+procedure Swap_Ranges
+  (A : in out T_Arr;
+   B : in out T_Arr)
+is
+begin
+
+   for J in 0 .. A'Length - 1 loop
+      Swap (A (A'First + J), B (B'First + J));
+
+      pragma Loop_Invariant
+  (B'Loop_Entry (B'First .. B'First + J) =
+   A (A'First .. A'First + J));
+      pragma Loop_Invariant
+  (A'Loop_Entry (A'First .. A'First + J) =
+   B (B'First .. B'First + J));
+      pragma Loop_Invariant
+  (if B'First + J < B'Last then
+     B'Loop_Entry (B'First + J + 1 .. B'Last) =
+     B (B'First + J + 1 .. B'Last));
+      pragma Loop_Invariant
+  (if A'First + J < A'Last then
+     A'Loop_Entry (A'First + J + 1 .. A'Last) =
+     A (A'First + J + 1 .. A'Last));
+   end loop;
+end Swap_Ranges;
+```
+
+The loop invariants specify that:
+
+-   the `J` first values of the arrays have been exchanged
+-   the next values in the arrays have not been swapped yet
+
+Notice that we cannot use the `Old` attribute to refer to the previous
+state of the arrays, as `Old` is only available in postconditions. We
+therefore use the `Loop_Entry` attribute that refers to the value of the
+arrays before entering the loop.
+
+Using `GNATprove`, everything is proved.
+
+## A new implementation of Swap~Ranges~
+
+The `swap_ranges_index_p.adb` file contains a more \"SPARKish\" (at
+least to our point of view) implementation of `Swap_Ranges`:
+
+``` ada
+procedure Swap_Ranges
+  (A : in out T_Arr;
+   B : in out T_Arr)
+is
+begin
+
+   for J in A'Range loop
+      declare
+   K : Positive := B'First + (J - A'First);
+      begin
+   Swap (A (J), B (K));
+
+   pragma Loop_Invariant
+     (B'Loop_Entry (B'First .. K) = A (A'First .. J));
+   pragma Loop_Invariant
+     (A'Loop_Entry (A'First .. J) =
+      B (B'First .. B'First + (J - A'First)));
+   pragma Loop_Invariant
+     (if K < B'Last then
+        B'Loop_Entry (K + 1 .. B'Last) = B (K + 1 .. B'Last));
+   pragma Loop_Invariant
+     (if J < A'Last then
+        A'Loop_Entry (J + 1 .. A'Last) = A (J + 1 .. A'Last));
+
+      end;
+   end loop;
+end Swap_Ranges;
+```
+
+In this implementation, we will not use an offset as loop variable, but
+range over `A'Range`. A local variable is defined for readability to
+define the corresponding index for `B`.
+
+Again, everything is proved using `GNATprove`.

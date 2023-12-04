@@ -1,0 +1,192 @@
+```{=org}
+#+EXPORT_FILE_NAME: ../../../maxmin/Max_Element.org
+```
+# The Max~Element~ algorithm
+
+The `Max_Element` algorithm finds the index of the maximum value of an
+array. Its signature can be expressed as:
+
+``` ada
+function Max_Element (A : T_Arr) return Option;
+```
+
+`Max_Element` will return the first index where the maximum is located
+if the array is not empty.
+
+## A first version of Max~Element~ without ghost functions for specification
+
+We will first specify and implement `Max_Element` without using ghost
+functions. There will be minor changes between the specification and
+implementation of `Max_Element` with and without ghost functions as
+ghost functions are only used for readability here.
+
+### Specification of Max~Element~ without ghost functions
+
+``` ada
+function Max_Element
+  (A : T_Arr)
+   return Option with
+   Contract_Cases => (A'Length = 0 => not Max_Element'Result.Exists,
+    A'Length > 0 =>
+      Max_Element'Result.Value >= A'First
+      and then (Max_Element'Result.Value <= A'Last)
+      and then
+      (for all I in A'First .. A'Last =>
+   A (I) <= A (Max_Element'Result.Value))
+      and then
+      (for all I in A'First .. Max_Element'Result.Value - 1 =>
+   A (I) < A (Max_Element'Result.Value)));
+```
+
+The postconditions are expressed through contract cases:
+
+-   if the array is empty, then there is no index returned (the `Option`
+    is empty).
+-   if the array is not empty, then
+    1.  the result is in range `A'First .. A'Last`.
+    2.  all the elements of the array are less or equal than the value
+        located at the returned index.
+    3.  all the elements of the array located before the index returned
+        are less than the value located at the index returned. This
+        postcondition ensures that the index returned is the first index
+        containing the maximum value of the array.
+
+### Implementation of Max~Element~
+
+The implementation is classic: we range over `A` indexes, trying to find
+an element greater than `A (Result.Value)`. If we find such an element,
+we replace `Result.Value` by its index.
+
+``` ada
+function Max_Element
+  (A : T_Arr)
+   return Option
+is
+   Result : Option := (Exists => False);
+begin
+   if A'Length = 0 then
+      return Result;
+   else
+      Result := (Exists => True, Value => A'First);
+      for I in A'First .. A'Last loop
+   if A (Result.Value) < A (I) then
+      Result.Value := I;
+   end if;
+
+   pragma Loop_Invariant (A'First <= Result.Value);
+   pragma Loop_Invariant (A'Last >= Result.Value);
+   pragma Loop_Invariant
+     (for all K in A'First .. I => A (K) <= A (Result.Value));
+   pragma Loop_Invariant
+     (for all K in A'First .. Result.Value - 1 =>
+        A (K) < A (Result.Value));
+      end loop;
+
+      return Result;
+   end if;
+end Max_Element;
+```
+
+As usual with `for` loops in SPARK, no variant is needed. The loop
+invariants specify that:
+
+1.  the `Result.Value` value is in range `A'First .. A'Last`.
+2.  every traversed elements is less or equal than the value at index
+    `Result.Value`.
+3.  every element before index `Result.Value` is less than the value at
+    index `Result.Value`.
+
+When using `GNATprove` on the body of `Max_Element`, everything is
+proved.
+
+## A version of Max~Element~ with ghost functions
+
+We will now define two predicates to represent the main properties used
+in specification, i.e. the fact that all elements of the array are less
+or equal than the value located at the index returned, and the fact that
+every element before the returned index is less than the maximum value.
+
+### The Upper~Bound~ and Strict~UpperBound~ predicates
+
+``` ada
+function Upper_Bound
+  (A   : T_Arr;
+   Val : T)
+   return Boolean is (for all I in A'Range => A (I) <= Val);
+```
+
+``` ada
+function Strict_Upper_Bound
+  (A   : T_Arr;
+   Val : T)
+   return Boolean is (for all I in A'Range => A (I) < Val);
+```
+
+These two ghost functions are only wrappers for expressions used
+previously in the specification of `Max_Element`. Notice that we use an
+array as parameter without asking for start and end indexes in
+`Strict_Upper_Bound`, therefore we will use slices when using this
+predicate.
+
+### Specification of Max~Element~
+
+With the previously defined predicates, the specification of
+`Max_Element` is:
+
+``` ada
+function Max_Element
+  (A : T_Arr)
+   return Option with
+   Contract_Cases => (A'Length = 0 => not Max_Element'Result.Exists,
+    A'Length > 0 =>
+      Max_Element'Result.Exists and then Max_Element'Result.Value >= A'First
+      and then Max_Element'Result.Value <= A'Last
+      and then Upper_Bound (A, A (Max_Element'Result.Value))
+      and then Strict_Upper_Bound
+  (A (A'First .. Max_Element'Result.Value - 1),
+   A (Max_Element'Result.Value)));
+```
+
+### Implementation of Max~Element~
+
+The implementation is almost the same as before:
+
+``` ada
+function Max_Element
+  (A : T_Arr)
+   return Option
+is
+   Result : Option := (Exists => False);
+begin
+   if A'Length = 0 then
+      return Result;
+   else
+      Result := (Exists => True, Value => A'First);
+      for I in A'First .. A'Last loop
+   if A (Result.Value) < A (I) then
+      Result.Value := I;
+   end if;
+
+   pragma Loop_Invariant (A'First <= Result.Value);
+   pragma Loop_Invariant (Result.Value <= A'Last);
+   pragma Loop_Invariant
+     (Upper_Bound (A (A'First .. I), A (Result.Value)));
+   pragma Loop_Invariant
+     (if Result.Value > A'First then
+        Strict_Upper_Bound
+      (A (A'First .. Result.Value - 1), A (Result.Value)));
+      end loop;
+
+      return Result;
+   end if;
+end Max_Element;
+```
+
+The last predicate has been modified: we first check if `A'First` is
+less than `Result.Value`. If we do not so, we would face a
+`range check might fail` error when trying to prove absence of runtime
+errors with `GNATprove` (in the case where `A'First =
+     A'Last`, we can\'t split the array `A` with `A (A'First
+     .. A'Last - 1)`).
+
+With this implementation, everything is proved with `GNATprove`.
