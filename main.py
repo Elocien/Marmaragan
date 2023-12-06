@@ -1,34 +1,13 @@
 from util import *
-from langchain.chat_models import ChatOpenAI
-from langchain.callbacks import get_openai_callback
 import re
 import logging
 
 
 # Params
 # ---------------------------------------------------------------------------
-# Model
-llm_model = "gpt-4"  # "gpt-3.5-turbo-1106" | "gpt-4-1106-preview" | "gpt-4"
-llm_temperature = 0
-
-# ADA/SPARK2014 Project Location
-project_location = "spark_projects/spark_by_example"
-
-# Input Files
-
-# The file with given to the LLM as a prompt. Should be formatted to remove annotations and possibly provide comments on where to insert spark annotations
-source_file = 'spark_files/sort/sorted_p.ads'
-
-# Optional: Can be included in the prompt to provide either the .ads or .adb file, as context for the LLM to work with
-context_file = 'spark_files/sort/original_is_sorted_p.adb'
-context_file2 = 'spark_files/sort/original_is_sorted_p.ads'
-
-# The project file to be overwritten with the LLM output. Should be identical to source, excepting the removed annotations and possible comments
-destination_file = 'spark_projects/spark_by_example/sorting/sorted_p.ads'
 
 
-# Prompt Text
-prompt_text = "Write a specification for the Sorted_P specification file. Return only the code, with the implementation complete. The following code is the following: the first file is where the implementation is to take place, the other two files are project context."
+
 # ---------------------------------------------------------------------------
 
 
@@ -38,25 +17,9 @@ logging.basicConfig(filename='history.log', level=logging.INFO,
                     format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
-# Convert given ada file into a prompt template (.json)
-ada_to_json(source_file, prompt_text, context_file, context_file2)
 
 
-# Load the prompt
-prompt = get_prompt("prompt.json")
 
-
-# Get the LLM Response
-llm = ChatOpenAI(model_name=llm_model, temperature=llm_temperature)
-
-response = ""
-tokens = ""
-
-with get_openai_callback() as cb:
-    response = llm.predict(prompt)
-    print(cb)
-    tokens = re.findall(r"Tokens Used: (\d+)", str(cb)
-                        )[0] if re.findall(r"Tokens Used: (\d+)", str(cb)) else "Error"
 
 # Retrieve the code from the LLM output, removing excess text and other ada code blocks (after the first)
 sanitized_response = sanitize_output(response)
