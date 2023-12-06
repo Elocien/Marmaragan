@@ -10,15 +10,18 @@ class thread_creator:
     See https://platform.openai.com/docs/assistants/overview for an overview of the functionality of assistants. 
     """
 
-    def __init__(self):
+    def __init__(self, instructions: str):
         """
         Initializes a new thread and an assistant for code correction.
+        
+        Args:
+            instructions (str): The instructions given to the assistant.
         """
         self.client = OpenAI()
         self.thread = self.client.beta.threads.create()
         self.thread_id = self.thread.id
         self.assistant = self.client.beta.assistants.create(
-            instructions="You are a programmer. Fix the sent python code so that it runs correctly. Return only the code.",
+            instructions=instructions,
             name="Python Fixer",
             tools=[{"type": "code_interpreter"}],
             model="gpt-4-0613"
