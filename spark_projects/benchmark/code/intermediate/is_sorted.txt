@@ -1,3 +1,5 @@
+-- start file is_sorted_p.adb
+
 package body Is_Sorted_P with
    Spark_Mode
  is
@@ -33,7 +35,10 @@ package body Is_Sorted_P with
 
 end Is_Sorted_P;
 
+-- end file is_sorted_p.adb
 
+
+-- start file is_sorted_p.ads
 
 with Types;    use Types;
 with Sorted_P; use Sorted_P;
@@ -55,7 +60,10 @@ package Is_Sorted_P with
 
 end Is_Sorted_P;
 
+-- end file is_sorted_p.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -100,7 +108,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file sorted_p.ads
 
 with Types; use Types;
 
@@ -122,3 +133,5 @@ package Sorted_P with
         (for all I in A'First .. J - 1 => A (I) <= A (J)));
 
 end Sorted_P;
+
+-- end file sorted_p.ads

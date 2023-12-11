@@ -1,3 +1,5 @@
+-- start file adjacent_find_p.adb
+
 package body Adjacent_Find_P with
    Spark_Mode
  is
@@ -28,7 +30,10 @@ package body Adjacent_Find_P with
    end Adjacent_Find;
 end Adjacent_Find_P;
 
+-- end file adjacent_find_p.adb
 
+
+-- start file adjacent_find_p.ads
 
 with Types;                 use Types;
 with Has_Equal_Neighbors_P; use Has_Equal_Neighbors_P;
@@ -51,7 +56,10 @@ package Adjacent_Find_P with
 
 end Adjacent_Find_P;
 
+-- end file adjacent_find_p.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -96,7 +104,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file has_equal_neighbors_p.ads
 
 with Types; use Types;
 
@@ -111,3 +122,5 @@ package Has_Equal_Neighbors_P with
       else (for some I in A'First .. A'Last - 1 => A (I) = A (I + 1)));
 
 end Has_Equal_Neighbors_P;
+
+-- end file has_equal_neighbors_p.ads

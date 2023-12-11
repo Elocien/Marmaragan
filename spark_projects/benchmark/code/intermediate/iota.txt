@@ -1,3 +1,5 @@
+-- start file iota_p.adb
+
 package body Iota_P with
    Spark_Mode
  is
@@ -16,7 +18,10 @@ package body Iota_P with
    end Iota;
 end Iota_P;
 
+-- end file iota_p.adb
 
+
+-- start file iota_p.ads
 
 with Types;     use Types;
 with Is_Iota_P; use Is_Iota_P;
@@ -31,7 +36,10 @@ package Iota_P with
       Post => Is_Iota (A, Val);
 end Iota_P;
 
+-- end file iota_p.adb
 
+
+-- start file types.ads
 
 package Types is
 
@@ -76,7 +84,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file is_iota_p.ads
 
 with Types; use Types;
 
@@ -91,3 +102,5 @@ package Is_Iota_P with
      (for all I in A'Range => A (I) = Val + T (I - A'First)) with
       Pre => Val + A'Length <= T'Last;
 end Is_Iota_P;
+
+-- end file is_iota_p.ads

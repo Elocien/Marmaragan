@@ -1,3 +1,5 @@
+-- start file rotate_p.adb
+
 package body Rotate_P with
    Spark_Mode
  is
@@ -13,7 +15,10 @@ package body Rotate_P with
    end Rotate;
 end Rotate_P;
 
+-- end file rotate_p.adb
 
+
+-- start file rotate_p.ads
 
 with Types;              use Types;
 with Reverse_In_Place_P; use Reverse_In_Place_P;
@@ -32,7 +37,10 @@ package Rotate_P with
 
 end Rotate_P;
 
+-- end file rotate_p.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -77,7 +85,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file reverse_in_place_p.adb
 
 package body Reverse_In_Place_P with
    Spark_Mode
@@ -119,7 +130,10 @@ package body Reverse_In_Place_P with
    end Reverse_In_Place;
 end Reverse_In_Place_P;
 
+-- end file reverse_in_place_p.adb
 
+
+-- start file reverse_in_place_p.ads
 
 with Types;         use Types;
 with Is_Reversed_P; use Is_Reversed_P;
@@ -133,7 +147,10 @@ package Reverse_In_Place_P with
 
 end Reverse_In_Place_P;
 
+-- end file reverse_in_place_p.adb
 
+
+-- start file is_reversed_p.ads
 
 with Types; use Types;
 
@@ -150,3 +167,5 @@ package Is_Reversed_P with
       Pre => A'Length = B'Length;
 
 end Is_Reversed_P;
+
+-- end file is_reversed_p.ads

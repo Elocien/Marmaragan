@@ -1,3 +1,5 @@
+-- start file search_n_p.adb
+
 package body Search_N_P with
    Spark_Mode
  is
@@ -39,8 +41,10 @@ package body Search_N_P with
    end Search_N;
 end Search_N_P;
 
+-- end file search_n_p.adb
 
 
+-- start file search_n_p.ads
 
 with Types;                   use Types;
 with Has_Constant_Subrange_P; use Has_Constant_Subrange_P;
@@ -69,7 +73,10 @@ package Search_N_P with
 
 end Search_N_P;
 
+-- end file search_n_p.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -114,7 +121,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file has_constant_subrange_p.ads
 
 with Types; use Types;
 
@@ -144,3 +154,5 @@ package Has_Constant_Subrange_P with
       Pre => A'First <= A'Last;
 
 end Has_Constant_Subrange_P;
+
+-- end file has_constant_subrange_p.ads

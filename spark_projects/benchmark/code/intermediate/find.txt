@@ -1,3 +1,5 @@
+-- start file find_p.adb
+
 package body Find_P with
    Spark_Mode
  is
@@ -24,9 +26,10 @@ package body Find_P with
    end Find;
 end Find_P;
 
+-- end file find_p.adb
 
 
-
+-- start file find_p.ads
 
 with Types;       use Types;
 with Has_Value_P; use Has_Value_P;
@@ -49,7 +52,10 @@ package Find_P with
 
 end Find_P;
 
+-- end file find_p.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -94,7 +100,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file has_value_p.ads
 
 with Types; use Types;
 
@@ -108,3 +117,5 @@ package Has_Value_P with
       return Boolean is (for some I in A'Range => A (I) = Val);
 
 end Has_Value_P;
+
+-- end file has_value_p.ads

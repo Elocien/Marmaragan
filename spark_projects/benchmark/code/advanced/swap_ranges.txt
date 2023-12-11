@@ -1,3 +1,5 @@
+-- start file swap_ranges_p.adb
+
 package body Swap_Ranges_P with
    Spark_Mode
  is
@@ -28,7 +30,10 @@ package body Swap_Ranges_P with
    end Swap_Ranges;
 end Swap_Ranges_P;
 
+-- end file swap_ranges_p.adb
 
+
+-- start file swap_ranges_p.ads
 
 with Types;  use Types;
 with Swap_P; use Swap_P;
@@ -44,7 +49,10 @@ package Swap_Ranges_P with
 
 end Swap_Ranges_P;
 
+-- end file swap_ranges_p.adb
 
+
+-- start file types.ads
 
 package Types is
 
@@ -89,7 +97,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file swap_p.adb
 
 with Types; use Types;
 
@@ -103,7 +114,10 @@ package Swap_P with
 
 end Swap_P;
 
+-- end file swap_p.adb
 
+
+-- start file swap_p.ads
 
 package body Swap_P with
    Spark_Mode
@@ -118,3 +132,5 @@ package body Swap_P with
       Q := Save;
    end Swap;
 end Swap_P;
+
+-- end file swap_p.ads

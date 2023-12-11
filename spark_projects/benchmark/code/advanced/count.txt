@@ -1,3 +1,5 @@
+-- start file count.adb
+
 package body Count_P with
    Spark_Mode
  is
@@ -22,7 +24,10 @@ package body Count_P with
    end Count;
 end Count_P;
 
+-- end file count.adb
 
+
+-- start file count.ads
 
 with Types; use Types;
 with Occ_P; use Occ_P;
@@ -41,7 +46,10 @@ package Count_P with
 
 end Count_P;
 
+-- end file count.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -86,7 +94,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file occ_p.ads
 
 with Types;     use Types;
 with Occ_Def_P; use Occ_Def_P;
@@ -103,6 +114,10 @@ package Occ_P with
 
 end Occ_P;
 
+-- end file occ_p.ads
+
+
+-- start file occ_def_p.ads
 
 with Types; use Types;
 package Occ_Def_P with
@@ -126,3 +141,5 @@ package Occ_Def_P with
       Post => Occ_Def'Result <= A'Length;
    pragma Annotate (Gnatprove, Terminating, Occ_Def);
 end Occ_Def_P;
+
+-- end file occ_def_p.ads

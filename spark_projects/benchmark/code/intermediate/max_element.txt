@@ -1,3 +1,5 @@
+-- start file max_element_p.adb
+
 package body Max_Element_P with
    Spark_Mode
  is
@@ -33,7 +35,10 @@ package body Max_Element_P with
 
 end Max_Element_P;
 
+-- end file max_element_p.adb
 
+
+-- start file max_element_p.ads
 
 with Types;         use Types;
 with Upper_Bound_P; use Upper_Bound_P;
@@ -56,7 +61,10 @@ package Max_Element_P with
 
 end Max_Element_P;
 
+-- end file max_element_p.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -101,7 +109,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file upper_bound_p.ads
 
 with Types; use Types;
 
@@ -125,3 +136,5 @@ package Upper_Bound_P with
       return Boolean is (Max in A'Range and then Upper_Bound (A, A (Max)));
 
 end Upper_Bound_P;
+
+-- end file upper_bound_p.ads

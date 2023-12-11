@@ -1,3 +1,5 @@
+-- start file Search_Lower_Bound.adb
+
 package body Search_Lower_Bound_P with
    Spark_Mode
  is
@@ -44,7 +46,10 @@ package body Search_Lower_Bound_P with
    end Search_Lower_Bound;
 end Search_Lower_Bound_P;
 
+-- end file Search_Lower_Bound.adb
 
+
+-- start file Search_Lower_Bound.ads
 
 with Types;         use Types;
 with Sorted_P;      use Sorted_P;
@@ -72,7 +77,10 @@ package Search_Lower_Bound_P with
 
 end Search_Lower_Bound_P;
 
+-- end file Search_Lower_Bound.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -117,7 +125,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file sorted_p.ads
 
 with Types; use Types;
 
@@ -140,7 +151,10 @@ package Sorted_P with
 
 end Sorted_P;
 
+-- end file sorted_p.ads
 
+
+-- start file lower_bound_p.ads
 
 with Types; use Types;
 
@@ -161,7 +175,10 @@ package Lower_Bound_P with
 
 end Lower_Bound_P;
 
+-- end file lower_bound_p.ads
 
+
+-- start file upper_bound_p.ads
 
 with Types; use Types;
 
@@ -185,3 +202,5 @@ package Upper_Bound_P with
       return Boolean is (Max in A'Range and then Upper_Bound (A, A (Max)));
 
 end Upper_Bound_P;
+
+-- end file upper_bound_p.ads

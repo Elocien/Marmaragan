@@ -1,3 +1,5 @@
+-- start file mismatch_p.adb
+
 package body Mismatch_P with
    Spark_Mode
  is
@@ -24,8 +26,10 @@ package body Mismatch_P with
    end Mismatch;
 end Mismatch_P;
 
+-- end file mismatch_p.adb
 
 
+-- start file mismatch_p.ads
 
 with Types;          use Types;
 with Equal_Ranges_P; use Equal_Ranges_P;
@@ -49,7 +53,10 @@ package Mismatch_P with
             Equal_Ranges (A, B, Mismatch'Result.Value - 1)));
 end Mismatch_P;
 
+-- end file mismatch_p.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -94,7 +101,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file equal_ranges_p.ads
 
 with Types; use Types;
 
@@ -116,3 +126,6 @@ package Equal_Ranges_P with
      (A (A'First .. A'First + Offset) = B (B'First .. B'First + Offset)) with
       Pre => Offset < A'Length and then Offset < B'Length;
 end Equal_Ranges_P;
+
+
+-- start file equal_ranges_p.ads

@@ -1,3 +1,5 @@
+-- start file copy_p.adb
+
 package body Copy_P with
    Spark_Mode
  is
@@ -20,6 +22,10 @@ package body Copy_P with
    end Copy;
 end Copy_P;
 
+-- end file copy_p.adb
+
+
+-- start file copy_p.ads
 
 with Types;          use Types;
 
@@ -35,6 +41,10 @@ package Copy_P with
 
 end Copy_P;
 
+-- end file copy_p.ads
+
+
+-- start file types.ads
 
 package Types is
 
@@ -78,3 +88,5 @@ package Types is
    end record;
 
 end Types;
+
+-- end file types.ads

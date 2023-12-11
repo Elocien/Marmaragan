@@ -1,3 +1,5 @@
+-- start file accumulate_p.adb
+
 package body Accumulate_P with
    Spark_Mode
  is
@@ -20,7 +22,10 @@ package body Accumulate_P with
    end Accumulate;
 end Accumulate_P;
 
+-- end file accumulate_p.adb
 
+
+-- start file accumulate_p.ads
 
 with Types;     use Types;
 with Acc_Def_P; use Acc_Def_P;
@@ -38,7 +43,10 @@ package Accumulate_P with
 
 end Accumulate_P;
 
+-- end file accumulate_p.ads
 
+
+-- start file acc_def_p.ads
 
 with Types;    use Types;
 with Overflow; use Overflow;
@@ -73,7 +81,10 @@ package Acc_Def_P with
 
 end Acc_Def_P;
 
+-- end file acc_def_p.ads
 
+
+-- start file types.ads
 
 package Types is
 
@@ -118,7 +129,10 @@ package Types is
 
 end Types;
 
+-- end file types.ads
 
+
+-- start file overflow.adb
 
 package body Overflow with
    Spark_Mode
@@ -149,7 +163,10 @@ package body Overflow with
 
 end Overflow;
 
+-- end file overflow.adb
 
+
+-- start file overflow.ads
 
 with Types; use Types;
 
@@ -177,3 +194,5 @@ package Overflow with
        others => Multiply_No_Overflow'Result = False);
 
 end Overflow;
+
+-- end file overflow.ads
