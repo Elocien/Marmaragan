@@ -1,7 +1,9 @@
+from typing import List
+import asyncio
 import textwrap
 from openai import OpenAI
 import os
-import re
+import subprocess
 
 
 
@@ -110,7 +112,7 @@ def delete_all_assistants() -> None:
         print(response)
         
         
-def generate_spark_files(file_path: str, directory_path: str) -> [str]:
+def generate_spark_files(file_path: str, directory_path: str) -> str:
     """
     This function takes a benchmark file and generates the corresponding spark files in the given directory.
     It also generates a gpr file for each project and returns a list of paths to the generated gpr files.
@@ -124,7 +126,7 @@ def generate_spark_files(file_path: str, directory_path: str) -> [str]:
     """
     
     # List of file paths, used late to compile projects
-    gpr_file_paths = []
+    gpr_file_path = None
     
     # Open the benchmark file
     with open(file_path, 'r') as file:
@@ -155,29 +157,99 @@ def generate_spark_files(file_path: str, directory_path: str) -> [str]:
                     # Author: Emmanuel Debanne
                     # ---------------------------------------------------------------
                     gpr_file_name = f"{filename.split('.')[0]}.gpr"
-                    
+                    gpr_file_path = os.path.join(subdir_path, gpr_file_name)
                     
                     # Generate project file 
-                    with open(os.path.join(subdir_path, gpr_file_name), 'w') as file:
+                    with open(gpr_file_path, 'w') as file:
                         gpr_file_content = textwrap.dedent(
                             f"""\
-                            project {filename} is
+                            project {f"{filename.split('.')[0]}"} is
                                 for Source_Dirs use (".");
-                            end Group;
+                            end {f"{filename.split('.')[0]}"};
                             """
                         )
                     # ---------------------------------------------------------------
                         file.write(gpr_file_content)
-                    
-                    # Add project file to list of gpr files
-                    gpr_file_paths.append(subdir_path)
 
                 # Save the code to a file
                 with open(os.path.join(subdir_path, filename), 'w') as file:
                     file.write(code)
         
         
-        return gpr_file_paths
-                    
+        return gpr_file_path
+
+
+async def run_gnatprove(gpr_filepath: str) -> str:
+    """
+    Run a gnatprove asynchronously and capture its output.
+
+    Args:
+    gp_filepath (str): Path to the project file of the spark project to be proved.
+
+    Returns:
+    int: The exit status of the subprocess. Typically 0 for successful completion.
+
+    This function starts a subprocess for the given command, captures its standard
+    output and standard error, prints them, and then returns the exit status of
+    the subprocess. It uses asyncio for asynchronous execution.
+    """
+    
+    command = ["gnatprove", f"-P{gpr_filepath}"]
+
+    # Start the subprocess and capture its output
+    process = await asyncio.create_subprocess_exec(
+        *command,
+        stdout=subprocess.PIPE,  # Capture standard output
+        stderr=subprocess.DEVNULL   # Capture standard error
+    )
+
+    # Read standard output asynchronously
+    stdout, _ = await process.communicate()
+
+    # Decode the output
+    output = stdout.decode()
+    
+    gnatprove_mediums = await parse_gnatprove_output(output)
+
+    # Return the standard output
+    return gnatprove_mediums
+
+
+
+    
+    
+async def parse_gnatprove_output(gnatprove_output: str) -> List[str]:
+    """
+    Parse the output of gnatprove and return a list of medium messages.
+
+    Args:
+    gnatprove_output (str): The output of gnatprove.
+
+    Returns:
+    list[str]: A list of medium messages.
+    """
+    
+    # Initialize the list of mediums
+    mediums = []
+
+    # Split the output into lines
+    lines = gnatprove_output.splitlines()
+
+    # Iterate over each line
+    for line in lines:
+        # Check if the line contains a medium
+        if "medium" in line:
+            # Extract the medium as a tuple, with the filename and line/column number as the first element and the text after medium: as the second element
+            medium = line.split("medium")
+            mediums.append(medium)
+            
+
+    # Return the list of mediums
+    return mediums
+    
+    
+    
+
+
     
 
