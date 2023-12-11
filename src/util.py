@@ -227,3 +227,15 @@ def run_gnatprove(file_location: str) -> (str, str):
     finally:
         # Close the master FD
         os.close(master_fd)
+
+
+def retrieve_filenames_from_dir(directory: str) -> list[str]:
+    """
+    Retrieve all filenames in the given directory, including those in subdirectories.
+    """
+    file_list = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            file_path = os.path.join(root, file)
+            file_list.append(file_path)
+    return file_list
