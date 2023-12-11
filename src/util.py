@@ -264,10 +264,21 @@ def delete_all_assistants() -> None:
         print(response)
         
         
-def generate_spark_files(file_path: str, directory_path: str) -> None:
+def generate_spark_files(file_path: str, directory_path: str) -> [str]:
+    """
+    This function takes a benchmark file and generates the corresponding spark files in the given directory.
+    It also generates a gpr file for each project and returns a list of paths to the generated gpr files.
+    
+    Args:
+        file_path (str): Path to the benchmark file
+        directory_path (str): Path to the directory where the benchmark files will be generated
+        
+    Returns:
+        List of paths to the generated gpr files
     """
     
-    """
+    # List of file paths, used late to compile projects
+    gpr_file_paths = []
     
     # Open the benchmark file
     with open(file_path, 'r') as file:
@@ -299,6 +310,7 @@ def generate_spark_files(file_path: str, directory_path: str) -> None:
                     # ---------------------------------------------------------------
                     gpr_file_name = f"{filename.split('.')[0]}.gpr"
                     
+                    
                     # Generate project file 
                     with open(os.path.join(subdir_path, gpr_file_name), 'w') as file:
                         gpr_file_content = textwrap.dedent(
@@ -310,10 +322,16 @@ def generate_spark_files(file_path: str, directory_path: str) -> None:
                         )
                     # ---------------------------------------------------------------
                         file.write(gpr_file_content)
+                    
+                    # Add project file to list of gpr files
+                    gpr_file_paths.append(subdir_path)
 
                 # Save the code to a file
                 with open(os.path.join(subdir_path, filename), 'w') as file:
                     file.write(code)
+        
+        
+        return gpr_file_paths
                     
     
 
