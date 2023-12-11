@@ -1,3 +1,4 @@
+import textwrap
 from openai import OpenAI
 from langchain.prompts import load_prompt
 import json
@@ -102,20 +103,20 @@ def overwrite_destination_file_with_string(file_path : os.path, content : str) -
 
 
 
-def compare_files_and_check(original_file_path, modified_file_path) -> bool:
+def compare_files_and_check(original_file_path: str, modified_file_path: str) -> bool:
     """
     Compare two files to determine if changes have been made to the original file,
     except for:
     - A SINGLE block of new lines added at one place in the file, and
     - The removal of comments (for the case where a comment indicates a location)
 
-    Parameters:
-    - original_file_path: path to the original file
-    - modified_file_path: path to the modified file
+    Args:
+        original_file_path (str): path to the original file
+        modified_file_path (str): path to the modified file
 
     Returns:
-    - True if the files are effectively the same (disregarding a single block of new lines and comment removal)
-    - False if there are other changes in the modified file
+        True: if the files are effectively the same (disregarding a single block of new lines and comment removal)
+        False: if there are other changes in the modified file
     """
 
     with open(original_file_path, 'r') as file:
@@ -261,3 +262,58 @@ def delete_all_assistants() -> None:
         # Delete the assistant
         response = client.beta.assistants.delete(assistant.id)
         print(response)
+        
+        
+def generate_spark_files(file_path: str, directory_path: str) -> None:
+    """
+    
+    """
+    
+    # Open the benchmark file
+    with open(file_path, 'r') as file:
+        input_text = file.read()
+        
+        # String containing name of subdir to create for a given benchmark file
+        subdir_path = None
+
+        # Split the complete text file from the benchmark into seperate spark files
+        for section in input_text.split('-- start file '):
+            
+            # Check if the section is not empty
+            if section.strip():  
+                
+                # Further split the section to separate the filename and code
+                parts = section.split('\n', 1)
+                filename = parts[0].strip()
+                code = parts[1].split('-- end file', 1)[0].strip()
+                
+                if subdir_path is None:
+                    
+                    # Get the subdir path from the filename. The first piece of code in the benchmark file is
+                    # always the name of the project
+                    subdir_path = os.path.join(
+                        directory_path, filename.split('.')[0])
+                    os.mkdir(subdir_path)
+                    
+                    # Author: Emmanuel Debanne
+                    # ---------------------------------------------------------------
+                    gpr_file_name = f"{filename.split('.')[0]}.gpr"
+                    
+                    # Generate project file 
+                    with open(os.path.join(subdir_path, gpr_file_name), 'w') as file:
+                        gpr_file_content = textwrap.dedent(
+                            f"""\
+                            project {filename} is
+                                for Source_Dirs use (".");
+                            end Group;
+                            """
+                        )
+                    # ---------------------------------------------------------------
+                        file.write(gpr_file_content)
+
+                # Save the code to a file
+                with open(os.path.join(subdir_path, filename), 'w') as file:
+                    file.write(code)
+                    
+    
+
