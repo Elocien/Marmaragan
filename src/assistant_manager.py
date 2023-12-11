@@ -3,11 +3,13 @@ from openai import OpenAI
 from typing import Any, List
 
 
-class thread_creator:
+class openai_assistant:
     """
-    A class to create and manage the creation of assistants with OpenAI's API. 
+    A class to create and manage the creation of assistants, threads and messages with OpenAI's API. 
     
     See https://platform.openai.com/docs/assistants/overview for an overview of the functionality of assistants. 
+    
+    Unfortunalty there is no way to set temperature yet, see https://community.openai.com/t/how-to-set-temperature-and-other-hyperparameters-of-model-in-open-ai-assistant-api/486368
     """
 
     def __init__(self, instructions: str):
@@ -15,17 +17,19 @@ class thread_creator:
         Initializes a new thread and an assistant for code correction.
         
         Args:
-            instructions (str): The instructions given to the assistant.
+            instructions (str): Instructions detailing the purpose of the Assistant. E.g. "You are a programmer. Fix the sent python code so that it runs correctly"
         """
         self.client = OpenAI()
         self.thread = self.client.beta.threads.create()
         self.thread_id = self.thread.id
         self.assistant = self.client.beta.assistants.create(
             instructions=instructions,
-            name="Python Fixer",
+            name="Spark Annotation Assistant",
             tools=[{"type": "code_interpreter"}],
             model="gpt-4-0613"
         )
+        
+        print(self.assistant.id)
 
     def create_message(self, message: str) -> None:
         """
@@ -67,7 +71,3 @@ class thread_creator:
         return messages.data
 
 
-# Example usage
-test = thread_creator()
-test.create_message("print('hello world')")
-instance = test.retrieve_messages()
