@@ -128,4 +128,4 @@ package Equal_Ranges_P with
 end Equal_Ranges_P;
 
 
--- start file equal_ranges_p.ads
+-- end file equal_ranges_p.ads
