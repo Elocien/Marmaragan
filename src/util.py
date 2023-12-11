@@ -1,3 +1,4 @@
+from openai import OpenAI
 from langchain.prompts import load_prompt
 import json
 import os
@@ -239,3 +240,24 @@ def retrieve_filenames_from_dir(directory: str) -> list[str]:
             file_path = os.path.join(root, file)
             file_list.append(file_path)
     return file_list
+
+
+
+
+def delete_all_assistants() -> None:
+    """
+    # Function to manage and delete all assistants
+    """
+    
+    # Initialize the OpenAI client
+    client = OpenAI()
+    
+    # List all assistants
+    list_of_assistants = client.beta.assistants.list(order="desc").data
+
+    # Iterate over each assistant and delete them
+    for assistant in list_of_assistants:
+        print(f"Assistant id: {assistant.id}")
+        # Delete the assistant
+        response = client.beta.assistants.delete(assistant.id)
+        print(response)
