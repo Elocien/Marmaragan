@@ -56,6 +56,8 @@ class openai_assistant:
             assistant_id=self.assistant.id
         )
 
+
+        # TODO while loop with sleep to check if run is complete
         sleep(5)
 
         run_id = run.id
@@ -69,5 +71,20 @@ class openai_assistant:
         )
 
         return messages.data
+    
+
+    def delete_assistant(self) -> None:
+        """
+        Deletes the assistant given it's id.
+        
+        Args:
+            id (str): Assistant id.
+        """
+        # Initialize the OpenAI client
+        client = OpenAI()
+
+        # Delete the assistant
+        response = client.beta.assistants.delete(self.assistant.id)
+        print(f"Assistant deleted:\n{response}")
 
 
