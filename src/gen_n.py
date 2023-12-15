@@ -5,6 +5,7 @@ from src.assistant_manager import openai_assistant
 from openai import OpenAI
 import shutil
 import asyncio
+import textwrap
 
 
 
@@ -25,13 +26,17 @@ class gen_1:
         # Retrieve the benchmark files
         self.benchmark_files = retrieve_filenames_from_dir(benchmark_dir)
         
+        # Deletes all current assistants
+        # TODO: Refactor assistant creation and deletion
+        delete_all_assistants()
+        
     
     def run_benchmark(self):
         
         benchmark_dir = "spark_benchmark"
         
         # Create the assistant
-        # assistant = openai_assistant(self.instructions)
+        assistant = openai_assistant(self.instructions)
         
     # For each file in the benchmark, run gnatprove and extract the medium and line of code
         
@@ -49,30 +54,63 @@ class gen_1:
         benchmark_gpr_files = []
         
         # Iterate over each file in the benchmark and generate the files in the spark_benchmark directory
-        for file_path in self.benchmark_files:
-            gpr_file_path = generate_spark_files(file_path, benchmark_dir)
+        for benchmark_file_path in self.benchmark_files:
+            gpr_file_path = generate_spark_files(benchmark_file_path, benchmark_dir)
             benchmark_gpr_files.append(gpr_file_path)
-        
-    # For item in benchmark, get the associated medium and concatenate to the code example, then run assistant.create_message(item)
-        
-        for project in benchmark_gpr_files:
+            
+
             # Run gnatprove on the project
-            mediums = asyncio.run(run_gnatprove(project))
+            mediums = asyncio.run(run_gnatprove(gpr_file_path))
+            
+            project_dir = "/".join(gpr_file_path.split("/")[:-1])
+            
+
+            # Compile the lines of code, which are referenced in the mediums
+            # E.g. for medium: swap_ranges_p.adb:17:13: overflow check might fail, extract line 17 from file swap_ranges_p.adb
+            medium_code_reference = []
+            
+            for medium in mediums:
+                medium_code_reference.append(
+                    (extract_line_of_code_from_file(medium, project_dir), medium[1]))
             
             
-            # Iterate over each medium and extract line of code and error message
+            # retrieve the benchmark txt file
+            benchmark_file = open(benchmark_file_path, "r")
             
+            # Format medium code reference
+            medium_code_reference = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
+            
+            # Format prompt
+            prompt = f"""\
+                The following code is a Spark2014/ADA project.\n\n
+                {benchmark_file.read()}
+                
+                
+                Here are the current mediums being thrown by gnatprove, in the form of the line referenced as the cause and an explaination:\n\n
+                {medium_code_reference}
+                
+                Return the fixed code for the first implementation file, delimiting with ```ada\n and \n```
+                """
+                
+            # print(textwrap.dedent(prompt))
+           
+           
+            thread_id = assistant.create_message(textwrap.dedent(prompt))
+
 
         
     # Retrieve the messages from the assistant
-        # messages = assistant.retrieve_messages()
+            messages = assistant.retrieve_messages(thread_id)
+            print(messages[0].content[0].text.value)
+            
         
     # For each message, extract the fixed code and write to file in the benchmark_dir
     
     # Run gnatprove on the fixed code and extract any mediums 
     
     # Delete the assistant
-        # assistant.delete_assistant()
+        assistant.delete_assistant()
+        
         
     # Delete the temporary directory
         # shutil.rmtree(benchmark_dir)
