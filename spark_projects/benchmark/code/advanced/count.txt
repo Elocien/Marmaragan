@@ -1,4 +1,4 @@
--- start file count.adb
+-- start file count_p.adb
 
 package body Count_P with
    Spark_Mode
@@ -24,10 +24,10 @@ package body Count_P with
    end Count;
 end Count_P;
 
--- end file count.adb
+-- end file count_p.adb
 
 
--- start file count.ads
+-- start file count_p.ads
 
 with Types; use Types;
 with Occ_P; use Occ_P;
@@ -46,7 +46,7 @@ package Count_P with
 
 end Count_P;
 
--- end file count.ads
+-- end file count_p.ads
 
 
 -- start file types.ads

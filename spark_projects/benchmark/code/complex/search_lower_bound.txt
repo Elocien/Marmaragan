@@ -1,4 +1,4 @@
--- start file Search_Lower_Bound.adb
+-- start file search_lower_bound_p.adb
 
 package body Search_Lower_Bound_P with
    Spark_Mode
@@ -46,10 +46,10 @@ package body Search_Lower_Bound_P with
    end Search_Lower_Bound;
 end Search_Lower_Bound_P;
 
--- end file Search_Lower_Bound.adb
+-- end file search_lower_bound_p.adb
 
 
--- start file Search_Lower_Bound.ads
+-- start file search_lower_bound_p.ads
 
 with Types;         use Types;
 with Sorted_P;      use Sorted_P;
@@ -77,7 +77,7 @@ package Search_Lower_Bound_P with
 
 end Search_Lower_Bound_P;
 
--- end file Search_Lower_Bound.ads
+-- end file search_lower_bound_p.ads
 
 
 -- start file types.ads
