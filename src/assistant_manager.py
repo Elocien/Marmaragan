@@ -20,8 +20,6 @@ class openai_assistant:
             instructions (str): Instructions detailing the purpose of the Assistant. E.g. "You are a programmer. Fix the sent python code so that it runs correctly"
         """
         self.client = OpenAI()
-        self.thread = self.client.beta.threads.create()
-        self.thread_id = self.thread.id
         self.assistant = self.client.beta.assistants.create(
             instructions=instructions,
             name="Spark Annotation Assistant",
@@ -29,22 +27,26 @@ class openai_assistant:
             model="gpt-4-0613"
         )
         
-        print(self.assistant.id)
+        print(f"Created Assistant with id: {self.assistant.id}\n")
 
-    def create_message(self, message: str) -> None:
+    def create_message(self, message: str) -> str:
         """
         Creates a message in the thread.
 
         Args:
             message (str): The message content to be sent.
         """
+        thread = self.client.beta.threads.create()
         self.client.beta.threads.messages.create(
-            thread_id=self.thread_id,
+            thread_id=thread.id,
             role="user",
             content=message
         )
+        
+        return thread.id
+        
 
-    def retrieve_messages(self) -> List[Any]:
+    def retrieve_messages(self, thread_id: str) -> List[Any]:
         """
         Initiates a run of the assistant within the thread and retrieves messages after a delay.
 
@@ -52,22 +54,27 @@ class openai_assistant:
             List[Any]: A list of messages from the thread.
         """
         run = self.client.beta.threads.runs.create(
-            thread_id=self.thread_id,
+            thread_id=thread_id,
             assistant_id=self.assistant.id
         )
 
 
         # TODO while loop with sleep to check if run is complete
-        sleep(5)
+        sleep(1)
+        
+        status = ""
 
-        run_id = run.id
-        self.client.beta.threads.runs.retrieve(
-            thread_id=self.thread.id,
-            run_id=run_id
-        )
+        while status != "completed":
+            status = self.client.beta.threads.runs.retrieve(
+                thread_id=thread_id,
+                run_id=run.id
+            ).status
+            
+            sleep(1)
+            print(f"Run status: {status}")
 
         messages = self.client.beta.threads.messages.list(
-            thread_id=self.thread_id
+            thread_id=thread_id
         )
 
         return messages.data
@@ -75,10 +82,7 @@ class openai_assistant:
 
     def delete_assistant(self) -> None:
         """
-        Deletes the assistant given it's id.
-        
-        Args:
-            id (str): Assistant id.
+        Deletes the Assistant
         """
         # Initialize the OpenAI client
         client = OpenAI()
