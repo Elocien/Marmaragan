@@ -251,5 +251,29 @@ async def parse_gnatprove_output(gnatprove_output: str) -> List[str]:
     
 
 
+def extract_line_of_code_from_file(medium: str, project_dir: str) -> str:
+    """
+    Extract the line of code from the file referenced in the medium.
     
+    Args:
+        medium (str): The medium message
+        project_dir (str): The directory of the spark project generated from the benchmark
+    
+    Returns:
+        str: The line of code referenced in the medium
+    """
+    
+    file_name = medium[0].split(":")[0]
+    line_number = medium[0].split(":")[1]
+    
+    file_path = os.path.join(project_dir, file_name)
+    
+    # iterate over each line in the file and extract the line of code
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        
+        # Get the line of code and strip whitespace
+        line_of_code = lines[int(line_number) - 1].strip()
+        
+        return line_of_code
 
