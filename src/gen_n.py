@@ -27,7 +27,6 @@ class gen_1:
         self.benchmark_files = retrieve_filenames_from_dir(benchmark_dir)
         
         # Deletes all current assistants
-        # TODO: Refactor assistant creation and deletion
         delete_all_assistants()
         
     

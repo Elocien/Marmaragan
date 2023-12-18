@@ -58,12 +58,10 @@ class openai_assistant:
             assistant_id=self.assistant.id
         )
 
-
-        # TODO while loop with sleep to check if run is complete
-        sleep(1)
         
         status = ""
 
+        # Polling of the api to check if the run is completed
         while status != "completed":
             status = self.client.beta.threads.runs.retrieve(
                 thread_id=thread_id,
@@ -71,8 +69,8 @@ class openai_assistant:
             ).status
             
             sleep(1)
-            print(f"Run status: {status}")
 
+        # Retrieve the messages from the thread
         messages = self.client.beta.threads.messages.list(
             thread_id=thread_id
         )
