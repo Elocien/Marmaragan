@@ -1,11 +1,10 @@
-import subprocess
 from time import sleep
 from src.util import *
 from src.assistant_manager import openai_assistant
-from openai import OpenAI
 import shutil
 import asyncio
 import textwrap
+import logging
 
 
 
@@ -27,7 +26,24 @@ class gen_1:
         self.benchmark_files = retrieve_filenames_from_dir(benchmark_dir)
         
         # Deletes all current assistants
-        delete_all_assistants()
+        # delete_all_assistants()
+        
+        # Setup Logger
+        self.logger = logging.getLogger('gen_1')
+        self.logger.setLevel(logging.INFO)
+
+        # Create a file handler which logs even debug messages
+        fh = logging.FileHandler('benchmark_run.log')
+        fh.setLevel(logging.INFO)
+
+        # Create a formatter and set the formatter for the handler.
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+
+        # Add the handler to the logger
+        self.logger.addHandler(fh)
+
+
         
     
     def run_benchmark(self):
@@ -52,13 +68,13 @@ class gen_1:
         
         benchmark_gpr_files = []
         
-        # Iterate over each file in the benchmark and generate the files in the spark_benchmark directory
+    # Iterate over each file in the benchmark and generate the files in the spark_benchmark directory
         for benchmark_file_path in self.benchmark_files:
             gpr_file_path = generate_spark_files(benchmark_file_path, benchmark_dir)
             benchmark_gpr_files.append(gpr_file_path)
             
 
-            # Run gnatprove on the project
+        # Run gnatprove on the project
             mediums = asyncio.run(run_gnatprove(gpr_file_path))
             
             project_dir = "/".join(gpr_file_path.split("/")[:-1])
@@ -79,7 +95,7 @@ class gen_1:
             # Format medium code reference
             medium_code_reference = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
             
-            # Format prompt
+        # Format prompt
             prompt = f"""\
                 The following code is a Spark2014/ADA project.\n\n
                 {benchmark_file.read()}
@@ -90,8 +106,6 @@ class gen_1:
                 
                 Return the fixed code for the first implementation file, delimiting with ```ada\n and \n```
                 """
-                
-            # print(textwrap.dedent(prompt))
            
            
             thread_id = assistant.create_message(textwrap.dedent(prompt))
@@ -99,13 +113,49 @@ class gen_1:
 
         
     # Retrieve the messages from the assistant
-            messages = assistant.retrieve_messages(thread_id)
-            print(messages[0].content[0].text.value)
+            message = assistant.retrieve_messages(thread_id)
+            message_content = message[0].content[0].text.value
             
         
-    # For each message, extract the fixed code and write to file in the benchmark_dir
+    # Extract the fixed code and write to file in the benchmark_dir
+
+            # Extract the code from the response
+            try:
+                api_response_code = extract_code_from_response(message_content)
+            except ValueError as e:
+                self.logger.error(f"Error extracting code from response: {e}")
+
+            # Extract the filename from the response
+            try:
+                adb_filename = extract_filename_from_response(api_response_code)
+            except ValueError as e:
+                self.logger.error(f"Error extracting filename from response code: {e}")
+
+            
+            # Convert filename to lowercase and add .adb extension
+            filename_with_extension = adb_filename.lower() + ".adb"
+            
+            adb_file_path = project_dir + "/" + filename_with_extension
+            
+            # Overwrite the destination file with the response code
+            overwrite_destination_file_with_string(
+                adb_file_path, api_response_code)
+            
+            
     
-    # Run gnatprove on the fixed code and extract any mediums 
+        # Run gnatprove on the fixed code and extract any mediums 
+            
+            # Run gnatprove on the project
+            new_mediums = asyncio.run(run_gnatprove(gpr_file_path))
+            
+            
+        # Logging
+            self.logger.info(
+                f"Project: {gpr_file_path.split('/')[-1]} | Initial Mediums: {mediums} | Prompt: \n{prompt} | Response: \n{api_response_code} | New Mediums: \n{new_mediums} \n -----------------------------------\n\n")
+            
+            
+
+
     
     # Delete the assistant
         assistant.delete_assistant()
