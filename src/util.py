@@ -1,3 +1,4 @@
+import re
 from typing import List
 import asyncio
 import textwrap
@@ -10,12 +11,57 @@ import subprocess
 def overwrite_destination_file_with_string(file_path : os.path, content : str) -> None:
     '''
     Overwrites the input ada file with new content (in this case LLM output)
+    
+    Args:
+        file_path (os.path): The path to the file to be overwritten
+        content (str): The content to overwrite the file with
     '''
     try:
         with open(file_path, 'w') as file:
             file.write(content)
     except IOError:
         print(f"An error occurred while trying to overwrite the file {file_path}.")
+        
+        
+def extract_filename_from_response(spark_code_response: str) -> str:
+    """
+    The function extracts the filename for a given ada file
+    
+    Args:
+        spark_code_response (str): The text to extract the filename from
+    """
+    # Regular expression pattern to match 'package body {some text} with'
+    pattern = r"package body\s+(\S+)\s+with"
+
+    # Find all non-overlapping matches of the regular expression pattern in the string text
+    matches = re.findall(pattern, spark_code_response)
+
+    # Check the number of matches and act accordingly
+    if len(matches) == 0:
+        raise ValueError("No match found")
+    elif len(matches) > 1:
+        raise ValueError("Multiple matches found")
+    else:
+        # Return the single match found
+        return matches[0]
+
+
+def extract_code_from_response(text: str) -> str:
+    # This regular expression looks for a pattern that starts with ```ada and ends with ```
+    pattern = r"```ada(.*?)```"
+
+    # Find all non-overlapping matches of the regular expression pattern in the string text
+    matches = re.findall(pattern, text, re.DOTALL)
+
+    # Check the number of matches and act accordingly
+    if len(matches) == 0:
+        raise ValueError("No ADA code block found")
+    elif len(matches) > 1:
+        raise ValueError("Multiple ADA code blocks found")
+    else:
+        # Return the single match found
+        return matches[0].strip()
+
 
 
 
