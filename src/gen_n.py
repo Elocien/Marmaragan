@@ -151,7 +151,7 @@ class gen_1:
             
         # Logging
             self.logger.info(
-                f"Project: {gpr_file_path.split('/')[-1]} | Initial Mediums: {mediums} | Prompt: \n{prompt} | Response: \n{api_response_code} | New Mediums: \n{new_mediums} \n -----------------------------------\n\n")
+                f"Project: {gpr_file_path.split('/')[-1]} | Initial Mediums: {mediums} | Prompt: \n{prompt} | Response: \n{api_response_code} \n| New Mediums: \n{new_mediums} \n -----------------------------------\n\n")
             
             
 
