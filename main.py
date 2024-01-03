@@ -1,6 +1,9 @@
 from src.gen_n import *
+from scripts.gen_benchmark import gen_benchmark
 
 
+
+# Run the benchmark
 basic_benchmark = gen_1(instructions=
                         """\
                         You are a Spark2014/ADA programmer. Given code in the form of an implementation (adb), specification (ads)
@@ -14,8 +17,7 @@ basic_benchmark.run_benchmark()
 
 
 
-
-
-
+# Generate the spark benchmark files
+# gen_benchmark(benchmark_dir="spark_projects/benchmark/code")
 
 
