@@ -119,11 +119,16 @@ class gen_1:
         
     # Extract the fixed code and write to file in the benchmark_dir
 
+            api_response_code = ""
+            
             # Extract the code from the response
             try:
                 api_response_code = extract_code_from_response(message_content)
             except ValueError as e:
                 self.logger.error(f"Error extracting code from response: {e}")
+
+
+            adb_filename = ""
 
             # Extract the filename from the response
             try:
