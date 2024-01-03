@@ -14,9 +14,8 @@ package body Swap_Ranges_P with
 
          pragma Loop_Invariant
            (B'Loop_Entry (B'First .. B'First + J) =
-            A (A'First .. A'First + J));
-         pragma Loop_Invariant
-           (A'Loop_Entry (A'First .. A'First + J) =
+                A (A'First .. A'First + J)
+            and A'Loop_Entry (A'First .. A'First + J) =
             B (B'First .. B'First + J));
          pragma Loop_Invariant
            (if B'First + J < B'Last then
