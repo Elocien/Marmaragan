@@ -24,6 +24,7 @@ class gen_1:
         
         # Retrieve the benchmark files
         self.benchmark_files = retrieve_filenames_from_dir(benchmark_dir)
+        print(self.benchmark_files)
         
         # Deletes all current assistants
         # delete_all_assistants()
