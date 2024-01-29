@@ -5,6 +5,7 @@ import shutil
 import asyncio
 import textwrap
 import logging
+import time
 
 
 
@@ -50,6 +51,10 @@ class gen_1:
     
     def run_benchmark(self):
         
+        # Start timing
+        start_time = time.time()
+        
+        # Name of the temporary directory to store the spark files
         benchmark_dir = "tmp_benchmark_dir"
         
         # Create the assistant
@@ -127,7 +132,8 @@ class gen_1:
             try:
                 api_response_code = extract_code_from_response(message_content)
             except ValueError as e:
-                self.logger.error(f"Error extracting code from response: {e}")
+                self.logger.error(
+                    f"\n-----------------------------------\nError extracting code from response: {e}\nCode: {message_content}\n-----------------------------------\n\n")
 
 
             adb_filename = ""
@@ -136,7 +142,8 @@ class gen_1:
             try:
                 adb_filename = extract_filename_from_response(api_response_code)
             except ValueError as e:
-                self.logger.error(f"Error extracting filename from response code: {e}")
+                self.logger.error(
+                    f"\n-----------------------------------\n\nError extracting filename from response code: {e}\nCode: {api_response_code}\n-----------------------------------\n\n")
 
             
             # Convert filename to lowercase and add .adb extension
@@ -156,33 +163,24 @@ class gen_1:
             gnatprove_output = asyncio.run(run_gnatprove(gpr_file_path))
             new_mediums = parse_gnatprove_output(gnatprove_output)
             
+        
             
         # Logging
             self.logger.info(
-                f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums} \nPrompt: \n{prompt} \nResponse: \n{api_response_code} \n New Mediums: \n{new_mediums} \nGnatprove Output: \n{gnatprove_output} \n -----------------------------------\n\n")
+                f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums} \nPrompt: \n{prompt} \n\nResponse: \n{api_response_code} \n\nNew Mediums: \n{new_mediums} \nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
             
-            
+        
+        
 
-
-    
     # Delete the assistant
         assistant.delete_assistant()
         
         
     # Delete the temporary directory
-        # shutil.rmtree(benchmark_dir)
-
-    
-    
-    
-    
-    
+        shutil.rmtree(benchmark_dir)
         
-    
+    # End timing and log
+        end_time = time.time()  # End timing
+        duration = end_time - start_time
 
-
-
-    
-    
-    
-    
+        self.logger.info(f"Total Duration: {duration} seconds")
