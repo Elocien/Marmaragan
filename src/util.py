@@ -236,7 +236,7 @@ def run_gnatprove(gpr_filepath: str) -> str:
     str: The standard output from running gnatprove.
 
     This function starts a subprocess for the given command, captures its standard
-    output, and then returns the output. It uses subprocess for synchronous execution.
+    output, and then returns the output. 
     """
 
     command = [
