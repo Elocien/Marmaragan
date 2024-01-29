@@ -263,7 +263,7 @@ async def run_gnatprove(gpr_filepath: str) -> str:
 
     
     
-async def parse_gnatprove_output(gnatprove_output: str) -> List[str]:
+def parse_gnatprove_output(gnatprove_output: str) -> List[str]:
     """
     Parse the output of gnatprove and return a list of medium messages.
 
