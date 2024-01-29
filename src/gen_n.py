@@ -81,7 +81,8 @@ class gen_1:
             
 
         # Run gnatprove on the project
-            mediums = run_gnatprove(gpr_file_path)
+            output = run_gnatprove(gpr_file_path)
+            mediums = parse_gnatprove_output(output)
             
             project_dir = "/".join(gpr_file_path.split("/")[:-1])
             
