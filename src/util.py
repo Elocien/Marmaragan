@@ -240,7 +240,8 @@ async def run_gnatprove(gpr_filepath: str) -> str:
     the subprocess. It uses asyncio for asynchronous execution.
     """
     
-    command = ["gnatprove", f"-P{gpr_filepath}"]
+    command = [
+        "gnatprove", f"-P{gpr_filepath} --timeout=120 --level=4 --prover=z3,cvc4,altergo"]
 
     # Start the subprocess and capture its output
     process = await asyncio.create_subprocess_exec(
@@ -254,11 +255,9 @@ async def run_gnatprove(gpr_filepath: str) -> str:
 
     # Decode the output
     output = stdout.decode()
-    
-    gnatprove_mediums = await parse_gnatprove_output(output)
 
     # Return the standard output
-    return gnatprove_mediums
+    return output
 
 
 
