@@ -44,6 +44,9 @@ class gen_1:
 
         # Add the handler to the logger
         self.logger.addHandler(fh)
+        
+        self.logger.info(
+            f"New Run \nGPT Model: {gpt_model} \nInstructions: \n{instructions} \n-----------------------------------\n\n")
 
 
         
