@@ -3,4 +3,5 @@
 *.pyc
 spark_files/
 spark_benchmark/
+files_with_medium/
 .DS_Store
