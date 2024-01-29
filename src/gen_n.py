@@ -170,7 +170,7 @@ class gen_1:
             
         # Logging
             self.logger.info(
-                f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums} \nPrompt: \n{prompt} \n\nResponse: \n{api_response_code} \n\nNew Mediums: \n{new_mediums} \nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums} \nPrompt: \n{prompt} \n\nResponse: \n{api_response_code} \n\n Successful Compilation: \n{is_compilation_successful(gnatprove_output)}\nNew Mediums: \n{new_mediums} \nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
             
         
         
