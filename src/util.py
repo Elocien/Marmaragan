@@ -314,4 +314,24 @@ def extract_line_of_code_from_file(medium: str, project_dir: str) -> str:
         line_of_code = lines[int(line_number) - 1].strip()
         
         return line_of_code
+    
+
+def is_compilation_successful(output: str) -> bool:
+    """
+    Check if the compilation was successful by checking if the line "Phase 2 of 2: flow analysis and proof ..." is in the output.
+    
+    Args:
+        output (str): The output from running gnatprove
+        
+    Returns:
+        bool: True if the compilation was successful, False otherwise
+    """
+
+    search_line = "Phase 2 of 2: flow analysis and proof ..."
+
+    # Check if the line is in the output
+    if search_line in output:
+        return True
+    else:
+        return False
 
