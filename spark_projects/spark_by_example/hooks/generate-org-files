@@ -1,4 +1,0 @@
-#!/bin/bash
-
-make -C ./doc generate-org-files
-git add ./*/*.org

@@ -1,3 +1,0 @@
-pragma Assertion_Policy (Pre => Check);
-pragma Assertion_Policy (Post => Check);
-pragma Assertion_Policy (Ghost => Check);

@@ -49,7 +49,7 @@ class gen_1:
     
     def run_benchmark(self):
         
-        benchmark_dir = "spark_benchmark"
+        benchmark_dir = "tmp_benchmark_dir"
         
         # Create the assistant
         assistant = openai_assistant(self.instructions)
