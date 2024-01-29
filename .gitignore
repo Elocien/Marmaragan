@@ -2,6 +2,6 @@
 *.log
 *.pyc
 spark_files/
-spark_benchmark/
+tmp_benchmark_dir/
 files_with_medium/
 .DS_Store
