@@ -2,7 +2,6 @@ from time import sleep
 from src.util import *
 from src.assistant_manager import openai_assistant
 import shutil
-import asyncio
 import textwrap
 import logging
 import time
@@ -82,7 +81,7 @@ class gen_1:
             
 
         # Run gnatprove on the project
-            mediums = asyncio.run(run_gnatprove(gpr_file_path))
+            mediums = run_gnatprove(gpr_file_path)
             
             project_dir = "/".join(gpr_file_path.split("/")[:-1])
             
@@ -160,7 +159,7 @@ class gen_1:
         # Run gnatprove on the fixed code and extract any mediums 
             
             # Run gnatprove on the project
-            gnatprove_output = asyncio.run(run_gnatprove(gpr_file_path))
+            gnatprove_output = run_gnatprove(gpr_file_path)
             new_mediums = parse_gnatprove_output(gnatprove_output)
             
         

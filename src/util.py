@@ -1,6 +1,6 @@
+import subprocess  # Make sure to import subprocess at the beginning
 import re
 from typing import List
-import asyncio
 import textwrap
 from openai import OpenAI
 import os
@@ -225,40 +225,33 @@ def generate_spark_files(file_path: str, directory_path: str) -> str:
         return gpr_file_path
 
 
-async def run_gnatprove(gpr_filepath: str) -> str:
+def run_gnatprove(gpr_filepath: str) -> str:
     """
-    Run a gnatprove asynchronously and capture its output.
+    Run gnatprove synchronously and capture its output.
 
     Args:
     gp_filepath (str): Path to the project file of the spark project to be proved.
 
     Returns:
-    int: The exit status of the subprocess. Typically 0 for successful completion.
+    str: The standard output from running gnatprove.
 
     This function starts a subprocess for the given command, captures its standard
-    output and standard error, prints them, and then returns the exit status of
-    the subprocess. It uses asyncio for asynchronous execution.
+    output, and then returns the output. It uses subprocess for synchronous execution.
     """
-    
+
     command = [
-        "gnatprove", f"-P{gpr_filepath} --steps=15000 --level=4 --prover=z3,cvc4,altergo"]
+        "gnatprove", f"-P{gpr_filepath}", "--steps=15000", "--level=4", "--prover=z3,cvc4,altergo"]
 
     # Start the subprocess and capture its output
-    process = await asyncio.create_subprocess_exec(
-        *command,
+    process = subprocess.run(
+        command,
         stdout=subprocess.PIPE,  # Capture standard output
-        stderr=subprocess.DEVNULL   # Capture standard error
+        stderr=subprocess.DEVNULL,  # Ignore standard error
+        text=True  # Decode the output automatically
     )
 
-    # Read standard output asynchronously
-    stdout, _ = await process.communicate()
-
-    # Decode the output
-    output = stdout.decode()
-
     # Return the standard output
-    return output
-
+    return process.stdout
 
 
     
