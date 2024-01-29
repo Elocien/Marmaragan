@@ -152,12 +152,13 @@ class gen_1:
         # Run gnatprove on the fixed code and extract any mediums 
             
             # Run gnatprove on the project
-            new_mediums = asyncio.run(run_gnatprove(gpr_file_path))
+            gnatprove_output = asyncio.run(run_gnatprove(gpr_file_path))
+            new_mediums = parse_gnatprove_output(gnatprove_output)
             
             
         # Logging
             self.logger.info(
-                f"Project: {gpr_file_path.split('/')[-1]} | Initial Mediums: {mediums} | Prompt: \n{prompt} | Response: \n{api_response_code} \n| New Mediums: \n{new_mediums} \n -----------------------------------\n\n")
+                f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums} \nPrompt: \n{prompt} \nResponse: \n{api_response_code} \n New Mediums: \n{new_mediums} \nGnatprove Output: \n{gnatprove_output} \n -----------------------------------\n\n")
             
             
 
