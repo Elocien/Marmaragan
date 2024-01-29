@@ -15,12 +15,14 @@ class gen_1:
     Args:
             instructions (str): Instructions detailing the purpose of the Assistant. Example: "You are a programmer. Fix the sent python code so that it runs correctly"
             benchmark_dir (str): The directory containing the benchmark files.
+            gpt_model (str): The GPT model to use. Choice of "gpt-3.5-turbo-1106", "gpt-4-0125-preview" or "gpt-4-0613"
     """    
     
-    def __init__(self, instructions: str, benchmark_dir: str):
+    def __init__(self, instructions: str, benchmark_dir: str, gpt_model: str):
         
         # Initialize the assistant
         self.instructions = instructions
+        self.gpt_model = gpt_model
         
         # Retrieve the benchmark files
         self.benchmark_files = retrieve_filenames_from_dir(benchmark_dir)
@@ -52,7 +54,7 @@ class gen_1:
         benchmark_dir = "tmp_benchmark_dir"
         
         # Create the assistant
-        assistant = openai_assistant(self.instructions)
+        assistant = openai_assistant(self.instructions, self.gpt_model)
         
     # For each file in the benchmark, run gnatprove and extract the medium and line of code
         

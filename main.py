@@ -11,7 +11,8 @@ basic_benchmark = gen_1(instructions=
                         are additionally given. Fix the code so that no mediums occur.
                         Return only the fixed code for the first implemenation file.\
                         """, 
-                        benchmark_dir="spark_projects/benchmark/code")
+                        benchmark_dir="spark_projects/benchmark/code",
+                        model = "gpt-3.5-turbo-1106")
 
 basic_benchmark.run_benchmark()
 
