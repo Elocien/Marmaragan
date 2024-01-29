@@ -19,6 +19,6 @@ basic_benchmark.run_benchmark()
 
 
 # Generate the spark benchmark files
-# gen_benchmark(benchmark_dir="spark_projects/benchmark/code")
+# gen_benchmark(benchmark_dir="spark_projects/benchmark_rem_first_LoopInv")
 
 
