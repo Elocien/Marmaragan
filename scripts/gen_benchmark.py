@@ -8,7 +8,7 @@ def gen_benchmark(benchmark_dir: str):
 
     benchmark_files = retrieve_filenames_from_dir(benchmark_dir)
     
-    benchmark_dir_name = "spark_benchmark"
+    benchmark_dir_name = "tmp_benchmark_dir"
 
     # Remove dir if it exists
     try:
