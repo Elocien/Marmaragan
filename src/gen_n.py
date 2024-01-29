@@ -177,7 +177,7 @@ class gen_1:
         
         
     # Delete the temporary directory
-        shutil.rmtree(benchmark_dir)
+        # shutil.rmtree(benchmark_dir)
         
     # End timing and log
         end_time = time.time()  # End timing
