@@ -26,6 +26,7 @@ is
 
       Admissible_by_Equality(S1,S2,F);
       for a in 1 .. F.Size loop
+         pragma Loop_Invariant (for all I in 1 .. a-1 => (if S2(I) then Defends(S2,I,F)));
          if S2(a) then
             Defense_by_Equality(S1,S2,a,F);
          end if;
@@ -67,7 +68,6 @@ is
    begin
 
       for a in 1 .. F.Size loop
-         pragma Loop_Invariant (for all b in 1 .. a-1 => (if not S(b) then not Defends(S,b,F)));
          if not S(a) and Defends(S,a,F) then
             return SearchResult'(Exists => True, Arg => a);
          end if;

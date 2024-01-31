@@ -15,7 +15,7 @@ is
       pragma Assert (not (for some I in 1 .. MaxNumberOfArgs => ArgSet_From_ArgList(L,F.Size)(I)));
       pragma Assert (Is_ArgList_For(L,F.Size));
       while Searching loop
-         pragma Loop_Invariant (Is_ArgList_For(L,F.Size));
+         pragma Loop_Variant (Increases => L.Size);
          pragma Loop_Invariant (Admissible(ArgSet_From_ArgList(L,F.Size),F));
          pragma Loop_Invariant (for all I in Arbitrary_ArgSets(F.Size)'Range => (if Complete(Arbitrary_ArgSets(F.Size)(I),F) then Subset(ArgSet_From_ArgList(L,F.Size),Arbitrary_ArgSets(F.Size)(I))));
          SR := Lemmas.Search_Acceptable_Arg(ArgSet_From_ArgList(L,F.Size),F);
