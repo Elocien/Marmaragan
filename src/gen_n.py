@@ -126,52 +126,78 @@ class gen_1:
             message = assistant.retrieve_messages(thread_id)
             message_content = message[0].content[0].text.value
             
+            
+            # Init compile success flag
+            compile_success = True
+            
         
     # Extract the fixed code and write to file in the benchmark_dir
 
             api_response_code = ""
+            adb_filename = ""
             
             # Extract the code from the response
             try:
                 api_response_code = extract_code_from_response(message_content)
             except ValueError as e:
+                compile_success = False
                 self.logger.error(
                     f"\n-----------------------------------\nError extracting code from response: {e}\nCode: {message_content}\n-----------------------------------\n\n")
 
 
-            adb_filename = ""
+                if api_response_code not in ["", None]:
 
-            # Extract the filename from the response
-            try:
-                adb_filename = extract_filename_from_response(api_response_code)
-            except ValueError as e:
-                self.logger.error(
-                    f"\n-----------------------------------\n\nError extracting filename from response code: {e}\nCode: {api_response_code}\n-----------------------------------\n\n")
+                    # Extract the filename from the response
+                    try:
+                        adb_filename = extract_filename_from_response(api_response_code)
+                        
+                        
+                        # Convert filename to lowercase and add .adb extension
+                        filename_with_extension = adb_filename.lower() + ".adb"
+                        
+                        adb_file_path = project_dir + "/" + filename_with_extension
+                        
+                        # Overwrite the destination file with the response code
+                        overwrite_destination_file_with_string(
+                            adb_file_path, api_response_code)
+                        
+                        
+            
+                    except ValueError as e:
+                        compile_success = False
+                        self.logger.error(
+                            f"\n-----------------------------------\n\nError extracting filename from response code: {e}\nCode: {api_response_code}\n-----------------------------------\n\n")
 
             
-            # Convert filename to lowercase and add .adb extension
-            filename_with_extension = adb_filename.lower() + ".adb"
             
-            adb_file_path = project_dir + "/" + filename_with_extension
-            
-            # Overwrite the destination file with the response code
-            overwrite_destination_file_with_string(
-                adb_file_path, api_response_code)
             
             
     
         # Run gnatprove on the fixed code and extract any mediums 
             
-            # Run gnatprove on the project
-            gnatprove_output = run_gnatprove(gpr_file_path)
-            new_mediums = parse_gnatprove_output(gnatprove_output)
+            if compile_success == True:
+                
+                # Run gnatprove on the project
+                gnatprove_output = run_gnatprove(gpr_file_path)
+                new_mediums = parse_gnatprove_output(gnatprove_output)
+                compile_success = is_compilation_successful(gnatprove_output)
+                
+                # Logging
+                self.logger.info(
+                    f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums} \nPrompt: \n{prompt} \n\nResponse: \n{api_response_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+            
+            else:
+                gnatprove_output = "GnatProve did not run. Either the filename or code could not be extracted from the response."
+                new_mediums = ""
+                
+                # Logging
+                self.logger.info(
+                    f"Project: {gpr_file_path.split('/')[-1]}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{api_response_code}\n-----------------------------------\n\n")
+
             
         
             
-        # Logging
-            self.logger.info(
-                f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums} \nPrompt: \n{prompt} \n\nResponse: \n{api_response_code} \n\n Successful Compilation: \n{is_compilation_successful(gnatprove_output)}\nNew Mediums: \n{new_mediums} \nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
-            
+        
         
         
 
