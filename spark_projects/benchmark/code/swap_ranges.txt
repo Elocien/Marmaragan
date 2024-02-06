@@ -48,7 +48,7 @@ package Swap_Ranges_P with
 
 end Swap_Ranges_P;
 
--- end file swap_ranges_p.adb
+-- end file swap_ranges_p.ads
 
 
 -- start file types.ads
@@ -97,25 +97,6 @@ package Types is
 end Types;
 
 -- end file types.ads
-
-
--- start file swap_p.adb
-
-package body Swap_P with
-   Spark_Mode
- is
-   procedure Swap
-     (P : in out T;
-      Q : in out T)
-   is
-      Save : T := P;
-   begin
-      P := Q;
-      Q := Save;
-   end Swap;
-end Swap_P;
-
--- end file swap_p.adb
 
 
 -- start file swap_p.ads
