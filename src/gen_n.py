@@ -107,15 +107,18 @@ class gen_1:
             
         # Format prompt
             prompt = f"""\
-                The following code is a Spark2014/ADA project.\n\n
-                {benchmark_file.read()}
-                
-                
-                Here are the current mediums being thrown by gnatprove, in the form of the line referenced as the cause and an explaination:\n\n
-                {medium_code_reference}
-                
-                Return the fixed code for the first implementation file, delimiting with ```ada\n and \n```
-                """
+The following code is a Spark2014/ADA project.\n\n
+{benchmark_file.read()}
+
+
+Here are the current mediums being thrown by gnatprove, in the form of the line referenced as the cause and an explaination:\n\n
+{medium_code_reference}
+
+Return the fixed code for the first implementation file, delimiting with 
+```ada
+code
+```
+"""
            
            
             thread_id = assistant.create_message(textwrap.dedent(prompt))
