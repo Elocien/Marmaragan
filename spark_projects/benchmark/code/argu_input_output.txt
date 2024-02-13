@@ -166,9 +166,6 @@ is
      Pre => Counter in 1 .. MaxNumberOfArgs and then L(Counter) = I,
      Post => (for some J in 1 .. Counter => L(J) = I);
 
-
-   procedure Print_ArgList (L : in ArgList);
-
    function Singleton (a : Arg) return InputArgList is
       (1 .. 1 => a);
 
