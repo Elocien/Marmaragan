@@ -17,7 +17,7 @@ basic_benchmark = gen_1(instructions=
                         statement directly within a "loop" statement. E.g. a statement such as "pragma Loop_Variant (Increases => L.Size);"
                         Return only the code of the amended package body, with the single addition. Do not modify any other parts of the code!\
                         """, 
-                        benchmark_dir="spark_projects/benchmark_rem_first_LoopInv",
+                        benchmark_dir="benchmarks/benchmark_rem_first_LoopInv",
                         gpt_model=model)
 
 

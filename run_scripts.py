@@ -4,11 +4,12 @@ from scripts.gen_benchmark import gen_benchmark
 
 
 # Generate the spark benchmark files
-gen_benchmark(benchmark_dir="spark_projects/benchmark_rem_first_LoopInv")
+gen_benchmark(benchmark_dir="benchmarks/benchmark_rem_first_LoopInv")
+# gen_benchmark(benchmark_dir="benchmarks/benchmark/code")
 
 # # Generate the diff between the original and modified benchmark
-# original_dir = 'spark_projects/benchmark/code'
-# modified_dir = 'spark_projects/benchmark_rem_first_LoopInv'
+# original_dir = 'benchmarks/benchmark/code'
+# modified_dir = 'benchmarks/benchmark_rem_first_LoopInv'
 # differences = calculate_diff_with_line_numbers(original_dir, modified_dir)
 
 # for diff in differences:
