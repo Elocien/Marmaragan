@@ -1,0 +1,398 @@
+-- start file lemmas.adb
+
+package body Lemmas with
+   Spark_Mode
+is
+
+
+   procedure Admissible_by_Equality (S1 : ArgSet; S2 : ArgSet; F : AF) is
+   begin
+
+      pragma Assert (if S1 = S2 and Admissible(S1,F) then Admissible(S2,F));
+
+   end Admissible_by_Equality;
+
+
+   procedure Defense_by_Equality (S1 : ArgSet; S2 : ArgSet; a: Arg; F : AF) is
+   begin
+
+      pragma Assert (if S1 = S2 and Defends(S1,a,F) then Defends(S2,a,F));
+
+   end Defense_by_Equality;
+
+
+   procedure Complete_by_Equality (S1 : ArgSet; S2 : ArgSet; F : AF) is
+   begin
+
+      Admissible_by_Equality(S1,S2,F);
+      for a in 1 .. F.Size loop
+         pragma Loop_Invariant (for all I in 1 .. a-1 => (if S2(I) then Defends(S2,I,F)));
+         if S2(a) then
+            Defense_by_Equality(S1,S2,a,F);
+         end if;
+      end loop;
+
+   end Complete_by_Equality;
+
+
+   procedure Grounded_by_Equality (S1 : ArgSet; S2 : ArgSet; F : AF) is
+   begin
+
+      Complete_by_Equality(S1,S2,F);
+      for I in Arbitrary_ArgSets(F.Size)'Range loop
+         pragma Loop_Invariant (for all J in Arbitrary_ArgSets(F.Size)'First .. I-1 =>
+                                  ((if Subset(Arbitrary_ArgSets(F.Size)(J),S2) and Complete(Arbitrary_ArgSets(F.Size)(J),F) then
+                                       S2 = (Arbitrary_ArgSets(F.Size)(J)))));
+         if Subset(Arbitrary_ArgSets(F.Size)(I),S2) and Complete(Arbitrary_ArgSets(F.Size)(I),F) then
+            pragma Assert (S2 = (Arbitrary_ArgSets(F.Size)(I)));
+         end if;
+      end loop;
+
+   end Grounded_by_Equality;
+
+
+   procedure Every_Complete_Extension_Contains(a : Arg; R : ArgSet; F : AF) is
+   begin
+
+      for I in Arbitrary_ArgSets(F.Size)'Range loop
+         pragma Loop_Invariant (for all J in Arbitrary_ArgSets(F.Size)'First .. I-1 => (if Complete(Arbitrary_ArgSets(F.Size)(J),F) then Arbitrary_ArgSets(F.Size)(J)(a)));
+         if Complete(Arbitrary_ArgSets(F.Size)(I),F) then
+            pragma Assert (Defends(Arbitrary_ArgSets(F.Size)(I),a,F));
+         end if;
+      end loop;
+
+   end Every_Complete_Extension_Contains;
+
+
+   function Search_Acceptable_Arg (S : ArgSet; F : AF) return SearchResult is
+   begin
+
+      for a in 1 .. F.Size loop
+         if not S(a) and Defends(S,a,F) then
+            return SearchResult'(Exists => True, Arg => a);
+         end if;
+      end loop;
+
+      return SearchResult'(Exists => False, others => <>);
+
+   end Search_Acceptable_Arg;
+
+
+   procedure Extend_Admissible_List (L : in out ArgList; a : in Arg; F : in AF) is
+      NewList : NatArray := L.List;
+      NewL : ArgList;
+   begin
+
+      --pragma Assert(Is_ArgList_For(L,F));
+      pragma Assert (for some a in 1.. F.Size => not ArgSet_From_ArgList(L,F.Size)(a));
+      Counting.ArgList_Not_Full(L,F.Size);
+      NewList(L.Size+1) := a;
+      NewL := ArgList'(Size => L.Size+1, List => NewList);
+      Extend_Admissible(ArgSet_From_ArgList(L,F.Size),ArgSet_From_ArgList(NewL,F.Size),a,F);
+      L := NewL;
+      --pragma Assert (Conflict_Free(ArgSet_From_ArgList(L,F),F));
+      --pragma Assert (Defends(ArgSet_From_ArgList(L,F),a,F));
+
+   end Extend_Admissible_List;
+
+
+   procedure Extend_Admissible (S1 : in ArgSet; S2 : in ArgSet; a : in Arg; F : in AF) is
+   begin
+
+      --S(a) := True;
+      pragma Assert (Conflict_Free(S2,F));
+      pragma Assert (Defends(S2,a,F));
+
+   end Extend_Admissible;
+
+end Lemmas;
+
+-- end file lemmas.adb
+
+
+-- start file lemmas.ads
+
+with Types; use Types;
+with Aux; use Aux;
+with Core_Definitions; use Core_Definitions;
+with Counting;
+
+package Lemmas with
+   Spark_Mode
+is
+
+
+   procedure Admissible_by_Equality (S1 : ArgSet; S2 : ArgSet; F : AF) with
+     Ghost,
+     Pre => Is_ArgSet(S1,F.Size) and then S1 = S2 and then Admissible(S1,F),
+     Post => Admissible(S2,F);
+
+   procedure Defense_by_Equality (S1 : ArgSet; S2 : ArgSet; a: Arg; F : AF) with
+     Ghost,
+     Pre => Is_ArgSet(S1,F.Size) and then a <= F.Size and then S1 = S2 and then Defends(S1,a,F),
+     Post => Defends(S2,a,F);
+
+   procedure Complete_by_Equality (S1 : ArgSet; S2 : ArgSet; F : AF) with
+     Ghost,
+     Pre => Is_ArgSet(S1,F.Size) and then S1 = S2 and then Complete(S1,F),
+     Post => Complete(S2,F);
+
+   procedure Grounded_by_Equality (S1 : ArgSet; S2 : ArgSet; F : AF) with
+     Ghost,
+     Pre => Is_ArgSet(S1,F.Size) and then S1 = S2 and then Grounded(S1,F),
+     Post => Grounded(S2,F);
+
+   -- Lemma: If R defends a and every complete extension contains R, then every complete extension contains a.
+   procedure Every_Complete_Extension_Contains (a : Arg; R : ArgSet; F : AF) with
+     Ghost,
+     Pre => Is_ArgSet(R,F.Size) and then
+            a <= F.Size and then
+            Defends(R,a,F) and then
+            (for all I in Arbitrary_ArgSets(F.Size)'Range =>
+               (if Complete(Arbitrary_ArgSets(F.Size)(I),F) then Subset(R,Arbitrary_ArgSets(F.Size)(I)))),
+     Post => (for all I in Arbitrary_ArgSets(F.Size)'Range => (if Complete(Arbitrary_ArgSets(F.Size)(I),F) then Arbitrary_ArgSets(F.Size)(I)(a)));
+
+   function Search_Acceptable_Arg (S : ArgSet; F : AF) return SearchResult with
+     Pre => Is_ArgSet(S,F.Size),
+     Post => (if not Search_Acceptable_Arg'Result.Exists then
+                (for all a in 1 .. F.Size => (if not S(a) then not Defends(S,a,F)))) and then
+             (if Search_Acceptable_Arg'Result.Exists then
+                (Search_Acceptable_Arg'Result.Arg <= F.Size and
+                not S(Search_Acceptable_Arg'Result.Arg) and
+                Defends(S,Search_Acceptable_Arg'Result.Arg,F)));
+
+   procedure Extend_Admissible_List (L : in out ArgList; a : in Arg; F : in AF) with
+     Pre => Is_ArgList_For(L,F.Size) and then
+            Is_ArgSet(ArgSet_From_ArgList(L,F.Size),F.Size) and then
+            a <= F.Size and then
+            not ArgSet_From_ArgList(L,F.Size)(a) and then
+            Admissible(ArgSet_From_ArgList(L,F.Size),F) and then
+            Defends(ArgSet_From_ArgList(L,F.Size),a,F),
+     Post => Is_ArgList_For(L,F.Size) and then
+             ArgSet_From_ArgList(L,F.Size)(a) and then
+             L'Old.Size < L.Size and then
+             (for all b in 1 .. F.Size => (if ArgSet_From_ArgList(L,F.Size)(b) and b /= a then ArgSet_From_ArgList(L'Old,F.Size)(b))) and then
+             Admissible(ArgSet_From_ArgList(L,F.Size),F);
+
+   procedure Extend_Admissible (S1 : in ArgSet; S2 : in ArgSet; a : in Arg; F : in AF) with
+     Ghost,
+     Pre => (Is_ArgSet(S1,F.Size) and then Is_ArgSet(S2,F.Size) and then a <= F.Size and then not S1(a) and then S2(a) and then Subset(S1,S2) and then (for all b in 1 .. F.Size => (if S2(b) and b /= a then S1(b))) and then Admissible(S1,F) and then Defends(S1,a,F)),
+     Post => (Admissible(S2,F));
+
+ end Lemmas;
+
+-- end file lemmas.ads
+
+
+-- start file core_definitions.ads
+
+with Types; use Types;
+with Aux; use Aux;
+
+
+package Core_Definitions with
+   Spark_Mode
+is
+
+
+   function Attacks (a : Positive; b : Positive; F : AF) return Boolean is
+     (F.AdjacencyMatrix(a,b)) with
+       Pre => a <= F.Size and then b <= F.Size;
+
+   function Conflict_Free (S : ArgSet; F: AF) return Boolean is
+     (for all a in 1 .. F.Size => (for all b in 1 .. F.Size =>
+          (if S(a) and S(b) then not Attacks(a,b,F)))) with
+       Pre => (Is_ArgSet(S,F.Size));
+
+   function Defends (S : ArgSet; a : Positive; F : AF) return Boolean is
+     (for all b in 1 .. F.Size => (if Attacks(b,a,F) then
+         (for some c in 1 .. F.Size => (S(c) and Attacks(c,b,F))))) with
+       Pre => (Is_ArgSet(S,F.Size) and then a <= F.Size);
+
+   function Admissible (S : ArgSet; F : AF) return Boolean is
+     (Conflict_Free(S,F) and then (for all a in 1 .. F.Size => (if S(a) then Defends(S,a,F)))) with
+       Pre => (Is_ArgSet(S,F.Size));
+
+   function Complete (S : ArgSet; F : AF) return Boolean is
+     (Admissible(S,F) and then (for all a in 1 .. F.Size => (if Defends(S,a,F) then S(a)))) with
+       Pre => (Is_ArgSet(S,F.Size));
+
+   function Grounded (S : ArgSet; F : AF) return Boolean is
+     (Complete(S,F) and then
+          (for all I in Arbitrary_ArgSets(F.Size)'Range =>
+             (if Subset(Arbitrary_ArgSets(F.Size)(I),S) and Complete(Arbitrary_ArgSets(F.Size)(I),F) then
+                 S = (Arbitrary_ArgSets(F.Size)(I))))) with
+       Ghost,
+       Pre => (Is_ArgSet(S,F.Size));
+
+   function Preferred (S : ArgSet; F : AF) return Boolean is
+     (Complete(S,F) and then
+          (for all I in Arbitrary_ArgSets(F.Size)'Range =>
+             (if Subset(S,Arbitrary_ArgSets(F.Size)(I)) and Complete(Arbitrary_ArgSets(F.Size)(I),F) then
+                 S = (Arbitrary_ArgSets(F.Size)(I))))) with
+       Ghost,
+       Pre => (Is_ArgSet(S,F.Size));
+
+
+end Core_Definitions;
+
+-- end file core_definitions.ads
+
+
+-- start file counting.ads
+
+with Types; use Types;
+with Aux; use Aux;
+
+package Counting with
+   Spark_Mode
+is
+
+
+   procedure ArgList_Not_Full (L : ArgList; N : AFSize) with
+     Ghost,
+     Pre => Is_ArgList_For(L,N) and then (not (for all b in 1 .. N => ArgSet_From_ArgList(L,N)(b))),
+     Post => L.Size < N;
+
+   procedure Quantified_Substitution_Of_Equals (A : NatArray; N : AFSize; L : ArgList) with
+     Ghost,
+     Pre => A'First <=1 and then A'Last >= N and then
+            (for all J in 1 .. N => A(J) = J) and then
+            Is_ArgList_For(L,N) and then
+            not (for all J in 1 .. N => ArgSet_From_ArgList(L,N)(J)),
+     Post => not (for all J in 1 .. N => ArgSet_From_ArgList(L,N)(A(J)));
+
+   procedure Substitution_Of_Equals (A : NatArray; J : Natural; N : AFSize; L : ArgList) with
+     Ghost,
+     Pre => J in A'Range and then A(J) = J and then Is_ArgList_For(L,N) and then ArgSet_From_ArgList(L,N)(A(J)),
+     Post => ArgSet_From_ArgList(L,N)(J);
+
+   function Array_Contains (A : NatArray; N : Natural; K : Natural) return Boolean is
+     (not (for all I in 1 .. N => A(I) /= K)) with
+       Pre => A'First <= 1 and A'Last >= N;
+
+   procedure Remove_Elt_From_Array (b : Arg; A : in out NatArray; N : Natural; K : Natural) with
+     -- Intuitively, A is an array of numbers between 1 and N of length K, and we remove the element b from it.
+     Ghost,
+     Pre => N <= MaxNumberOfArgs and then
+            K <= N and then
+            (for all J in 1 .. K => A(J) in 1 .. N) and then
+            (for some I in 1 .. K => A(I) = b),
+     Post => (for all J in 1 .. K-1 => A(J) in 1 .. N) and then
+             (for all J in 1 .. N => (if J /= b and (for some I in 1 .. K => A'Old(I) = J) then
+                (for some I in 1 .. K-1 => A(I) = J)));
+
+
+end Counting;
+
+-- end file counting.ads
+
+
+-- start file aux.ads
+
+with Types; use Types;
+
+package Aux with
+   Spark_Mode
+is
+
+
+   function Subset (S1 : ArgSet; S2 : ArgSet) return Boolean is
+     (for all a in 1 .. MaxNumberOfArgs => (if S1(a) then S2(a)));
+
+   function Is_ArgSet (S : ArgSet; N : AFSize) return Boolean is
+     (for all a in N+1 .. MaxNumberOfArgs => not S(a));
+
+   function Is_ArgList_For (L : ArgList; N : AFSize) return Boolean is
+     (L.Size <= N and (for all I in 1 .. L.Size => L.List(I) <= N));
+
+   function ArgSet_From_ArgList (L : ArgList; N : AFSize) return ArgSet with
+     Pre => Is_ArgList_For(L,N),
+     Post => Is_ArgSet(ArgSet_From_ArgList'Result,N) and then
+             (for all I in 1 .. N => not (ArgSet_From_ArgList'Result(I) xor (for some J in 1 .. L.Size => L.List(J) = I)));
+
+
+   -- The following two functions are for quantifying over ArgSets and reasoning qith such quantifications:
+   function Arbitrary_ArgSets (N : AFSize) return ArgSetArray with
+     Ghost,
+     Post => Arbitrary_ArgSets'Result'First <= Arbitrary_ArgSets'Result'Last and then
+             (for all I in Arbitrary_ArgSets'Result'Range => Is_ArgSet(Arbitrary_ArgSets'Result(I),N));
+
+   function Exists_ArgSet_Intro (N : AFSize; S : ArgSet) return Positive with
+     Ghost,
+     Pre => Is_ArgSet(S,N),
+     Post => Exists_ArgSet_Intro'Result in Arbitrary_ArgSets(N)'Range and then
+             S = Arbitrary_ArgSets(N)(Exists_ArgSet_Intro'Result);
+
+
+end Aux;
+
+-- end file aux.ads
+
+
+-- start file types.ads
+
+package Types with
+   Spark_Mode
+is
+
+
+   MaxNumberOfArgs : constant Integer := 1000;
+
+   subtype Arg is Positive range 1 .. MaxNumberOfArgs;
+
+   subtype AFSize is Natural range 0 .. MaxNumberOfArgs;
+
+   type BoolMatrix is array (Arg, Arg) of Boolean;
+
+   type AF is record
+      Size : Natural;
+      AdjacencyMatrix : BoolMatrix;
+   end record with
+     Dynamic_Predicate => AF.Size <= MaxNumberOfArgs and then
+      (for all I in 1 .. MaxNumberOfArgs => (for all J in 1 .. MaxNumberOfArgs =>
+           (if I > AF.Size or J > AF.Size then not AF.AdjacencyMatrix(I,J))));
+
+   type ArgPair is array (Positive range 1 .. 2) of Arg;
+
+   type AF_Graph is array (Positive range <>) of ArgPair;
+
+   type ArgSet is array (Positive range 1 .. MaxNumberOfArgs) of Boolean;
+
+   type NatArray is array (Positive range 1 .. MaxNumberOfArgs) of Natural;
+
+   type ArgList is record
+      Size : Natural;
+      List : NatArray;
+   end record with
+     Dynamic_Predicate => ArgList.Size <= MaxNumberOfArgs and then
+        (for all I in 1 .. ArgList.Size => (ArgList.List(I) /= 0 and
+           not (for some J in 1 .. ArgList.Size => (J /= I and ArgList.List(J) = ArgList.List(I))))) and then
+        (for all I in ArgList.Size+1 .. MaxNumberOfArgs => ArgList.List(I) = 0);
+
+   type InputArgList is array (Positive range <>) of Arg;
+
+   type ArgSetArray is array (Positive range <>) of ArgSet;
+
+   type SearchResult (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Arg : Positive;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type CheckReturnType (Valid_Input : Boolean := False) is record
+      case Valid_Input is
+         when True =>
+            Output : Boolean;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   end Types;
+
+
+-- end file types.ads

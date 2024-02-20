@@ -1,0 +1,136 @@
+-- start file max_element_p.adb
+
+package body Max_Element_P with
+   Spark_Mode
+ is
+
+   function Max_Element
+     (A : T_Arr)
+      return Option
+   is
+      Result : Option := (Exists => False);
+   begin
+      if A'Length = 0 then
+         return Result;
+      else
+         Result := (Exists => True, Value => A'First);
+         for I in A'First .. A'Last loop
+            if A (Result.Value) < A (I) then
+               Result.Value := I;
+            end if;
+
+            pragma Loop_Invariant (A'First <= Result.Value);
+            pragma Loop_Invariant (Result.Value <= A'Last);
+            pragma Loop_Invariant
+              (Upper_Bound (A (A'First .. I), A (Result.Value)));
+         end loop;
+
+         return Result;
+      end if;
+   end Max_Element;
+
+end Max_Element_P;
+
+-- end file max_element_p.adb
+
+
+-- start file max_element_p.ads
+
+with Types;         use Types;
+with Upper_Bound_P; use Upper_Bound_P;
+
+package Max_Element_P with
+   Spark_Mode
+ is
+
+   function Max_Element
+     (A : T_Arr)
+      return Option with
+      Contract_Cases => (A'Length = 0 => not Max_Element'Result.Exists,
+       A'Length > 0 =>
+         Max_Element'Result.Exists and then Max_Element'Result.Value >= A'First
+         and then Max_Element'Result.Value <= A'Last
+         and then Upper_Bound (A, A (Max_Element'Result.Value))
+         and then Strict_Upper_Bound
+           (A (A'First .. Max_Element'Result.Value - 1),
+            A (Max_Element'Result.Value)));
+
+end Max_Element_P;
+
+-- end file max_element_p.ads
+
+
+-- start file types.ads
+
+package Types is
+
+   type T is new Integer;
+
+   type T_Arr is array (Positive range <>) of T;
+
+   type T_Option (OK : Boolean) is record
+      case OK is
+         when True =>
+            Value : T;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   MAX_SIZE : constant := 1000;
+
+   type Option (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Value : Integer;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type Option_Pair (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Lower : Integer;
+            Upper : Integer;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type Heap is record
+      A    : T_Arr (1 .. MAX_SIZE) := (others => 0);
+      Size : Natural               := 0;
+   end record;
+
+end Types;
+
+-- end file types.ads
+
+
+-- start file upper_bound_p.ads
+
+with Types; use Types;
+
+package Upper_Bound_P with
+   Spark_Mode,
+   Ghost
+ is
+   function Upper_Bound
+     (A   : T_Arr;
+      Val : T)
+      return Boolean is (for all I in A'Range => A (I) <= Val);
+
+   function Strict_Upper_Bound
+     (A   : T_Arr;
+      Val : T)
+      return Boolean is (for all I in A'Range => A (I) < Val);
+
+   function Max_Element_Def
+     (A   : T_Arr;
+      Max : Natural)
+      return Boolean is (Max in A'Range and then Upper_Bound (A, A (Max)));
+
+end Upper_Bound_P;
+
+-- end file upper_bound_p.ads
