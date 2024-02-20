@@ -4,7 +4,8 @@ from scripts.gen_benchmark import gen_benchmark
 
 
 # Generate the spark benchmark files
-gen_benchmark(benchmark_dir="benchmarks/benchmark_rem_first_LoopInv")
+gen_benchmark(benchmark_dir="benchmarks/benchmark_rem_last_LoopInv")
+# gen_benchmark(benchmark_dir="benchmarks/benchmark_rem_first_LoopInv")
 # gen_benchmark(benchmark_dir="benchmarks/benchmark/code")
 
 # # Generate the diff between the original and modified benchmark
