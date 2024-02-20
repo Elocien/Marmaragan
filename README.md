@@ -13,11 +13,6 @@ Marmaragan attempts to leverage the power of LLM's to generate annotations for v
 
 ## Installation
 
-### Set Environment Variable for OpenAPI Key
-
-Either export for current session or add to shell config (.bashrc, .zshrc, etc.)   
-```export OPENAI_API_KEY=<OpenAPI-Key>```
-
 
  ### Install requirements.txt
 
@@ -26,5 +21,14 @@ Either export for current session or add to shell config (.bashrc, .zshrc, etc.)
 
 ### Gnatprove 
 
+Install Gnatprove: https://docs.adacore.com/spark2014-docs/html/ug/en/install.html
+
+Then set the environment variable ```GNATPROVE_EXECUTABLE_PATH``` to point to the bin folder within the installation
+
+
+### OpenAI API
+
+Set the environment variable to your OpenAI api key
+```export OPENAI_API_KEY=<OpenAPI-Key>```
 
 
