@@ -1,10 +1,10 @@
 from time import sleep
 from src.util import *
-from src.assistant_manager import openai_assistant
 import shutil
 import textwrap
 import logging
 import time
+from langchain_openai import ChatOpenAI
 
 
 
@@ -20,16 +20,15 @@ class gen_1:
     
     def __init__(self, instructions: str, benchmark_dir: str, gpt_model: str):
         
-        # Initialize the assistant
-        self.instructions = instructions
-        self.gpt_model = gpt_model
-        
         # Retrieve the benchmark files
         self.benchmark_files = retrieve_filenames_from_dir(benchmark_dir)
-        
-        # Deletes all current assistants
-        # delete_all_assistants()
-        
+
+        self.llm = ChatOpenAI(
+            model_name=gpt_model,
+            temperature=1.0,
+        )
+
+
         # Setup Logger
         self.logger = logging.getLogger('gen_1')
         self.logger.setLevel(logging.INFO)
@@ -59,8 +58,6 @@ class gen_1:
         # Name of the temporary directory to store the spark files
         benchmark_dir = "tmp_benchmark_dir"
         
-        # Create the assistant
-        assistant = openai_assistant(self.instructions, self.gpt_model)
         
     # For each file in the benchmark, run gnatprove and extract the medium and line of code
         
@@ -119,15 +116,13 @@ Return the fixed code for the first implementation file, delimiting with
 code
 ```
 """
-           
-           
-            thread_id = assistant.create_message(textwrap.dedent(prompt))
 
 
         
     # Retrieve the messages from the assistant
-            message = assistant.retrieve_messages(thread_id)
-            message_content = message[0].content[0].text.value
+            message = self.llm.invoke(prompt)
+            print(message)
+            message_content = message.content
             
             
             # Init compile success flag
