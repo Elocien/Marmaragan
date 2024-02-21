@@ -1,7 +1,6 @@
 from time import sleep
 from src.util import *
 import shutil
-import textwrap
 import logging
 import time
 from langchain_openai import ChatOpenAI
@@ -54,6 +53,7 @@ class gen_1:
         
         # Start timing
         start_time = time.time()
+        print("Starting Benchmark Run:\n")
         
         # Name of the temporary directory to store the spark files
         benchmark_dir = "tmp_benchmark_dir"
@@ -121,7 +121,7 @@ code
         
     # Retrieve the messages from the assistant
             message = self.llm.invoke(prompt)
-            print(message)
+            print(message.content)
             message_content = message.content
             
             
@@ -182,7 +182,7 @@ code
                 
                 # Logging
                 self.logger.info(
-                    f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums} \nPrompt: \n{prompt} \n\nResponse: \n{api_response_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                    f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{api_response_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
             
             else:
                 gnatprove_output = "GnatProve did not run. Either the filename or code could not be extracted from the response."
@@ -195,16 +195,6 @@ code
             
         
             
-        
-        
-        
-
-    # Delete the assistant
-        assistant.delete_assistant()
-        
-        
-    # Delete the temporary directory
-        # shutil.rmtree(benchmark_dir)
         
     # End timing and log
         end_time = time.time()  # End timing
