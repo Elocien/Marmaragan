@@ -4,23 +4,33 @@ import shutil
 import logging
 import time
 from langchain_openai import ChatOpenAI
+from typing import List, Tuple
 
 
 
-class gen_1:
+
+class run_benchmark:
     """
-    This class runs the benchmark, generating only a SINGLE solution per problem. 
+    This class is used to run the benchmark. It contains methods to run the benchmark with different configurations and to generate the results. 
+    All results are logged to the benchmark_run.log file.
     
     Args:
-            instructions (str): Instructions detailing the purpose of the Assistant. Example: "You are a programmer. Fix the sent python code so that it runs correctly"
+            system_message (str): Instructions detailing the purpose of the Assistant. Example: "You are a programmer. Fix the sent python code so that it runs correctly"
             benchmark_dir (str): The directory containing the benchmark files.
             gpt_model (str): The GPT model to use. Choice of "gpt-3.5-turbo-1106", "gpt-4-0125-preview" or "gpt-4-0613"
     """    
     
-    def __init__(self, instructions: str, benchmark_dir: str, gpt_model: str):
+    def __init__(self, system_message: str, benchmark_dir: str, gpt_model: str):
+        
+        # Set the system message and gpt model
+        self.system_message = system_message
+        self.gpt_model = gpt_model
         
         # Retrieve the benchmark files
-        self.benchmark_files = retrieve_filenames_from_dir(benchmark_dir)
+        self.benchmark_txt_files = retrieve_filenames_from_dir(benchmark_dir)
+        
+        # Name of the temporary directory to store the spark files
+        self.tmp_benchmark_dir = "tmp_benchmark_dir"
 
         self.llm = ChatOpenAI(
             model_name=gpt_model,
@@ -43,20 +53,43 @@ class gen_1:
         # Add the handler to the logger
         self.logger.addHandler(fh)
         
-        self.logger.info(
-            f"New Run \nGPT Model: {gpt_model} \nInstructions: \n{instructions} \n-----------------------------------\n\n")
-
-
         
-    
-    def run_benchmark(self):
+        self.start_time = None;
+        self.end_time = None;
+        
+
+
+
+
+
+
+    def init_run(self) -> List[Tuple[str, str]]:
+        """
+        This class initialises the run and creates the temporary files for the benchmark.
+        
+        Returns:
+            List[Tuple[str, str]]: A list of tuples containing the temporary filepath of the gpr files and the permanent txt files.
+        
+        """
+        
+        # self.logger.info(
+        #     f"New Run \nGPT Model: {gpt_model} \nInstructions: \n{instructions} \n-----------------------------------\n\n")
+        
         
         # Start timing
-        start_time = time.time()
+        self.start_time = time.time()
         print("Starting Benchmark Run:\n")
         
-        # Name of the temporary directory to store the spark files
-        benchmark_dir = "tmp_benchmark_dir"
+        self.logger.info(f"""
+\n\n\n
+--------------------------
+Starting new Benchmark Run
+--------------------------
+Model: {self.gpt_model} \n
+Instructions: \n{self.system_message}
+--------------------------
+\n\n\n
+                         """)
         
         
     # For each file in the benchmark, run gnatprove and extract the medium and line of code
@@ -64,20 +97,71 @@ class gen_1:
         
         # Remove dir if it exists 
         try:
-            shutil.rmtree(benchmark_dir)
+            shutil.rmtree(self.tmp_benchmark_dir)
             sleep(1)
         except Exception:
             pass
         
         # generate temporary directory for the spark files
-        os.mkdir(benchmark_dir)
+        os.mkdir(self.tmp_benchmark_dir)
         
-        benchmark_gpr_files = []
+        # Array of containing the temporary filepath of the gpr files and the permanent txt files, as a tuple
+        benchmark_files = []
         
-    # Iterate over each file in the benchmark and generate the files in the spark_benchmark directory
-        for benchmark_file_path in self.benchmark_files:
-            gpr_file_path = generate_spark_files(benchmark_file_path, benchmark_dir)
-            benchmark_gpr_files.append(gpr_file_path)
+        # Iterate over each file in the benchmark and generate the files in the spark_benchmark directory
+        for benchmark_file_path in self.benchmark_txt_files:
+            gpr_file_path = generate_spark_files(benchmark_file_path, self.tmp_benchmark_dir)
+            benchmark_files.append((gpr_file_path, benchmark_file_path))
+            
+        
+        return benchmark_files
+        
+    
+    def end_run(self, results_array: List[Tuple[bool, bool]]) -> None:
+        
+        # Compile a string of the results_array
+        summary_string = "\n".join(f"Project: {project}, Compilation Successful: {compilation_successful}, No Mediums: {no_mediums}" for project, compilation_successful, no_mediums in results_array)
+        
+        # Compile the totals of the results_array
+        results_total = [no_mediums for project, compilation_successful, no_mediums in results_array]
+        
+        
+        # End timing and log
+        self.end_time = time.time()  # End timing
+        duration = self.end_time - self.start_time
+
+        self.logger.info(f"""
+\n\n\n
+--------------------------
+{summary_string}
+--------------------------
+Time taken: {duration} \n
+Summary of results:
+{results_total}
+--------------------------
+\n\n\n
+                         """)
+    
+    
+    
+    
+    def gen_1(self):
+        """
+        This class runs the benchmark, generating only a SINGLE solution per problem.
+        """
+        
+        # Array of tuples, containing the results, of the form:
+        # [(program-name, gnatprove-successful-compilation, medium-free)]
+        results = []
+        
+        # Initialise the run and retrieve the benchmark files
+        benchmark_files = self.init_run()
+        
+        
+    # Iterate over each project in the benchmark
+        for benchmark_file_path in benchmark_files:
+            
+            gpr_file_path = benchmark_file_path[0]
             
 
         # Run gnatprove on the project
@@ -97,11 +181,16 @@ class gen_1:
             
             
             # retrieve the benchmark txt file
-            benchmark_file = open(benchmark_file_path, "r")
+            benchmark_file = open(benchmark_file_path[1], "r")
             
             # Format medium code reference
             medium_code_reference = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
             
+        
+        
+        
+        
+        
         # Format prompt
             prompt = f"""\
 The following code is a Spark2014/ADA project.\n\n
@@ -170,34 +259,56 @@ code
             
             
             
-    
-        # Run gnatprove on the fixed code and extract any mediums 
+        # Three cases:
+        # 1. Code was successfully extracted and gnatprove made it to stage 2. of compilation
+        # 2. Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
+        # 3. Code was not successfully extracted and gnatprove did not run
+        
             
             if compile_success == True:
                 
                 # Run gnatprove on the project
                 gnatprove_output = run_gnatprove(gpr_file_path)
-                new_mediums = parse_gnatprove_output(gnatprove_output)
-                compile_success = is_compilation_successful(gnatprove_output)
+                gnatprove_successful_compilation = is_compilation_successful(gnatprove_output)
                 
-                # Logging
-                self.logger.info(
-                    f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{api_response_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
-            
+                # Case 1
+                if gnatprove_successful_compilation:
+                
+                    # Parse the new mediums
+                    new_mediums = parse_gnatprove_output(gnatprove_output)
+                    
+                    
+                    results.append((gpr_file_path.split("/")[:-1], compile_success, len(new_mediums) == 0))
+                    
+                    # Logging
+                    self.logger.info(
+                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{api_response_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                   
+                # Case 2 
+                else:
+                    results.append((gpr_file_path.split("/")[:-1], compile_success, False))
+                    
+                    # Logging
+                    self.logger.info(
+                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{api_response_code}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                
+                
+                
+            # Case 3
             else:
                 gnatprove_output = "GnatProve did not run. Either the filename or code could not be extracted from the response."
                 new_mediums = ""
+                
+                results.append((gpr_file_path.split("/")[:-1], False, False))
                 
                 # Logging
                 self.logger.info(
                     f"Project: {gpr_file_path.split('/')[-1]}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{api_response_code}\n-----------------------------------\n\n")
 
-            
-        
-            
-        
-    # End timing and log
-        end_time = time.time()  # End timing
-        duration = end_time - start_time
 
-        self.logger.info(f"Total Duration: {duration} seconds")
+
+
+        # End the run and log summary
+        self.end_run(results)
+        
+        

@@ -11,7 +11,7 @@ model = "gpt-3.5-turbo-1106"
 
 
 # Run the benchmark
-basic_benchmark = gen_1(instructions=
+basic_benchmark = run_benchmark(system_message=
                         """\
                         You are a Spark2014/ADA programmer. You must complete the package body of the given program, inserting a single "pragma Loop_Invariant"
                         statement directly within a "loop" statement. E.g. a statement such as "pragma Loop_Variant (Increases => L.Size);"
@@ -22,7 +22,7 @@ basic_benchmark = gen_1(instructions=
 
 
 
-basic_benchmark.run_benchmark()
+basic_benchmark.gen_1()
 
 
 
