@@ -1,4 +1,4 @@
-from run_benchmark import *
+from src.run_benchmark import *
 
 
 # GPT Model to use
@@ -24,7 +24,8 @@ basic_benchmark = run_benchmark(system_message=
                         You must not modify the code in any other way.
                         """, 
                         benchmark_dir="benchmarks/benchmark_rem_first_LoopInv",
-                        gpt_model=model)
+                        gpt_model=model,
+                        benchmark_program_indices=[1])
 
 
 

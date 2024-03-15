@@ -137,25 +137,26 @@ def retrieve_filenames_from_dir(directory: str) -> list[str]:
     return file_list
 
 
-
-
-def delete_all_assistants() -> None:
+def retrieve_benchmark_files(benchmark_directory: str, program_indices: List[int]) -> list[str]:
     """
-    # Function to delete all assistants with the OpenAI API
+    Given a directory containing benchmark files, retrieve the benchmark files at the given indices.
+    
+    Args:
+        benchmark_directory (str): The directory containing the benchmark files
+        program_indices (list[int]): The indices of the benchmark files to retrieve
+        
+    Returns:
+        list[str]: The paths to the benchmark files
     """
     
-    # Initialize the OpenAI client
-    client = OpenAI()
+    # Retrieve the names of all benchmark files
+    benchmark_files = retrieve_filenames_from_dir(benchmark_directory)
     
-    # List all assistants
-    list_of_assistants = client.beta.assistants.list(order="desc").data
-
-    # Iterate over each assistant and delete them
-    for assistant in list_of_assistants:
-        print(f"Assistant id: {assistant.id}")
-        # Delete the assistant
-        response = client.beta.assistants.delete(assistant.id)
-        print(response)
+    # Filter the benchmark files to only include those at the given indices
+    benchmark_files = [file for file in benchmark_files if int(file.split('/')[-1].split('-')[0]) in program_indices]
+    
+    return benchmark_files
+    
         
         
 def generate_spark_files(file_path: str, directory_path: str) -> str:

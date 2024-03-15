@@ -18,16 +18,19 @@ class run_benchmark:
             system_message (str): Instructions detailing the purpose of the Assistant. Example: "You are a programmer. Fix the sent python code so that it runs correctly"
             benchmark_dir (str): The directory containing the benchmark files.
             gpt_model (str): The GPT model to use. Choice of "gpt-3.5-turbo-1106", "gpt-4-0125-preview" or "gpt-4-0613"
+            benchmark_program_indices (List[int]): A list of the indices of the programs in the benchmark to run. Default is all programs in the benchmark
     """    
     
-    def __init__(self, system_message: str, benchmark_dir: str, gpt_model: str):
+    def __init__(self, system_message: str, benchmark_dir: str, gpt_model: str, benchmark_program_indices: List[int] = list(range(1, 17))):
         
         # Set the system message and gpt model
         self.system_message = system_message
         self.gpt_model = gpt_model
         
         # Retrieve the benchmark files
-        self.benchmark_txt_files = retrieve_filenames_from_dir(benchmark_dir)
+        self.benchmark_txt_files = retrieve_benchmark_files(benchmark_dir, benchmark_program_indices)
+        print(self.benchmark_txt_files)
+        
         
         # Name of the temporary directory to store the spark files
         self.tmp_benchmark_dir = "tmp_benchmark_dir"
@@ -80,12 +83,18 @@ class run_benchmark:
         self.start_time = time.time()
         print("Starting Benchmark Run:\n")
         
+        # Pretty print the benchmark files
+        benchmark_programs = [file.split("/")[-1] for file in self.benchmark_txt_files]
+        nl = '\n'
+        
+        
         self.logger.info(f"""
 \n\n\n
 --------------------------
 Starting new Benchmark Run
 --------------------------
 Model: {self.gpt_model} \n
+Programs: \n{nl.join(map(str, benchmark_programs))} \n
 Instructions: \n{self.system_message}
 --------------------------
 \n\n\n
