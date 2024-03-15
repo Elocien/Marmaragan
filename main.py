@@ -1,4 +1,4 @@
-from src.gen_n import *
+from run_benchmark import *
 
 
 # GPT Model to use
