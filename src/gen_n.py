@@ -95,6 +95,10 @@ Instructions: \n{self.system_message}
     # For each file in the benchmark, run gnatprove and extract the medium and line of code
         
         
+        # Array of tuples, containing the results, of the form:
+        # [(program-name, gnatprove-successful-compilation, medium-free)]
+        self.results = []
+        
         # Remove dir if it exists 
         try:
             shutil.rmtree(self.tmp_benchmark_dir)
@@ -150,10 +154,6 @@ Summary of results:
         This class runs the benchmark, generating only a SINGLE solution per problem.
         """
         
-        # Array of tuples, containing the results, of the form:
-        # [(program-name, gnatprove-successful-compilation, medium-free)]
-        results = []
-        
         # Initialise the run and retrieve the benchmark files
         benchmark_files = self.init_run()
         
@@ -202,60 +202,64 @@ Here are the current mediums being thrown by gnatprove, in the form of the line 
 
 Return the fixed code for the first implementation file, delimiting with 
 ```ada
-code
+
+code here
+
 ```
 """
 
 
         
-    # Retrieve the messages from the assistant
+    # Invoke the LLM to generate the response 
             message = self.llm.invoke(prompt)
             print(message.content)
             message_content = message.content
             
             
-            # Init compile success flag
-            compile_success = True
-            
         
     # Extract the fixed code and write to file in the benchmark_dir
+    
+            # Init compile success flag
+            compile_success = True
 
-            api_response_code = ""
+
+
+            llm_code = ""
             adb_filename = ""
             
             # Extract the code from the response
             try:
-                api_response_code = extract_code_from_response(message_content)
+                llm_code = extract_code_from_response(message_content)
             except ValueError as e:
                 compile_success = False
                 self.logger.error(
                     f"\n-----------------------------------\nError extracting code from response: {e}\nCode: {message_content}\n-----------------------------------\n\n")
 
 
-                if api_response_code not in ["", None]:
+            if llm_code not in ["", None]:
 
-                    # Extract the filename from the response
-                    try:
-                        adb_filename = extract_filename_from_response(api_response_code)
-                        
-                        
-                        # Convert filename to lowercase and add .adb extension
-                        filename_with_extension = adb_filename.lower() + ".adb"
-                        
-                        adb_file_path = project_dir + "/" + filename_with_extension
-                        
-                        # Overwrite the destination file with the response code
-                        overwrite_destination_file_with_string(
-                            adb_file_path, api_response_code)
-                        
-                        
-            
-                    except ValueError as e:
-                        compile_success = False
-                        self.logger.error(
-                            f"\n-----------------------------------\n\nError extracting filename from response code: {e}\nCode: {api_response_code}\n-----------------------------------\n\n")
+                # Extract the filename from the response
+                try:
+                    adb_filename = extract_filename_from_response(llm_code)
+                    
+                    
+                    # Convert filename to lowercase and add .adb extension
+                    filename_with_extension = adb_filename.lower() + ".adb"
+                    
+                    adb_file_path = project_dir + "/" + filename_with_extension
+                    
+                    # Overwrite the destination file with the response code
+                    overwrite_destination_file_with_string(
+                        adb_file_path, llm_code)
+                    
+                    
+        
+                except ValueError as e:
+                    compile_success = False
+                    self.logger.error(
+                        f"\n-----------------------------------\n\nError extracting filename from response code: {e}\nCode: {llm_code}\n-----------------------------------\n\n")
 
-            
+        
             
             
             
@@ -278,19 +282,19 @@ code
                     new_mediums = parse_gnatprove_output(gnatprove_output)
                     
                     
-                    results.append((gpr_file_path.split("/")[:-1], compile_success, len(new_mediums) == 0))
+                    self.results.append((gpr_file_path.split("/")[:-1], compile_success, len(new_mediums) == 0))
                     
                     # Logging
                     self.logger.info(
-                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{api_response_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{llm_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
                    
                 # Case 2 
                 else:
-                    results.append((gpr_file_path.split("/")[:-1], compile_success, False))
+                    self.results.append((gpr_file_path.split("/")[:-1], compile_success, False))
                     
                     # Logging
                     self.logger.info(
-                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{api_response_code}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{llm_code}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
                 
                 
                 
@@ -299,16 +303,163 @@ code
                 gnatprove_output = "GnatProve did not run. Either the filename or code could not be extracted from the response."
                 new_mediums = ""
                 
-                results.append((gpr_file_path.split("/")[:-1], False, False))
+                self.results.append((gpr_file_path.split("/")[:-1], False, False))
                 
                 # Logging
                 self.logger.info(
-                    f"Project: {gpr_file_path.split('/')[-1]}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{api_response_code}\n-----------------------------------\n\n")
+                    f"Project: {gpr_file_path.split('/')[-1]}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{llm_code}\n-----------------------------------\n\n")
 
 
 
 
         # End the run and log summary
-        self.end_run(results)
+        self.end_run(self.results)
+        
+
+
+
+
+
+
+
+    def chain_of_thoughts(self):
+        """
+        This class runs the benchmark, using the chain of thoughts prompting technique
+        """
         
         
+        # Initialise the run and retrieve the benchmark files
+        benchmark_files = self.init_run()
+        
+        
+    # Iterate over each project in the benchmark
+        for benchmark_file_path in benchmark_files:
+            
+            gpr_file_path = benchmark_file_path[0]
+            
+            # retrieve the benchmark txt file
+            benchmark_file = open(benchmark_file_path[1], "r")
+            
+            
+            zero_shot_CoT_prompt = f"""\n
+Try to solve the following problem logically and step by step. The final answer should then be delimited in the following way:
+
+```ada
+
+code here
+
+```
+
+The following code is a Spark2014/ADA project. It contains an Implementation file (.adb) and specification files (.ads). 
+Project:
+
+{benchmark_file.read()}
+
+Add a single 'pragma Loop_Invariant' statement, so that the code runs error and medium free. 
+Do not modify the code in any other way. Return the entire implementation file with the single addition.
+
+                    """
+                    
+    # Invoke the LLM to generate the response
+            message = self.llm.invoke(zero_shot_CoT_prompt)
+            print(benchmark_file_path[1])
+            print(message.content)
+            message_content = message.content
+            
+            # Extract the fixed code and write to file in the benchmark_dir
+
+            # Init compile success flag
+            compile_success = True
+
+            llm_code = ""
+            adb_filename = ""
+
+            # Extract the code from the response
+            try:
+                llm_code = extract_code_from_response(message_content)
+            except ValueError as e:
+                compile_success = False
+                self.logger.error(
+                    f"\n-----------------------------------\nError extracting code from response: {e}\nCode: {message_content}\n-----------------------------------\n\n")
+
+                
+            if llm_code not in ["", None]:
+
+                # Extract the filename from the response
+                try:
+                    adb_filename = extract_filename_from_response(
+                        llm_code)
+
+                    # Convert filename to lowercase and add .adb extension
+                    filename_with_extension = adb_filename.lower() + ".adb"
+                    
+                    project_dir = "/".join(gpr_file_path.split("/")[:-1])
+                    adb_file_path = project_dir + "/" + filename_with_extension
+                    
+
+                    # Overwrite the destination file with the response code
+                    overwrite_destination_file_with_string(
+                        adb_file_path, llm_code)
+                    
+                    print("file overwritten")
+
+                except ValueError as e:
+                    compile_success = False
+                    self.logger.error(
+                        f"\n-----------------------------------\n\nError extracting filename from response code: {e}\nCode: {llm_code}\n-----------------------------------\n\n")
+
+        # Three cases:
+        # 1. Code was successfully extracted and gnatprove made it to stage 2. of compilation
+        # 2. Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
+        # 3. Code was not successfully extracted and gnatprove did not run
+
+            if compile_success == True:
+
+                # Run gnatprove on the project
+                gnatprove_output = run_gnatprove(gpr_file_path)
+                gnatprove_successful_compilation = is_compilation_successful(
+                    gnatprove_output)
+
+                # Case 1
+                if gnatprove_successful_compilation:
+
+                    # Parse the new mediums
+                    new_mediums = parse_gnatprove_output(gnatprove_output)
+
+                    self.results.append((gpr_file_path.split(
+                        "/")[:-1], compile_success, len(new_mediums) == 0))
+
+                    # Logging
+                    self.logger.info(
+                        f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{llm_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+
+                # Case 2
+                else:
+                    self.results.append(
+                        (gpr_file_path.split("/")[:-1], compile_success, False))
+
+                    # Logging
+                    self.logger.info(
+                        f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{llm_code}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+
+            # Case 3
+            else:
+                gnatprove_output = "GnatProve did not run. Either the filename or code could not be extracted from the response."
+                new_mediums = ""
+
+                self.results.append(
+                    (gpr_file_path.split("/")[:-1], False, False))
+
+                # Logging
+                self.logger.info(
+                    f"Project: {gpr_file_path.split('/')[-1]}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{llm_code}\n-----------------------------------\n\n")
+
+        # End the run and log summary
+        self.end_run(self.results)
+
+                    
+
+            
+            
+            
+            
