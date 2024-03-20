@@ -9,13 +9,16 @@ import subprocess
 
 
 def overwrite_destination_file_with_string(file_path : os.path, content : str) -> None:
-    '''
+    """
     Overwrites the input ada file with new content (in this case LLM output)
     
     Args:
         file_path (os.path): The path to the file to be overwritten
         content (str): The content to overwrite the file with
-    '''
+        
+    Returns:
+        None
+    """
     try:
         with open(file_path, 'w') as file:
             file.write(content)
@@ -29,6 +32,9 @@ def extract_filename_from_response(spark_code_response: str) -> str:
     
     Args:
         spark_code_response (str): The text to extract the filename from
+    
+    Returns:
+        str: The filename extracted from the response
     """
     # Regular expression pattern to match 'package body {some text} with'
     pattern = r"package body\s+(\S+)\s+with"
@@ -47,6 +53,15 @@ def extract_filename_from_response(spark_code_response: str) -> str:
 
 
 def extract_code_from_response(text: str) -> str:
+    """
+    Extract the code from the response of the LLM
+    
+    Args:
+        text (str): The response from the LLM
+    
+    Returns:
+        str: The code extracted from the response
+    """
     # This regular expression looks for a pattern that starts with ```ada and ends with ```
     pattern = r"```ada(.*?)```"
 
@@ -64,62 +79,18 @@ def extract_code_from_response(text: str) -> str:
 
 
 
-
-
-def compare_files_and_check(original_file_path: str, modified_file_path: str) -> bool:
+def retrieve_package_body(benchmark_file_path: str) -> str:
     """
-    Compare two files to determine if changes have been made to the original file,
-    except for:
-    - A SINGLE block of new lines added at one place in the file, and
-    - The removal of comments (for the case where a comment indicates a location)
-
-    Args:
-        original_file_path (str): path to the original file
-        modified_file_path (str): path to the modified file
-
-    Returns:
-        True: if the files are effectively the same (disregarding a single block of new lines and comment removal)
-        False: if there are other changes in the modified file
-    """
-
-    with open(original_file_path, 'r') as file:
-        original_lines = file.readlines()
-
-    with open(modified_file_path, 'r') as file:
-        modified_lines = file.readlines()
-
-    # Strip comments
-    original_lines = [line.split('--')[0].strip() for line in original_lines]
-    modified_lines = [line.split('--')[0].strip() for line in modified_lines]
-
-    # Strip whitespace
-    original_lines = [line for line in original_lines if line]
-    modified_lines = [line for line in modified_lines if line]
-
-    # Initialise Index
-    orig_index = 0
-    mod_index = 0
+    This function retrieves the package body from the benchmark file
     
-    # Flag to track if a block of new lines has been found, this may only occur once
-    block_of_new_lines_found = False
-
-    while orig_index < len(original_lines) and mod_index < len(modified_lines):
-        if original_lines[orig_index] == modified_lines[mod_index]:
-            orig_index += 1
-            mod_index += 1
-        elif not block_of_new_lines_found and modified_lines[mod_index] not in original_lines:
-            # We've encountered a new line; now check for a contiguous block of new lines
-            while mod_index + 1 < len(modified_lines) and modified_lines[mod_index + 1] not in original_lines:
-                mod_index += 1
-            mod_index += 1  # Move past the last line of the new block
-            block_of_new_lines_found = True
-        else:
-            # If we've already found a block of new lines or the line doesn't match and isn't a contiguous block, return False
-            return False
-
-    # If we've reached the end of the original file without finding multiple discrepancies, return True
-    # This means any remaining lines in the modified file are additions, which is allowed only if no block was found before
-    return orig_index == len(original_lines) and (not block_of_new_lines_found or mod_index == len(modified_lines))
+    Args:
+        benchmark_file_path (str): The path to the benchmark file
+    
+    Returns:
+        str: The package body
+    """
+    with open(benchmark_file_path, 'r') as file:
+        return file.read()
 
 
 
@@ -128,6 +99,12 @@ def compare_files_and_check(original_file_path: str, modified_file_path: str) ->
 def retrieve_filenames_from_dir(directory: str) -> list[str]:
     """
     Retrieve all filenames in the given directory, including those in subdirectories.
+    
+    Args:
+        directory (str): The directory to retrieve filenames from
+        
+    Returns:
+        list[str]: The filenames in the directory
     """
     file_list = []
     for root, dirs, files in os.walk(directory):
@@ -202,6 +179,7 @@ def generate_spark_files(file_path: str, directory_path: str) -> str:
                     os.mkdir(subdir_path)
                     
                     # Author: Emmanuel Debanne
+                    # https://github.com/debanne/sparkilo/blob/main/sparkilo/gnat/gpr.py
                     # ---------------------------------------------------------------
                     gpr_file_name = f"{filename.split('.')[0]}.gpr"
                     gpr_file_path = os.path.join(subdir_path, gpr_file_name)
@@ -335,4 +313,50 @@ def is_compilation_successful(output: str) -> bool:
         return True
     else:
         return False
+    
+    
+def compute_diff(original_lines: str, result_lines: str) -> list[str]:
+    """
+    Author: Emmanuel Debanne 
+    https://github.com/debanne/sparkilo/blob/main/sparkilo/code_utils.py 
+    
+    Compute the difference between two files, line by line. 
+    In this case, the original lines are the lines from the benchmark file and the result lines are the lines from the LLM output.
+    
+    Args:
+        original_lines (list[str]): The lines from the benchmark file
+        result_lines (list[str]): The lines from the LLM output
+        
+    Returns:
+        list[str]: The difference between the two files
+    """
+    
+    original_lines = original_lines.splitlines()
+    result_lines = result_lines.splitlines()
+        
+    diff_lines = []
+    original_index = 0
+    result_index = 0
+    while original_index < len(original_lines):
+        original_line = original_lines[original_index]
+        if result_index < len(result_lines):
+            result_line = result_lines[result_index]
+            if original_line.strip() == result_line.strip():
+                diff_lines.append("  " + original_line)
+                original_index += 1
+                result_index += 1
+            else:
+                if original_line.strip() != "":
+                    diff_lines.append("+ " + result_line)
+                    result_index += 1
+                else:
+                    diff_lines.append("  " + original_line)
+                    original_index += 1
+        else:
+            diff_lines.append("- " + original_line)
+            original_index += 1
+    while result_index < len(result_lines):
+        diff_lines.append("+ " + result_lines[result_index])
+        result_index += 1
+    return diff_lines
 
