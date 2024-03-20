@@ -95,7 +95,7 @@ Starting new Benchmark Run
 --------------------------
 Model: {self.gpt_model} \n
 Programs: \n{nl.join(map(str, benchmark_programs))} \n
-Instructions: \n{self.system_message}
+System Message: \n{self.system_message}
 --------------------------
 \n\n\n
                          """)
@@ -132,11 +132,23 @@ Instructions: \n{self.system_message}
     
     def end_run(self, results_array: List[Tuple[bool, bool]]) -> None:
         
+        successes = 0
+        failures = 0
+        
         # Compile a string of the results_array
-        summary_string = "\n".join(f"Project: {project}, Compilation Successful: {compilation_successful}, No Mediums: {no_mediums}" for project, compilation_successful, no_mediums in results_array)
+        summary_array = []
+        for project, compilation_successful, no_mediums in results_array:
+            if no_mediums:
+                summary_array.append(f"Success: {project}")
+                successes += 1
+            else:
+                summary_array.append(f"Failure: {project}")
+                failures += 1
+                
+        
+        summary_string = "\n".join(summary_array)
         
         # Compile the totals of the results_array
-        results_total = [no_mediums for project, compilation_successful, no_mediums in results_array]
         
         
         # End timing and log
@@ -146,11 +158,12 @@ Instructions: \n{self.system_message}
         self.logger.info(f"""
 \n\n\n
 --------------------------
-{summary_string}
+End of Benchmark Run
 --------------------------
+{summary_string}
 Time taken: {duration} \n
 Summary of results:
-{results_total}
+{successes} / {failures}
 --------------------------
 \n\n\n
                          """)
@@ -234,7 +247,7 @@ code here
 
 
             llm_code = ""
-            adb_filename = ""
+            adb_file_path = ""
             
             # Extract the code from the response
             try:
@@ -295,7 +308,7 @@ code here
                     
                     # Logging
                     self.logger.info(
-                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{llm_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{llm_code}\n\nNew Mediums:\n{new_mediums}\n\nGnatprove Output:\n{gnatprove_output}\n-----------------------------------\n\n")
                    
                 # Case 2 
                 else:
@@ -381,7 +394,7 @@ Do not modify the code in any other way. Return the entire implementation file w
             compile_success = True
 
             llm_code = ""
-            adb_filename = ""
+            adb_file_path = ""
 
             # Extract the code from the response
             try:
@@ -409,19 +422,20 @@ Do not modify the code in any other way. Return the entire implementation file w
                     # Overwrite the destination file with the response code
                     overwrite_destination_file_with_string(
                         adb_file_path, llm_code)
-                    
-                    print("file overwritten")
 
                 except ValueError as e:
                     compile_success = False
                     self.logger.error(
                         f"\n-----------------------------------\n\nError extracting filename from response code: {e}\nCode: {llm_code}\n-----------------------------------\n\n")
 
+        
+        
         # Three cases:
         # 1. Code was successfully extracted and gnatprove made it to stage 2. of compilation
         # 2. Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
         # 3. Code was not successfully extracted and gnatprove did not run
-
+            
+            
             if compile_success == True:
 
                 # Run gnatprove on the project
@@ -436,16 +450,24 @@ Do not modify the code in any other way. Return the entire implementation file w
                     new_mediums = parse_gnatprove_output(gnatprove_output)
 
                     self.results.append((gpr_file_path.split(
-                        "/")[:-1], compile_success, len(new_mediums) == 0))
+                        "/")[-1], compile_success, len(new_mediums) == 0))
+                    
 
-                    # Logging
-                    self.logger.info(
-                        f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{llm_code}\n\nNew Mediums: \n{new_mediums}\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                    # Read the original adb file to compute_diff
+                    with open(adb_file_path, "r") as file:
+                        # Read the entire content into a string variable
+                        original_adb_file = file.read()
+                        
+                        nl = '\n'
+
+                        # Logging
+                        self.logger.info(
+                            f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{nl.join(compute_diff(original_adb_file, llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
 
                 # Case 2
                 else:
                     self.results.append(
-                        (gpr_file_path.split("/")[:-1], compile_success, False))
+                        (gpr_file_path.split("/")[-1], compile_success, False))
 
                     # Logging
                     self.logger.info(
@@ -457,7 +479,7 @@ Do not modify the code in any other way. Return the entire implementation file w
                 new_mediums = ""
 
                 self.results.append(
-                    (gpr_file_path.split("/")[:-1], False, False))
+                    (gpr_file_path.split("/")[-1], False, False))
 
                 # Logging
                 self.logger.info(
