@@ -90,7 +90,10 @@ def retrieve_package_body(benchmark_file_path: str) -> str:
         str: The package body
     """
     with open(benchmark_file_path, 'r') as file:
-        return file.read()
+        package_body = file.read().split(
+            '-- start file ')[1].split('-- end file ')[0]
+        
+        return package_body
 
 
 
