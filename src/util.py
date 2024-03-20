@@ -96,6 +96,9 @@ def retrieve_package_body(benchmark_file_path: str) -> str:
     with open(benchmark_file_path, 'r') as file:
         package_body = file.read().split(
             '-- start file ')[1].split('-- end file ')[0]
+
+        # Removed the first two lines so that compute_diff works properly
+        package_body = package_body.split('\n', 2)[2]
         
         return package_body
 
