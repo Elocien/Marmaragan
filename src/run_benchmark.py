@@ -299,24 +299,27 @@ code here
                 
                 # Case 1
                 if gnatprove_successful_compilation:
-                
+
                     # Parse the new mediums
                     new_mediums = parse_gnatprove_output(gnatprove_output)
-                    
-                    
-                    self.results.append((gpr_file_path.split("/")[:-1], compile_success, len(new_mediums) == 0))
-                    
+
+                    self.results.append((gpr_file_path.split(
+                        "/")[-1], compile_success, len(new_mediums) == 0))
+
+                    # f string newline fix
+                    nl = "\n"
+
                     # Logging
                     self.logger.info(
-                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{llm_code}\n\nNew Mediums:\n{new_mediums}\n\nGnatprove Output:\n{gnatprove_output}\n-----------------------------------\n\n")
-                   
+                        f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{nl.join(compute_diff(retrieve_package_body(benchmark_file_path[1]), llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+
                 # Case 2 
                 else:
                     self.results.append((gpr_file_path.split("/")[:-1], compile_success, False))
                     
                     # Logging
                     self.logger.info(
-                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{llm_code}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                        f"Project: {gpr_file_path.split('/')[-1]} \nInitial Mediums: \n{mediums}\n\nResponse: \n{nl.join(compute_diff(retrieve_package_body(benchmark_file_path[1]), llm_code))}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
                 
                 
                 
@@ -362,6 +365,8 @@ code here
             # retrieve the benchmark txt file
             benchmark_file = open(benchmark_file_path[1], "r")
             
+            # f string newline fix   
+            nl = "\n"
             
             zero_shot_CoT_prompt = f"""\n
 Try to solve the following problem logically and step by step. The final answer should then be delimited in the following way:
@@ -452,17 +457,10 @@ Do not modify the code in any other way. Return the entire implementation file w
                     self.results.append((gpr_file_path.split(
                         "/")[-1], compile_success, len(new_mediums) == 0))
                     
-
-                    # Read the original adb file to compute_diff
-                    with open(adb_file_path, "r") as file:
-                        # Read the entire content into a string variable
-                        original_adb_file = file.read()
-                        
-                        nl = '\n'
-
-                        # Logging
-                        self.logger.info(
-                            f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{nl.join(compute_diff(original_adb_file, llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                    
+                    # Logging
+                    self.logger.info(
+                        f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{nl.join(compute_diff(retrieve_package_body(benchmark_file_path[1]), llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
 
                 # Case 2
                 else:
@@ -471,7 +469,7 @@ Do not modify the code in any other way. Return the entire implementation file w
 
                     # Logging
                     self.logger.info(
-                        f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{llm_code}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                        f"Project: {gpr_file_path.split('/')[-1]} \n\nResponse: \n{nl.join(compute_diff(retrieve_package_body(benchmark_file_path[1]), llm_code))}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
 
             # Case 3
             else:
