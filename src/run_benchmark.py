@@ -362,11 +362,12 @@ code here
             
             gpr_file_path = benchmark_file_path[0]
             
-            # retrieve the benchmark txt file
-            benchmark_file = open(benchmark_file_path[1], "r")
-            
             # f string newline fix   
             nl = "\n"
+            
+            dependencies = retrieve_dependencies(benchmark_file_path[1])
+            package_body = retrieve_package_body(benchmark_file_path[1])
+            
             
             zero_shot_CoT_prompt = f"""\n
 Try to solve the following problem logically and step by step. The final answer should then be delimited in the following way:
@@ -377,12 +378,15 @@ code here
 
 ```
 
-The following code is a Spark2014/ADA project. It contains an Implementation file (.adb) and specification files (.ads). 
-Project:
+The following are the specifications and dependencies of a Spark2014/ADA project:
 
-{benchmark_file.read()}
+{nl.join(dependencies)} \n
 
-Add a single 'pragma Loop_Invariant' statement, so that the code runs error and medium free. 
+This is the package body (implementation):
+
+{package_body} \n
+
+Add a single 'pragma Loop_Invariant' statement to the package body, so that the code runs error and medium free. 
 Do not modify the code in any other way. Return the entire implementation file with the single addition.
 
                     """

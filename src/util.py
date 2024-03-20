@@ -67,6 +67,10 @@ def extract_code_from_response(text: str) -> str:
 
     # Find all non-overlapping matches of the regular expression pattern in the string text
     matches = re.findall(pattern, text, re.DOTALL)
+    
+    # TODO If multiple code blocks, check if one is possibly the full program
+    # TODO Check for 'pragma Assume' and replace with 'pragma Assert'
+    
 
     # Check the number of matches and act accordingly
     if len(matches) == 0:
@@ -96,6 +100,27 @@ def retrieve_package_body(benchmark_file_path: str) -> str:
         return package_body
 
 
+def retrieve_dependencies(benchmark_file_path: str) -> List[str]:
+    """
+    This function retrieves the dependencies from the benchmark file
+    
+    Args:
+        benchmark_file_path (str): The path to the benchmark file
+    
+    Returns:
+        str: The dependencies
+    """
+    with open(benchmark_file_path, 'r') as file:
+        
+        # The dependecies are all files after the initial .adb file, so they occur as of the second --start file. They should be retrieved file by file
+        dependencies = []
+        
+        for dependency in file.read().split('-- start file ')[2:]:
+            dependency = dependency.split('-- end file ')[0]
+            dependencies.append(dependency)
+            
+        
+        return dependencies
 
 
 
