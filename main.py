@@ -23,9 +23,9 @@ basic_benchmark = run_benchmark(system_message=
                         well as a specification of the program. You must complete the package body of the given program, inserting a single "pragma Loop_Invariant" statement.
                         You must not modify the code in any other way.
                         """, 
-                        benchmark_dir="benchmarks/benchmark_rem_first_LoopInv",
-                        gpt_model=model,
-                        benchmark_program_indices=[1])
+                        benchmark_dir="benchmarks/benchmark_rem_last_LoopInv",
+                        gpt_model=model)
+                        # benchmark_program_indices=[1,7,8,9,10])
 
 
 
