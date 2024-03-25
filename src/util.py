@@ -69,7 +69,6 @@ def extract_code_from_response(text: str) -> str:
     matches = re.findall(pattern, text, re.DOTALL)
     
     # TODO If multiple code blocks, check if one is possibly the full program
-    # TODO Check for 'pragma Assume' and replace with 'pragma Assert'
     
 
     # Check the number of matches and act accordingly
@@ -79,7 +78,13 @@ def extract_code_from_response(text: str) -> str:
         raise ValueError("Multiple ADA code blocks found")
     else:
         # Return the single match found
-        return matches[0].strip()
+        code = matches[0].strip()
+        
+        # Check for any string of type pragma Assume in code and replace with pragma Assert
+        code = code.replace("pragma Assume", "pragma Assert")
+        
+        return code
+        
 
 
 
