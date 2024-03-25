@@ -1,9 +1,3 @@
-## TODO
-- update requirements.txt
-- update readme
-
-
-
 # Marmaragan
 Diplom Thesis by Lucian McIntyre
 
@@ -25,6 +19,12 @@ Save to .env file and load or or add to shell path through .bashrc, .zshrc, etc.
  ### Install requirements.txt
 
 ```pip install -r requirements.txt```
+
+
+## Run Application
+Set appropriate variables in ```main.py```
+
+Run ```python main.py``` and view results in benchmark log file
 
 
 
