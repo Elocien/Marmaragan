@@ -54,7 +54,8 @@ def extract_filename_from_response(spark_code_response: str) -> str:
 
 def extract_code_from_response(text: str) -> str:
     """
-    Extract the code from the response of the LLM
+    Extract the code from the response of the LLM. Replaces any instances of 'pragma Assume' with 'pragma Assert'.
+    If there are multiple code blocks, check for markers 'package body' and 'end' to determine the full program.
     
     Args:
         text (str): The response from the LLM
@@ -68,25 +69,39 @@ def extract_code_from_response(text: str) -> str:
     # Find all non-overlapping matches of the regular expression pattern in the string text
     matches = re.findall(pattern, text, re.DOTALL)
     
-    # TODO If multiple code blocks, check if one is possibly the full program
-    
 
     # Check the number of matches and act accordingly
     if len(matches) == 0:
         raise ValueError("No ADA code block found")
     elif len(matches) > 1:
-        raise ValueError("Multiple ADA code blocks found")
+        # If multiple code blocks, check each block if the first line contains "package body [program name]" and if the last line contains "end [program name];"
+        # If so, return the full program
+        for match in matches:
+            if "package body" in match.split('\n')[0] and "end" in match.split('\n')[-1]:
+                code = match.strip()
+                
+                # Check for any string of type pragma Assume in code and replace with pragma Assert
+                return replace_pragma_assume_instances(code)
     else:
         # Return the single match found
         code = matches[0].strip()
         
         # Check for any string of type pragma Assume in code and replace with pragma Assert
-        code = code.replace("pragma Assume", "pragma Assert")
-        
-        return code
+        return replace_pragma_assume_instances(code)
         
 
 
+def replace_pragma_assume_instances(text: str) -> str:
+    """
+    Replace all instances of 'pragma Assume' with 'pragma Assert' in the given text.
+    
+    Args:
+        text (str): The text to replace 'pragma Assume' with 'pragma Assert'
+        
+    Returns:
+        str: The text with 'pragma Assume' replaced with 'pragma Assert'
+    """
+    return text.replace("pragma Assume", "pragma Assert")
 
 def retrieve_package_body(benchmark_file_path: str) -> str:
     """
