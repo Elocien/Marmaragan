@@ -103,6 +103,8 @@ def replace_pragma_assume_instances(text: str) -> str:
     """
     return text.replace("pragma Assume", "pragma Assert")
 
+
+
 def retrieve_package_body(benchmark_file_path: str) -> str:
     """
     This function retrieves the package body from the benchmark file
