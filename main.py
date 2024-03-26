@@ -3,9 +3,9 @@ from src.run_benchmark import *
 
 # GPT Model to use
 
-# model = "gpt-3.5-turbo-1106"
+model = "gpt-3.5-turbo-1106"
 # model = "gpt-4-0125-preview"
-model = "gpt-4-0613"
+# model = "gpt-4-0613"
 
 
 
@@ -24,8 +24,9 @@ basic_benchmark = run_benchmark(system_message=
                         You must not modify the code in any other way.
                         """, 
                         benchmark_dir="benchmarks/benchmark_rem_last_LoopInv",
-                        gpt_model=model)
-                        # benchmark_program_indices=[1,7,8,9,10])
+                        gpt_model=model,
+                        n_solutions=3,
+                        benchmark_program_indices=[10])
 
 
 
