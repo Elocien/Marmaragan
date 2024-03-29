@@ -395,6 +395,19 @@ Summary of results:
                         self.logger.info(
                             f"Project: {gpr_file_path.split('/')[-1]} : attempt {response_number_counter} \n\nResponse: \n{nl.join(compute_diff(retrieve_package_body(benchmark_file_path[1]), llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
 
+                        
+                        # If the solution was medium free, break the loop
+                        if len(new_mediums) == 0:
+                            
+                            # Log that a solution was found
+                            self.logger.info(
+                                f"Solution found for {gpr_file_path.split('/')[-1]} : attempt {response_number_counter}\n\n")
+                            
+                            break   
+                        
+                            
+                        
+                        
                     # Case 2
                     # Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
                     else:
