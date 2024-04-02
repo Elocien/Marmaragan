@@ -74,12 +74,12 @@ model = "gpt-3.5-turbo-1106"
 
 # N solutions
 # -----------------------------------------------------------------------
-n = 1
+n = 2
 
 
 # Retries
 # -----------------------------------------------------------------------
-retries = 0
+retries = 1
 
 
 # With mediums in prompt (pre-compile program with gnatprove)

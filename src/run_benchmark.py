@@ -4,7 +4,7 @@ import shutil
 import logging
 import time
 from langchain_openai import ChatOpenAI
-from langchain.schema import HumanMessage, BaseMessage, AIMessage
+from langchain.schema import HumanMessage, BaseMessage
 from langchain_core.outputs import ChatResult
 from typing import List, Tuple
 
@@ -61,7 +61,132 @@ class run_benchmark:
         self.start_time = None;
         self.end_time = None;
         
+        # f string newline fix
+        self.nl = "\n"
+        
 
+
+    
+    def run(self) -> None:
+        """
+        This class runs the benchmark
+        """
+        
+        
+        # Initialise the run and retrieve the benchmark files
+        benchmark_files = self.init_run()
+        
+        
+    # Iterate over each project in the benchmark
+        for benchmark_file_path in benchmark_files:
+            
+            gpr_file_path = benchmark_file_path[0]
+            
+            # Get dependencies and format as a string, get package_body
+            dependencies = self.nl.join(retrieve_dependencies(benchmark_file_path[1]))
+            package_body = retrieve_package_body(benchmark_file_path[1])
+            
+            # Format the prompt
+            prompt = self.prompt.format(dependencies=dependencies, package_body=package_body)
+            
+
+            # Dict which keeps track of gnatprove output of each generation. 
+            # Key is the response number, value is a tuple containing the llm generated code and gnatprove output
+            self.gnatprove_output_dict = {}
+                    
+            
+    # Invoke the LLM to generate the response
+            print(benchmark_file_path[1])   
+            llm_responses = self.invoke_llm(prompt)
+            
+            # Used to index the differnt solutions in the log
+            response_number_counter = 0
+            
+            # Used to index the number of retries
+            retry_counter = 0
+            
+            
+    # For each response, extract the fixed code and write to file in the benchmark_dir
+            for llm_response in llm_responses:
+                
+                response_number_counter += 1
+                
+                original_package_body = retrieve_package_body(benchmark_file_path[1])
+                
+                # Extract the fixed code, compile and log the results. This returns a tuple indicating if a solution was found and if any mediums can be included in the retry.
+                # If the code couldn't be extracted, or the filename couldn't be extracted, then solution_found_flag[1] is False
+                solution_found_flag, gnatprove_output_flag = self.extract_compile_and_log(
+                    llm_response, gpr_file_path, response_number_counter, retry_counter, original_package_body)
+                
+                if solution_found_flag:
+                    break
+            
+        
+    # If retries are enabled, and no solution was found, retry with error message
+            while not solution_found_flag and self.retries > 0:
+                
+                retry_counter += 1
+                
+                # Reset the prompt
+                prompt = ""
+                
+                if gnatprove_output_flag:
+                    
+                    llm_response, gnatprove_output = self.gnatprove_output_dict[response_number_counter]
+                    
+                    # Add the LLM generated, broken package body to the prompt
+                    prompt = self.prompt.format(
+                        dependencies=dependencies, package_body=llm_response)
+                    
+                    
+                    # Format the mediums from the output
+                    mediums = parse_gnatprove_output(gnatprove_output)
+
+                    project_dir = "/".join(gpr_file_path.split("/")[:-1])
+
+                    # Compile the lines of code, which are referenced in the mediums
+                    # E.g. for medium: swap_ranges_p.adb:17:13: overflow check might fail, extract line 17 from file swap_ranges_p.adb
+                    medium_code_reference = []
+
+                    for medium in mediums:
+                        medium_code_reference.append(
+                            (extract_line_of_code_from_file(medium, project_dir), medium[1]))
+
+                    # Format medium code reference
+                    formatted_mediums = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
+
+                    
+                    prompt = prompt + f"""\n
+The following mediums 
+{formatted_mediums}
+                    """
+                
+                else:
+                    # Same prompt as in the initial run
+                    prompt = self.prompt.format(dependencies=dependencies, package_body=package_body)
+                
+                
+                # Invoke the LLM to generate the response
+                llm_responses = self.invoke_llm(prompt)
+                
+                # Reset counter
+                response_number_counter = 0
+        
+                for llm_response in llm_responses:
+                
+                    response_number_counter += 1
+                    
+                    original_package_body = retrieve_package_body(benchmark_file_path[1])
+                    
+                    
+                    solution_found_flag = self.extract_compile_and_log(
+                        llm_response, gpr_file_path, response_number_counter, retry_counter, original_package_body)
+                    
+                    if solution_found_flag[0]:
+                        break   
+        
+        # End the run and log summary
+        self.end_run(self.results)
 
 
 
@@ -89,7 +214,6 @@ class run_benchmark:
         
         # Pretty print the benchmark files
         benchmark_programs = [file.split("/")[-1] for file in self.benchmark_txt_files]
-        nl = '\n'
         
         
         self.logger.info(f"""
@@ -98,10 +222,10 @@ class run_benchmark:
 Starting new Benchmark Run
 --------------------------
 Model: {self.gpt_model} \n
-Programs: \n{nl.join(map(str, benchmark_programs))} \n
+Programs: \n{self.nl.join(map(str, benchmark_programs))} \n
 n: {self.n_solutions}
 Retries: {self.retries}
-With Mediums in Prompt: {self.with_medium_in_prompt}
+With Mediums in Prompt: {self.with_medium_in_prompt}\n
 System Message: \n{self.system_message}
 --------------------------
 Prompt: \n{self.prompt}\n
@@ -227,207 +351,158 @@ Summary of results:
         return solutions
 
 
+    def extract_compile_and_log(self, llm_response: str, gpr_file_path: str, response_number_counter: int, retry_counter: int, original_package_body: str) -> Tuple[bool, bool]:
+        """
+        This function extracts the code from the response, extracts the filepath and then overwrites the file in the temporary benchmark folder. 
+        It then runs gnatprove on the project and logs the results. It returns a tuple indicating if a solution was found and if any mediums can be included in the retry.
+        
+        Args:
+            llm_response (str): The response from the LLM
+            gpr_file_path (str): The path to the gpr file
+            response_number_counter (int): The index used to track the current llm response
+            retry_counter (int): The index used to track the current retry number
+            original_package_body (str): The original package body
+        
+        Returns:
+            Tuple[bool, bool]: A tuple containing two boolean values. The first indicates if a solution was found. The second indicates if gnatprove output exists.
+        """
+
+        
+        # Init variables
+        project_name = gpr_file_path.split('/')[-1]
+        compile_success = True
+        llm_code = ""
+        adb_file_path = ""
+
+        # Extract the code from the response
+        try:
+            llm_code = extract_code_from_response(llm_response)
+
+        # If the code cannot be extracted, set the compile success flag to False and log the error
+        except ValueError as e:
+            compile_success = False
+            self.logger.error(
+                f"\n-----------------------------------\nError extracting code from response number: {project_name} - attempt: {response_number_counter} - retry: {retry_counter}\nCode: {llm_response}\n-----------------------------------\n\n")
+
+        # If code is not empty, extract the filename
+        if llm_code not in ["", None]:
+
+            # Extract the filename from the response
+            try:
+                adb_filename = extract_filename_from_response(
+                    llm_code)
+
+                # Convert filename to lowercase and add .adb extension
+                filename_with_extension = adb_filename.lower() + ".adb"
+
+                project_dir = "/".join(gpr_file_path.split("/")[:-1])
+                adb_file_path = project_dir + "/" + filename_with_extension
+
+                # Overwrite the destination file with the response code
+                overwrite_destination_file_with_string(
+                    adb_file_path, llm_code)
+
+            # If the filename cannot be extracted, set the compile success flag to False and log the error
+            except ValueError as e:
+                compile_success = False
+                self.logger.error(
+                    f"\n-----------------------------------\n\nError extracting filename from response: {project_name} - attempt: {response_number_counter} - retry: {retry_counter}\nCode: {llm_code}\n-----------------------------------\n\n")
+
+        # Three cases:
+        # 1. Code was successfully extracted and gnatprove made it to stage 2. of compilation
+        # 2. Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
+        # 3. Code was not successfully extracted and gnatprove did not run
+
+        if compile_success == True:
+
+            # Run gnatprove on the project
+            gnatprove_output = run_gnatprove(gpr_file_path)
+            gnatprove_successful_compilation = is_compilation_successful(
+                gnatprove_output)
+
+            # Case 1
+            # Code was successfully extracted and gnatprove made it to stage 2. of compilation
+            if gnatprove_successful_compilation:
+
+                # Parse the new mediums
+                new_mediums = parse_gnatprove_output(gnatprove_output)
+
+                self.results.append(
+                    (f"{project_name} - attempt: {response_number_counter} - retry: {retry_counter}", compile_success, len(new_mediums) == 0))
+
+                # Logging
+                self.logger.info(
+                    f"Project: {project_name} - attempt: {response_number_counter} - retry: {retry_counter} \n\nResponse: \n{self.nl.join(compute_diff(original_package_body, llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+
+                # If the solution was medium free, break the loop
+                if len(new_mediums) == 0:
+
+                    # Log that a solution was found
+                    self.logger.info(
+                        f"Solution found for {project_name} - attempt: {response_number_counter} - retry: {retry_counter}\n\n")
+
+                    return True, False
+
+            # Case 2
+            # Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
+            else:
+                self.results.append(
+                    (f"{project_name} - attempt: {response_number_counter} - retry: {retry_counter}", compile_success, False))
+
+                # Logging
+                self.logger.info(
+                    f"Project: {project_name} - attempt: {response_number_counter} - retry: {retry_counter} \n\nResponse: \n{self.nl.join(compute_diff(original_package_body, llm_code))}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                
+                # Add the llm generated code and gnatprove output to the dictionary
+                self.gnatprove_output_dict[response_number_counter] = llm_code, gnatprove_output
+                
+                return False, True
+
+        # Case 3
+        #  Code was not successfully extracted and gnatprove did not run
+        else:
+
+            self.results.append(
+                (f"{project_name} - attempt: {response_number_counter} - retry: {retry_counter}", False, False))
+
+            # Logging
+            self.logger.info(
+                f"Project: {project_name} - attempt: {response_number_counter} - retry: {retry_counter}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{llm_code}\n-----------------------------------\n\n")
+
+            return False, False
+            
+        
+
+
 
     
     
-    # def gnatprove_pre_compile(self) -> None:
-    #     """
-    #     This class runs the benchmark, running gnatprove to identify any mediums and including this information in the prompt
-    #     """
-        
-    #     # Initialise the run and retrieve the benchmark files
-    #     benchmark_files = self.init_run("With Gnatprove mediums in Prompt")
-        
-    #     # f string newline fix   
-    #     nl = "\n"
-        
-        
-    # # Iterate over each project in the benchmark
-    #     for benchmark_file_path in benchmark_files:
-            
-    #         gpr_file_path = benchmark_file_path[0]
-            
+    
+    
+    
 
+            
+        
+    
+    
+    
+# Precompile mediums 
     #     # Run gnatprove on the project
     #         output = run_gnatprove(gpr_file_path)
     #         mediums = parse_gnatprove_output(output)
-            
+
     #         project_dir = "/".join(gpr_file_path.split("/")[:-1])
-            
 
     #         # Compile the lines of code, which are referenced in the mediums
     #         # E.g. for medium: swap_ranges_p.adb:17:13: overflow check might fail, extract line 17 from file swap_ranges_p.adb
     #         medium_code_reference = []
-            
+
     #         for medium in mediums:
     #             medium_code_reference.append(
     #                 (extract_line_of_code_from_file(medium, project_dir), medium[1]))
-            
-            
+
     #         # retrieve the benchmark txt file
     #         benchmark_file = open(benchmark_file_path[1], "r")
-            
+
     #         # Format medium code reference
     #         medium_code_reference = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
-            
-        
-
-
-
-
-
-
-    
-    
-    
-    
-    
-
-            
-
-
-    def run(self) -> None:
-        """
-        This class runs the benchmark
-        """
-        
-        
-        # Initialise the run and retrieve the benchmark files
-        benchmark_files = self.init_run()
-        
-        
-    # Iterate over each project in the benchmark
-        for benchmark_file_path in benchmark_files:
-            
-            gpr_file_path = benchmark_file_path[0]
-            
-            # f string newline fix   
-            nl = "\n"
-            
-            # Get dependencies and format as a string, get package_body
-            dependencies = nl.join(retrieve_dependencies(benchmark_file_path[1]))
-            package_body = retrieve_package_body(benchmark_file_path[1])
-            
-            # Format the prompt
-            prompt = self.prompt.format(dependencies=dependencies, package_body=package_body)
-            print(f"{prompt}\n\n")
-                    
-            
-    # Invoke the LLM to generate the response
-            print(benchmark_file_path[1])   
-            llm_responses = self.invoke_llm(prompt)
-            
-            # Used to index the differnt solutions in the log
-            response_number_counter = 0
-            
-            
-    # For each response, extract the fixed code and write to file in the benchmark_dir
-            for llm_response in llm_responses:
-                
-                response_number_counter += 1
-
-                # Init variables
-                compile_success = True
-                llm_code = ""
-                adb_file_path = ""
-
-                # Extract the code from the response
-                try:
-                    llm_code = extract_code_from_response(llm_response)
-                
-                # If the code cannot be extracted, set the compile success flag to False and log the error
-                except ValueError as e:
-                    compile_success = False
-                    self.logger.error(
-                        f"\n-----------------------------------\nError extracting code from response number: {gpr_file_path.split('/')[-1]} : attempt {response_number_counter}\nCode: {llm_response}\n-----------------------------------\n\n")
-
-                # If code is not empty, extract the filename 
-                if llm_code not in ["", None]:
-
-                    # Extract the filename from the response
-                    try:
-                        adb_filename = extract_filename_from_response(
-                            llm_code)
-
-                        # Convert filename to lowercase and add .adb extension
-                        filename_with_extension = adb_filename.lower() + ".adb"
-                        
-                        project_dir = "/".join(gpr_file_path.split("/")[:-1])
-                        adb_file_path = project_dir + "/" + filename_with_extension
-                        
-
-                        # Overwrite the destination file with the response code
-                        overwrite_destination_file_with_string(
-                            adb_file_path, llm_code)
-
-                    # If the filename cannot be extracted, set the compile success flag to False and log the error
-                    except ValueError as e:
-                        compile_success = False
-                        self.logger.error(
-                            f"\n-----------------------------------\n\nError extracting filename from response: {gpr_file_path.split('/')[-1]} : attempt {response_number_counter}\nCode: {llm_code}\n-----------------------------------\n\n")
-
-            
-            
-            # Three cases:
-            # 1. Code was successfully extracted and gnatprove made it to stage 2. of compilation
-            # 2. Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
-            # 3. Code was not successfully extracted and gnatprove did not run
-                
-                
-                if compile_success == True:
-
-                    # Run gnatprove on the project
-                    gnatprove_output = run_gnatprove(gpr_file_path)
-                    gnatprove_successful_compilation = is_compilation_successful(
-                        gnatprove_output)
-
-                    # Case 1
-                    # Code was successfully extracted and gnatprove made it to stage 2. of compilation
-                    if gnatprove_successful_compilation:
-
-                        # Parse the new mediums
-                        new_mediums = parse_gnatprove_output(gnatprove_output)
-
-                        self.results.append((f"{gpr_file_path.split('/')[-1]} : attempt {response_number_counter}", compile_success, len(new_mediums) == 0))
-                        
-                        
-                        # Logging
-                        self.logger.info(
-                            f"Project: {gpr_file_path.split('/')[-1]} : attempt {response_number_counter} \n\nResponse: \n{nl.join(compute_diff(retrieve_package_body(benchmark_file_path[1]), llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
-
-                        
-                        # If the solution was medium free, break the loop
-                        if len(new_mediums) == 0:
-                            
-                            # Log that a solution was found
-                            self.logger.info(
-                                f"Solution found for {gpr_file_path.split('/')[-1]} : attempt {response_number_counter}\n\n")
-                            
-                            break   
-                        
-                            
-                        
-                        
-                    # Case 2
-                    # Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
-                    else:
-                        self.results.append(
-                            (f"{gpr_file_path.split('/')[-1]} : attempt {response_number_counter}", compile_success, False))
-
-                        # Logging
-                        self.logger.info(
-                            f"Project: {gpr_file_path.split('/')[-1]} : attempt {response_number_counter} \n\nResponse: \n{nl.join(compute_diff(retrieve_package_body(benchmark_file_path[1]), llm_code))}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
-
-                # Case 3
-                #  Code was not successfully extracted and gnatprove did not run
-                else:
-
-                    self.results.append(
-                        (f"{gpr_file_path.split('/')[-1]} : attempt {response_number_counter}", False, False))
-
-                    # Logging
-                    self.logger.info(
-                        f"Project: {gpr_file_path.split('/')[-1]} : attempt {response_number_counter}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{llm_code}\n-----------------------------------\n\n")
-
-        # End the run and log summary
-        self.end_run(self.results)
