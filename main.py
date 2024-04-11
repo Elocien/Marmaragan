@@ -35,27 +35,40 @@ This is the package body (implementation):
 
 {package_body} \n
 
-Add a single 'pragma Loop_Invariant' statement to the package body, so that the code runs error and medium free. 
+Add one or multiple pragma statements (e.g. pragma Loop_Invariant, pragma Assert) to the package body, so that the code runs error and medium free.
 Do not modify the code in any other way. Return the entire implementation file with the single addition.
 """
 
 
-# # Normal Prompt
-# prompt = f"""\
-# The following code is a Spark2014/ADA project.\n\n
-# {dependencies}
+# Prompt with loop invariant from spark tutorial
+prompt = """\
+The following code is written in Spark2014, a subset of the ADA programming language.\
+The following are the specifications and dependencies of a Spark2014/ADA project:
 
+{dependencies} \n
 
-# Here are the current mediums being thrown by gnatprove, in the form of the line referenced as the cause and an explaination:\n\n
-# {package_body}
+This is the package body (implementation):
 
-# Return the fixed code for the first implementation file, delimiting with 
-# ```ada
+{package_body} \n
 
-# code here
+Add a single 'pragma Loop_Invariant' statement to the package body, so that the code runs error and medium free.
+Here is a guide on how to write Loop_Invariant statements in Spark2014:\
 
-# ```
-# """
+A loop invariant can describe more or less precisely the behaviour of a loop. What matters is that the loop invariant allows proving absence of run-time errors in the subprogram, that the subprogram respects its contract, and that the loop invariant itself holds at each iteration of the loop. There are four properties that a good loop invariant should fulfill:
+1. It should be provable in the first iteration of the loop.
+2. It should allow proving absence of run-time errors and local assertions inside the loop.
+3. It should allow proving absence of run-time errors, local assertions and the subprogram postcondition after the loop.
+4. It should be provable after the first iteration of the loop.
+
+Return the entire implementation file with the required additions. Do not modify the code in any other way. 
+
+Return the fixed code for the first implementation file by delimiting with 
+```ada
+
+code here
+
+```
+"""
 
                     
 
