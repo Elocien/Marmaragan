@@ -12,15 +12,7 @@ package body Swap_Ranges_P with
       for J in 0 .. A'Length - 1 loop
          Swap (A (A'First + J), B (B'First + J));
 
-         pragma Loop_Invariant
-           (B'Loop_Entry (B'First .. B'First + J) =
-                A (A'First .. A'First + J)
-            and A'Loop_Entry (A'First .. A'First + J) =
-            B (B'First .. B'First + J));
-         pragma Loop_Invariant
-           (if B'First + J < B'Last then
-              B'Loop_Entry (B'First + J + 1 .. B'Last) =
-              B (B'First + J + 1 .. B'Last));
+
       end loop;
    end Swap_Ranges;
 end Swap_Ranges_P;

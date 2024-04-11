@@ -18,7 +18,6 @@ is
             return Res;
          end if;
 
-         pragma Loop_Variant (Increases => Pos);
 
          Pos := Pos + 1;
       end loop;

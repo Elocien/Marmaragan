@@ -18,7 +18,6 @@ package body Find_P with
             return Result;
          end if;
 
-         pragma Loop_Invariant (not Result.Exists);
       end loop;
 
       return Result;

@@ -1,60 +1,57 @@
--- start file adjacent_find_p.adb
+-- start file mismatch_p.adb
 
-package body Adjacent_Find_P with
+package body Mismatch_P with
    Spark_Mode
  is
 
-   function Adjacent_Find
-     (A : T_Arr)
+   function Mismatch
+     (A : T_Arr;
+      B : T_Arr)
       return Option
    is
       Result : Option := (Exists => False);
    begin
-      if A'Length <= 1 then
-         return Result;
-      end if;
-
-      for I in A'First .. A'Last - 1 loop
-         if A (I) = A (I + 1) then
+      for I in 0 .. A'Length - 1 loop
+         if A (A'First + I) /= B (B'First + I) then
             Result := (Exists => True, Value => I);
 
             return Result;
          end if;
 
-         pragma Loop_Invariant (not Result.Exists);
       end loop;
 
       return Result;
-   end Adjacent_Find;
-end Adjacent_Find_P;
+   end Mismatch;
+end Mismatch_P;
 
--- end file adjacent_find_p.adb
+-- end file mismatch_p.adb
 
 
--- start file adjacent_find_p.ads
+-- start file mismatch_p.ads
 
-with Types;                 use Types;
-with Has_Equal_Neighbors_P; use Has_Equal_Neighbors_P;
+with Types;          use Types;
+with Equal_Ranges_P; use Equal_Ranges_P;
 
-package Adjacent_Find_P with
+package Mismatch_P with
    Spark_Mode
  is
-
-   function Adjacent_Find
-     (A : T_Arr)
+   function Mismatch
+     (A : T_Arr;
+      B : T_Arr)
       return Option with
-      Contract_Cases =>
-      (Has_Equal_Neighbors (A) =>
-         (Adjacent_Find'Result.Exists = True)
+      Pre            => A'Length = B'Length,
+      Contract_Cases => (Equal_Ranges (A, B) => not Mismatch'Result.Exists,
+       others =>
+         Mismatch'Result.Exists
          and then
-         (A (Adjacent_Find'Result.Value) = A (Adjacent_Find'Result.Value + 1))
+         (A (A'First + Mismatch'Result.Value) /=
+          B (B'First + Mismatch'Result.Value))
          and then
-         (not Has_Equal_Neighbors (A (A'First .. Adjacent_Find'Result.Value))),
-       others => Adjacent_Find'Result.Exists = False);
+         (if (Mismatch'Result.Value /= 0) then
+            Equal_Ranges (A, B, Mismatch'Result.Value - 1)));
+end Mismatch_P;
 
-end Adjacent_Find_P;
-
--- end file adjacent_find_p.ads
+-- end file mismatch_p.ads
 
 
 -- start file types.ads
@@ -105,20 +102,28 @@ end Types;
 -- end file types.ads
 
 
--- start file has_equal_neighbors_p.ads
+-- start file equal_ranges_p.ads
 
 with Types; use Types;
 
-package Has_Equal_Neighbors_P with
+package Equal_Ranges_P with
    Spark_Mode,
    Ghost
  is
-   function Has_Equal_Neighbors
-     (A : T_Arr)
+
+   function Equal_Ranges
+     (A : T_Arr;
+      B : T_Arr)
+      return Boolean is (A = B);
+
+   function Equal_Ranges
+     (A      : T_Arr;
+      B      : T_Arr;
+      Offset : Natural)
       return Boolean is
-     (if (A'Length = 0) then False
-      else (for some I in A'First .. A'Last - 1 => A (I) = A (I + 1)));
+     (A (A'First .. A'First + Offset) = B (B'First .. B'First + Offset)) with
+      Pre => Offset < A'Length and then Offset < B'Length;
+end Equal_Ranges_P;
 
-end Has_Equal_Neighbors_P;
 
--- end file has_equal_neighbors_p.ads
+-- end file equal_ranges_p.ads

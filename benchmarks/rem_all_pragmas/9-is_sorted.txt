@@ -8,6 +8,7 @@ package body Is_Sorted_P with
    begin
       for J in A'Range loop
          null;
+
       end loop;
    end Weakly_To_Sorted;
 
@@ -21,8 +22,6 @@ package body Is_Sorted_P with
             if A (J) > A (J + 1) then
                return False;
             end if;
-
-            pragma Loop_Invariant (Weakly_Sorted (A (A'First .. J + 1)));
 
          end loop;
       end if;
