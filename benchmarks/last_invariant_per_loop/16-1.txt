@@ -1,0 +1,113 @@
+-- start file swap_ranges_p.adb
+
+package body Swap_Ranges_P with
+   Spark_Mode
+ is
+   procedure Swap_Ranges
+     (A : in out T_Arr;
+      B : in out T_Arr)
+   is
+   begin
+
+      for J in 0 .. A'Length - 1 loop
+         Swap (A (A'First + J), B (B'First + J));
+
+         pragma Loop_Invariant
+           (B'Loop_Entry (B'First .. B'First + J) =
+                A (A'First .. A'First + J)
+            and A'Loop_Entry (A'First .. A'First + J) =
+            B (B'First .. B'First + J));
+         pragma Loop_Invariant
+           (if B'First + J < B'Last then
+              B'Loop_Entry (B'First + J + 1 .. B'Last) =
+              B (B'First + J + 1 .. B'Last));
+
+   end Swap_Ranges;
+end Swap_Ranges_P;
+
+-- end file swap_ranges_p.adb
+
+
+-- start file swap_ranges_p.ads
+
+with Types;  use Types;
+with Swap_P; use Swap_P;
+
+package Swap_Ranges_P with
+   Spark_Mode
+ is
+   procedure Swap_Ranges
+     (A : in out T_Arr;
+      B : in out T_Arr) with
+      Pre  => A'Length = B'Length,
+      Post => A'Old = B and then B'Old = A;
+
+end Swap_Ranges_P;
+
+-- end file swap_ranges_p.ads
+
+
+-- start file types.ads
+
+package Types is
+
+   type T is new Integer;
+
+   type T_Arr is array (Positive range <>) of T;
+
+   type T_Option (OK : Boolean) is record
+      case OK is
+         when True =>
+            Value : T;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   MAX_SIZE : constant := 1000;
+
+   type Option (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Value : Integer;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type Option_Pair (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Lower : Integer;
+            Upper : Integer;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type Heap is record
+      A    : T_Arr (1 .. MAX_SIZE) := (others => 0);
+      Size : Natural               := 0;
+   end record;
+
+end Types;
+
+-- end file types.ads
+
+
+-- start file swap_p.ads
+
+with Types; use Types;
+
+package Swap_P with
+   Spark_Mode
+ is
+   procedure Swap
+     (P : in out T;
+      Q : in out T) with
+      Post => P = Q'Old and then Q = P'Old;
+
+end Swap_P;
+
+-- end file swap_p.ads
+
