@@ -4,9 +4,16 @@ from scripts.dry_run_benchmark import dry_run_benchmark
 
 
 
-# Generate the spark benchmark files
+# GEN BENCHMARK FILES
 # gen_benchmark(benchmark_dir="benchmarks/2-all_pragmas")
-gen_benchmark(benchmark_dir="benchmarks/1-benchmark/code")
+# gen_benchmark(benchmark_dir="benchmarks/1-benchmark/code")
+
+
+
+
+
+
+# GEN DIFF
 
 # Generate the diff between the original and modified benchmark
 # original_dir = 'benchmarks/benchmark/code'
@@ -17,4 +24,11 @@ gen_benchmark(benchmark_dir="benchmarks/1-benchmark/code")
 #     print(f"{diff[0]}:{diff[1]}, Deletion: {diff[2]}")
 
 
+
+
+# DRY RUN
 # dry_run_benchmark(benchmark_dir="benchmarks/2-all_pragmas")
+# dry_run_benchmark(benchmark_dir="benchmarks/3-last_invariant_per_loop")
+dry_run_benchmark(benchmark_dir="benchmarks/4-one_assert")
+dry_run_benchmark(benchmark_dir="benchmarks/5-all_invariants_one_loop")
+dry_run_benchmark(benchmark_dir="benchmarks/6-last_invariant_one_loop")

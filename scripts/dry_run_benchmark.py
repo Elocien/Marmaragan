@@ -45,4 +45,4 @@ def dry_run_benchmark(benchmark_dir: str) -> None:
         
     
     # Remove the tmp_benchmark directory
-    # shutil.rmtree(tmp_benchmark)
+    shutil.rmtree(tmp_benchmark)

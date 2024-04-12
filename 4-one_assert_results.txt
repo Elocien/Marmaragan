@@ -1,0 +1,458 @@
+
+
+
+
+benchmarks/4-one_assert/2-8.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/2-8/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/15-1.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/15-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-8.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-8/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-9.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+counting.adb:89:15: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/5-4.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+lemmas.adb:59:09: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-12.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-12/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-2.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-2/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-3.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-3/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-13.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-13/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/5-5.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/5-5/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/5-7.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/5-7/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-11.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-11/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-1.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-10.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+counting.adb:91:15: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/5-6.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/5-6/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/5-2.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+lemmas.adb:18:03: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-4.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-4/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-5.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-5/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/5-3.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+lemmas.adb:46:09: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/5-1.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+lemmas.adb:10:03: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-7.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-7/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/3-6.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/3-6/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/2-1.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/2-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/2-2.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/2-2/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/2-3.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/2-3/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/2-7.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/2-7/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/4-1.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/4-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/2-6.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/2-6/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/2-4.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/2-4/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/4-2.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+input_output.adb:98:12: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/4-one_assert/2-5.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_4-one_assert/2-5/gnatprove/gnatprove.out
+--------------------------------------------------

@@ -1,0 +1,292 @@
+
+
+
+
+benchmarks/5-all_invariants_one_loop/14-1.txt
+Compilation successful: True
+
+Mediums: 
+[['search_lower_bound_p.adb:22:45: ', ": overflow check might fail (e.g. when Result = (Exists => ?, Value => Integer'First) and Right = 0)"], ['search_lower_bound_p.adb:23:19: ', ": array index check might fail (e.g. when A = (others => 0) and A'First = 1 and A'Last = 1 and Middle = 0) [possible explanation: loop at line 21 should mention Middle in a loop invariant]"], ['search_lower_bound_p.ads:16:21: ', ": contract case might fail (e.g. when A = (others => 0) and A'First = 1 and A'Last = 1 and Search_Lower_Bound'Result = (Exists => True, Value => 1) and V = 0)"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+search_lower_bound_p.adb:13:07: warning: initialization of "Middle" has no effect
+search_lower_bound_p.adb:22:45: medium: overflow check might fail (e.g. when Result = (Exists => ?, Value => Integer'First) and Right = 0)
+search_lower_bound_p.adb:23:19: medium: array index check might fail (e.g. when A = (others => 0) and A'First = 1 and A'Last = 1 and Middle = 0) [possible explanation: loop at line 21 should mention Middle in a loop invariant]
+search_lower_bound_p.ads:16:21: medium: contract case might fail (e.g. when A = (others => 0) and A'First = 1 and A'Last = 1 and Search_Lower_Bound'Result = (Exists => True, Value => 1) and V = 0)
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/14-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/8-1.txt
+Compilation successful: True
+
+Mediums: 
+[['find_p.ads:13:27: ', ": contract case might fail (e.g. when Find'Result = (Exists => False, Value => 3))"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+find_p.ads:13:27: medium: contract case might fail (e.g. when Find'Result = (Exists => False, Value => 3))
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/8-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/16-1.txt
+Compilation successful: True
+
+Mediums: 
+[['swap_ranges_p.ads:11:15: ', ": postcondition might fail, cannot prove A'Old = B (e.g. when A'First = 1 and A'Last = 1 and A'Old = (1 => -1, others => -1) and B = (others => 0) and B'First = 1 and B'Last = 1) [possible explanation: loop at swap_ranges_p.adb:10 should mention A and B in a loop invariant]"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+swap_ranges_p.ads:11:15: medium: postcondition might fail, cannot prove A'Old = B (e.g. when A'First = 1 and A'Last = 1 and A'Old = (1 => -1, others => -1) and B = (others => 0) and B'First = 1 and B'Last = 1) [possible explanation: loop at swap_ranges_p.adb:10 should mention A and B in a loop invariant]
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/16-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/12-1.txt
+Compilation successful: True
+
+Mediums: 
+[['mismatch_p.ads:13:15: ', ": contract case might fail (e.g. when Mismatch'Result = (Exists => False, Value => 3))"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+mismatch_p.ads:13:15: medium: contract case might fail (e.g. when Mismatch'Result = (Exists => False, Value => 3))
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/12-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/15-1.txt
+Compilation successful: True
+
+Mediums: 
+[['show_map.adb:15:47: ', ": assertion might fail, cannot prove A (K - 1) = F (A_I (K)) (e.g. when A = (1 => 2, 2 => 1, others => 0) and A_I = (2 => 0, others => 2) and A_I'First = 1 and A_I'Last = 2 and K = 2) [possible explanation: loop at line 8 should mention A in a loop invariant]"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+show_map.adb:15:47: medium: assertion might fail, cannot prove A (K - 1) = F (A_I (K)) (e.g. when A = (1 => 2, 2 => 1, others => 0) and A_I = (2 => 0, others => 2) and A_I'First = 1 and A_I'Last = 2 and K = 2) [possible explanation: loop at line 8 should mention A in a loop invariant]
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/15-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/11-1.txt
+Compilation successful: True
+
+Mediums: 
+[['max_element_p.adb:16:25: ', ": array index check might fail (e.g. when A = (others => 0) and A'First = 1 and A'Last = 1 and Result = (Exists => ?, Value => 0)) [possible explanation: loop at line 15 should mention Result in a loop invariant]"], ['max_element_p.ads:12:21: ', ": contract case might fail (e.g. when A = (2 => 1, others => 0) and A'First = 1 and A'Last = 3 and Max_Element'Result = (Exists => True, Value => 3))"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+max_element_p.adb:16:25: medium: array index check might fail (e.g. when A = (others => 0) and A'First = 1 and A'Last = 1 and Result = (Exists => ?, Value => 0)) [possible explanation: loop at line 15 should mention Result in a loop invariant]
+max_element_p.ads:12:21: medium: contract case might fail (e.g. when A = (2 => 1, others => 0) and A'First = 1 and A'Last = 3 and Max_Element'Result = (Exists => True, Value => 3))
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/11-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/13-1.txt
+Compilation successful: True
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/13-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/3-2.txt
+Compilation successful: True
+
+Mediums: 
+[['counting.adb:76:22: ', ': assertion might fail (e.g. when A = (999 => 0, others => 1) and J = 999) [possible explanation: loop at line 58 should mention A in a loop invariant]'], ['counting.adb:77:103: ', ': array index check might fail (e.g. when N = 1000)'], ['counting.adb:77:115: ', ': assertion might fail, cannot prove A(I) = J (e.g. when A = (1000 => 1, others => 3) and I = 1002 and J = 2) [possible explanation: loop at line 58 should mention A in a loop invariant]'], ['counting.adb:77:188: ', ': array index check might fail (e.g. when N = 1000)'], ['counting.adb:83:31: ', ': assertion might fail, cannot prove I /= Position (e.g. when I = 1000 and Position = 1000) [possible explanation: loop at line 58 should mention Position in a loop invariant]'], ['counting.adb:85:34: ', ': assertion might fail, cannot prove A(I) = J (e.g. when A = (1 => 999, 1000 => 998, others => 1000) and I = 999 and J = 999) [possible explanation: loop at line 58 should mention A in a loop invariant]'], ['counting.adb:87:34: ', ': assertion might fail, cannot prove A(I-1) = J (e.g. when A = (1 => 2, 998 => 1, 999 => 3, 1000 => 2, others => 0) and I = 1000 and J = 2) [possible explanation: loop at line 58 should mention A in a loop invariant]'], ['counting.adb:87:37: ', ': array index check might fail (e.g. when I = 1)'], ['counting.adb:89:31: ', ': assertion might fail (e.g. when A = (998 => 1, 999 => 1, others => 2) and J = 2 and K = 1000) [possible explanation: loop at line 58 should mention A in a loop invariant]']]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+counting.adb:76:22: medium: assertion might fail (e.g. when A = (999 => 0, others => 1) and J = 999) [possible explanation: loop at line 58 should mention A in a loop invariant]
+counting.adb:77:103: medium: array index check might fail (e.g. when N = 1000)
+counting.adb:77:115: medium: assertion might fail, cannot prove A(I) = J (e.g. when A = (1000 => 1, others => 3) and I = 1002 and J = 2) [possible explanation: loop at line 58 should mention A in a loop invariant]
+counting.adb:77:188: medium: array index check might fail (e.g. when N = 1000)
+counting.adb:83:31: medium: assertion might fail, cannot prove I /= Position (e.g. when I = 1000 and Position = 1000) [possible explanation: loop at line 58 should mention Position in a loop invariant]
+counting.adb:85:34: medium: assertion might fail, cannot prove A(I) = J (e.g. when A = (1 => 999, 1000 => 998, others => 1000) and I = 999 and J = 999) [possible explanation: loop at line 58 should mention A in a loop invariant]
+counting.adb:87:34: medium: assertion might fail, cannot prove A(I-1) = J (e.g. when A = (1 => 2, 998 => 1, 999 => 3, 1000 => 2, others => 0) and I = 1000 and J = 2) [possible explanation: loop at line 58 should mention A in a loop invariant]
+counting.adb:87:37: medium: array index check might fail (e.g. when I = 1)
+counting.adb:89:31: medium: assertion might fail (e.g. when A = (998 => 1, 999 => 1, others => 2) and J = 2 and K = 1000) [possible explanation: loop at line 58 should mention A in a loop invariant]
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/3-2/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/1-1.txt
+Compilation successful: True
+
+Mediums: 
+[['aux.ads:19:14: ', ": postcondition might fail, cannot prove Is_ArgSet(ArgSet_From_ArgList'Result,N) (e.g. when ArgSet_From_ArgList'Result = (1 => True, 2 => True, others => False) and N = 1)"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+aux.ads:19:14: medium: postcondition might fail, cannot prove Is_ArgSet(ArgSet_From_ArgList'Result,N) (e.g. when ArgSet_From_ArgList'Result = (1 => True, 2 => True, others => False) and N = 1)
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/1-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/3-3.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+counting.adb:89:15: statement expected
+counting.adb:91:15: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/3-1.txt
+Compilation successful: False
+
+Mediums: 
+[]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+counting.adb:18:06: statement expected
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/2-1.txt
+Compilation successful: True
+
+Mediums: 
+[['core_functions_and_theorems.adb:17:45: ', ': precondition might fail, cannot prove Is_ArgList_For(L,N) (e.g. when L = (Size => 1, List => (others => 1))) [possible explanation: loop at line 15 should mention L in a loop invariant]'], ['core_functions_and_theorems.adb:20:19: ', ': precondition might fail, cannot prove Subset(R,Arbitrary_ArgSets(F.Size)(I)) (e.g. when I = 1 and L = (Size => 1000, List => (others => 0)) and SR = (Exists => ?, Arg => 999)) [possible explanation: loop at line 15 should mention SR in a loop invariant]'], ['core_functions_and_theorems.adb:20:61: ', ': precondition might fail, cannot prove Is_ArgList_For(L,N) (e.g. when L = (Size => 1000, List => (others => 0))) [possible explanation: loop at line 15 should mention L in a loop invariant]'], ['core_functions_and_theorems.adb:21:19: ', ': precondition might fail, cannot prove Is_ArgList_For(L,F.Size) (e.g. when L = (Size => 1000, List => (others => 0)) and SR = (Exists => ?, Arg => 1)) [possible explanation: loop at line 15 should mention L and SR in a loop invariant]'], ['core_functions_and_theorems.adb:26:14: ', ': precondition might fail, cannot prove Is_ArgList_For(L,N) (e.g. when L = (Size => 1000, List => (1 => 997, 2 => 998, others => 0))) [possible explanation: loop at line 15 should mention L in a loop invariant]'], ['core_functions_and_theorems.ads:13:14: ', ": postcondition might fail, cannot prove Grounded(Find_Grounded'Result,F) (e.g. when Find_Grounded'Result = (2 => True, 4 => True, others => False))"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+core_functions_and_theorems.adb:17:45: medium: precondition might fail, cannot prove Is_ArgList_For(L,N) (e.g. when L = (Size => 1, List => (others => 1))) [possible explanation: loop at line 15 should mention L in a loop invariant]
+core_functions_and_theorems.adb:20:19: medium: precondition might fail, cannot prove Subset(R,Arbitrary_ArgSets(F.Size)(I)) (e.g. when I = 1 and L = (Size => 1000, List => (others => 0)) and SR = (Exists => ?, Arg => 999)) [possible explanation: loop at line 15 should mention SR in a loop invariant]
+core_functions_and_theorems.adb:20:61: medium: precondition might fail, cannot prove Is_ArgList_For(L,N) (e.g. when L = (Size => 1000, List => (others => 0))) [possible explanation: loop at line 15 should mention L in a loop invariant]
+core_functions_and_theorems.adb:21:19: medium: precondition might fail, cannot prove Is_ArgList_For(L,F.Size) (e.g. when L = (Size => 1000, List => (others => 0)) and SR = (Exists => ?, Arg => 1)) [possible explanation: loop at line 15 should mention L and SR in a loop invariant]
+core_functions_and_theorems.adb:26:14: medium: precondition might fail, cannot prove Is_ArgList_For(L,N) (e.g. when L = (Size => 1000, List => (1 => 997, 2 => 998, others => 0))) [possible explanation: loop at line 15 should mention L in a loop invariant]
+core_functions_and_theorems.ads:13:14: medium: postcondition might fail, cannot prove Grounded(Find_Grounded'Result,F) (e.g. when Find_Grounded'Result = (2 => True, 4 => True, others => False))
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/2-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/2-2.txt
+Compilation successful: True
+
+Mediums: 
+[['core_functions_and_theorems.adb:69:109: ', ': array index check might fail (e.g. when I = 1) [possible explanation: loop at line 67 should mention I in a loop invariant]'], ['core_functions_and_theorems.adb:74:190: ', ': assertion might fail, cannot prove Arbitrary_ArgSets(F.Size)(I) = (Arbitrary_ArgSets(F.Size)(L)) (e.g. when I = 1 and L = 2) [possible explanation: loop at line 67 should mention I in a loop invariant]'], ['core_functions_and_theorems.ads:27:14: ', ': postcondition might fail']]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+core_functions_and_theorems.adb:69:109: medium: array index check might fail (e.g. when I = 1) [possible explanation: loop at line 67 should mention I in a loop invariant]
+core_functions_and_theorems.adb:74:190: medium: assertion might fail, cannot prove Arbitrary_ArgSets(F.Size)(I) = (Arbitrary_ArgSets(F.Size)(L)) (e.g. when I = 1 and L = 2) [possible explanation: loop at line 67 should mention I in a loop invariant]
+core_functions_and_theorems.ads:27:14: medium: postcondition might fail
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/2-2/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/4-1.txt
+Compilation successful: True
+
+Mediums: 
+[['input_output.adb:21:15: ', ': predicate check might fail (e.g. when N = 1001) [possible explanation: loop at line 14 should mention AM and N in a loop invariant]'], ['input_output.ads:12:39: ', ": postcondition might fail, cannot prove G(I)(1) <= AF_From_Graph'Result.Size (e.g. when G = (2 => (others => 1), others => (others => 2)) and G'First = 1 and G'Last = 2 and I = 1)"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+input_output.adb:21:15: medium: predicate check might fail (e.g. when N = 1001) [possible explanation: loop at line 14 should mention AM and N in a loop invariant]
+input_output.ads:12:39: medium: postcondition might fail, cannot prove G(I)(1) <= AF_From_Graph'Result.Size (e.g. when G = (2 => (others => 1), others => (others => 2)) and G'First = 1 and G'Last = 2 and I = 1)
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/4-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/4-2.txt
+Compilation successful: True
+
+Mediums: 
+[['input_output.adb:42:31: ', ": overflow check might fail (e.g. when Counter = Natural'Last) [possible explanation: loop at line 37 should mention Counter in a loop invariant]"], ['input_output.adb:43:15: ', ': array index check might fail (e.g. when Counter = 1001 and I = 1) [possible explanation: loop at line 37 should mention Counter in a loop invariant]'], ['input_output.adb:46:10: ', ': precondition might fail, cannot prove Counter <= MaxNumberOfArgs (e.g. when Counter = 1001) [possible explanation: loop at line 37 should mention Counter and L and OldCounter and OldL in a loop invariant]'], ['input_output.adb:50:22: ', ': predicate check might fail (e.g. when Counter = 0 and L = (1 => 1, others => 0)) [possible explanation: loop at line 37 should mention Counter and L in a loop invariant]'], ['input_output.ads:20:14: ', ": postcondition might fail, cannot prove ArgList_From_ArgSet'Result.Size <= F.Size (e.g. when ArgList_From_ArgSet'Result = (Size => 2, List => (others => 2)))"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+input_output.adb:42:31: medium: overflow check might fail (e.g. when Counter = Natural'Last) [possible explanation: loop at line 37 should mention Counter in a loop invariant]
+input_output.adb:43:15: medium: array index check might fail (e.g. when Counter = 1001 and I = 1) [possible explanation: loop at line 37 should mention Counter in a loop invariant]
+input_output.adb:46:10: medium: precondition might fail, cannot prove Counter <= MaxNumberOfArgs (e.g. when Counter = 1001) [possible explanation: loop at line 37 should mention Counter and L and OldCounter and OldL in a loop invariant]
+input_output.adb:50:22: medium: predicate check might fail (e.g. when Counter = 0 and L = (1 => 1, others => 0)) [possible explanation: loop at line 37 should mention Counter and L in a loop invariant]
+input_output.ads:20:14: medium: postcondition might fail, cannot prove ArgList_From_ArgSet'Result.Size <= F.Size (e.g. when ArgList_From_ArgSet'Result = (Size => 2, List => (others => 2)))
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/4-2/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/6-1.txt
+Compilation successful: True
+
+Mediums: 
+[['adjacent_find_p.ads:12:32: ', ": contract case might fail (e.g. when Adjacent_Find'Result = (Exists => False, Value => Integer'Last))"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+adjacent_find_p.ads:12:32: medium: contract case might fail (e.g. when Adjacent_Find'Result = (Exists => False, Value => Integer'Last))
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/6-1/gnatprove/gnatprove.out
+--------------------------------------------------
+
+
+
+
+benchmarks/5-all_invariants_one_loop/4-3.txt
+Compilation successful: True
+
+Mediums: 
+[['input_output.ads:26:38: ', ": postcondition might fail, cannot prove not (ArgSet_From_InputArgList'Result(I) xor (for some J in L'Range => L(J) = I)) (e.g. when ArgSet_From_InputArgList'Result = (1 => True, 2 => True, others => False) and I = 1 and L = (others => 2) and L'First = 1 and L'Last = 1)"]]
+
+Output:
+Phase 1 of 2: generation of Global contracts ...
+Phase 2 of 2: flow analysis and proof ...
+input_output.ads:26:38: medium: postcondition might fail, cannot prove not (ArgSet_From_InputArgList'Result(I) xor (for some J in L'Range => L(J) = I)) (e.g. when ArgSet_From_InputArgList'Result = (1 => True, 2 => True, others => False) and I = 1 and L = (others => 2) and L'First = 1 and L'Last = 1)
+Summary logged in /Users/lucian/Documents/Uni/Projects/Diplomarbeit/Marmaragan.nosync/tmp_5-all_invariants_one_loop/4-3/gnatprove/gnatprove.out
+--------------------------------------------------

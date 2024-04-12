@@ -21,7 +21,7 @@ package body Swap_Ranges_P with
            (if B'First + J < B'Last then
               B'Loop_Entry (B'First + J + 1 .. B'Last) =
               B (B'First + J + 1 .. B'Last));
-
+      end loop;
    end Swap_Ranges;
 end Swap_Ranges_P;
 

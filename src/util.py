@@ -218,8 +218,9 @@ def generate_spark_files(file_path: str, directory_path: str) -> str:
             # Check if the section is not empty
             if section.strip():  
                 
-                # Further split the section to get the code
+                # Further split the section to get the code and filename
                 parts = section.split('\n', 1)
+                filename = parts[0].strip()
                 code = parts[1].split('-- end file', 1)[0].strip()
                 
                 if subdir_path is None:
