@@ -3,6 +3,6 @@
 *.pyc
 spark_files/
 tmp_benchmark_dir/
-files_with_medium/
+dry_run_results/
 results/
 .DS_Store
