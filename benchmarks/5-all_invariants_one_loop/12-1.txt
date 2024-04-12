@@ -1,0 +1,129 @@
+-- start file mismatch_p.adb
+
+package body Mismatch_P with
+   Spark_Mode
+ is
+
+   function Mismatch
+     (A : T_Arr;
+      B : T_Arr)
+      return Option
+   is
+      Result : Option := (Exists => False);
+   begin
+      for I in 0 .. A'Length - 1 loop
+         if A (A'First + I) /= B (B'First + I) then
+            Result := (Exists => True, Value => I);
+
+            return Result;
+         end if;
+
+      end loop;
+
+      return Result;
+   end Mismatch;
+end Mismatch_P;
+
+-- end file mismatch_p.adb
+
+
+-- start file mismatch_p.ads
+
+with Types;          use Types;
+with Equal_Ranges_P; use Equal_Ranges_P;
+
+package Mismatch_P with
+   Spark_Mode
+ is
+   function Mismatch
+     (A : T_Arr;
+      B : T_Arr)
+      return Option with
+      Pre            => A'Length = B'Length,
+      Contract_Cases => (Equal_Ranges (A, B) => not Mismatch'Result.Exists,
+       others =>
+         Mismatch'Result.Exists
+         and then
+         (A (A'First + Mismatch'Result.Value) /=
+          B (B'First + Mismatch'Result.Value))
+         and then
+         (if (Mismatch'Result.Value /= 0) then
+            Equal_Ranges (A, B, Mismatch'Result.Value - 1)));
+end Mismatch_P;
+
+-- end file mismatch_p.ads
+
+
+-- start file types.ads
+
+package Types is
+
+   type T is new Integer;
+
+   type T_Arr is array (Positive range <>) of T;
+
+   type T_Option (OK : Boolean) is record
+      case OK is
+         when True =>
+            Value : T;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   MAX_SIZE : constant := 1000;
+
+   type Option (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Value : Integer;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type Option_Pair (Exists : Boolean := False) is record
+      case Exists is
+         when True =>
+            Lower : Integer;
+            Upper : Integer;
+         when False =>
+            null;
+      end case;
+   end record;
+
+   type Heap is record
+      A    : T_Arr (1 .. MAX_SIZE) := (others => 0);
+      Size : Natural               := 0;
+   end record;
+
+end Types;
+
+-- end file types.ads
+
+
+-- start file equal_ranges_p.ads
+
+with Types; use Types;
+
+package Equal_Ranges_P with
+   Spark_Mode,
+   Ghost
+ is
+
+   function Equal_Ranges
+     (A : T_Arr;
+      B : T_Arr)
+      return Boolean is (A = B);
+
+   function Equal_Ranges
+     (A      : T_Arr;
+      B      : T_Arr;
+      Offset : Natural)
+      return Boolean is
+     (A (A'First .. A'First + Offset) = B (B'First .. B'First + Offset)) with
+      Pre => Offset < A'Length and then Offset < B'Length;
+end Equal_Ranges_P;
+
+
+-- end file equal_ranges_p.ads

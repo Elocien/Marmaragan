@@ -192,17 +192,17 @@ def retrieve_benchmark_files(benchmark_directory: str, program_indices: List[int
 def generate_spark_files(file_path: str, directory_path: str) -> str:
     """
     This function takes a benchmark file and generates the corresponding spark files in the given directory.
-    It also generates a gpr file for each project and returns a list of paths to the generated gpr files.
+    It also generates a gpr file for the project and returns a the path to the generated gpr file.
     
     Args:
         file_path (str): Path to the benchmark file
         directory_path (str): Path to the directory where the benchmark files will be generated
         
     Returns:
-        List of paths to the generated gpr files
+        The path to the generated gpr file
     """
     
-    # List of file paths, used late to compile projects
+    # List of file grp filepaths
     gpr_file_path = None
     
     # Open the benchmark file
