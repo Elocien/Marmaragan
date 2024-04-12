@@ -218,9 +218,8 @@ def generate_spark_files(file_path: str, directory_path: str) -> str:
             # Check if the section is not empty
             if section.strip():  
                 
-                # Further split the section to separate the filename and code
+                # Further split the section to get the code
                 parts = section.split('\n', 1)
-                filename = parts[0].strip()
                 code = parts[1].split('-- end file', 1)[0].strip()
                 
                 if subdir_path is None:
@@ -228,8 +227,13 @@ def generate_spark_files(file_path: str, directory_path: str) -> str:
                     # Get the subdir path from the filename. The first piece of code in the benchmark file is
                     # always the name of the project
                     subdir_path = os.path.join(
-                        directory_path, filename.split('.')[0])
-                    os.mkdir(subdir_path)
+                        directory_path, file_path.split('/')[-1].split('.')[0])
+                    
+                    try:
+                        os.mkdir(subdir_path)
+                        
+                    except FileExistsError:
+                        os.mk
                     
                     # Author: Emmanuel Debanne
                     # https://github.com/debanne/sparkilo/blob/main/sparkilo/gnat/gpr.py
