@@ -9,8 +9,8 @@ from src.run_benchmark import *
 system_message="""\
 You are a Spark2014/ADA programmer with strong logical reasoning abilities. 
 You are tasked with fixing implemenations of Spark2014/ADA programs. You will be given an Implementation of a program, as
-well as a specification of the program. You must complete the package body of the given program, inserting a single "pragma Loop_Invariant" statement.
-You must not modify the code in any other way.
+well as a specification of the program. You must complete the package body of the given program, inserting one or multiple pragma statements.
+You must not modify the code in any other way, except to add for loops and if statements that enclose only pragma statements, and do not modify the functionality.
 """
 
 
@@ -36,7 +36,8 @@ This is the package body (implementation):
 {package_body} \n
 
 Add one or multiple pragma statements (e.g. pragma Loop_Invariant, pragma Assert) to the package body, so that the code runs error and medium free.
-Do not modify the code in any other way. Return the entire implementation file with the single addition.
+You must not modify the code in any other way, except to add "for" loops and "if" statements that enclose only pragma statements, 
+and do not modify the functionality in any way. Return the entire implementation file with the required additions.
 """
 
 
