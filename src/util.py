@@ -390,7 +390,10 @@ def compute_diff(original_lines: str, result_lines: str) -> list[str]:
     """
     
     original_lines = original_lines.splitlines()
-    result_lines = result_lines.splitlines()
+    if result_lines is not None:
+        result_lines = result_lines.splitlines()
+    else:
+        result_lines = []
         
     diff_lines = []
     original_index = 0
