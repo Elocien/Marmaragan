@@ -13,8 +13,7 @@ procedure Map (A : in out Nat_Array) is
             end if;
 
         end loop;
-        pragma Assert (for all K in A'Range =>
-                        (if K /= A'First then A (K - 1) = F (A_I (K))));
+        
     end Map;
 end Show_Map;
 
@@ -31,7 +30,10 @@ is
     function F (V : Natural) return Natural is
         (if V /= Natural'Last then V + 1 else V);
 
-    procedure Map (A : in out Nat_Array);
+    procedure Map 
+        (A : in out Nat_Array) with
+        Post => (for all K in A'Range =>
+                        (if K /= A'First then A (K - 1) = F (A'Old (K))));
 
 end Show_Map;
 
