@@ -442,6 +442,14 @@ Summary of results:
                         f"Solution found for {project_name} - attempt: {response_number_counter} - retry: {retry_counter}\n\n")
 
                     return True, False
+                
+                # If not, continue
+                else:
+                    # Add the llm generated code and gnatprove output to the dictionary
+                    self.gnatprove_output_dict[response_number_counter] = llm_code, gnatprove_output
+
+                    return False, True
+                    
 
             # Case 2
             # Code was successfully extracted but gnatprove did not make it to stage 2. of compilation
