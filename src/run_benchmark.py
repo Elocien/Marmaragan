@@ -28,6 +28,7 @@ class run_benchmark:
         # Set the system message and gpt model
         self.system_message = system_message
         self.prompt = prompt
+        self.benchmark_dir = benchmark_dir
         self.gpt_model = gpt_model
         self.n_solutions = n_solutions
         self.retries = retries
@@ -222,6 +223,7 @@ The following mediums
 Starting new Benchmark Run
 --------------------------
 Model: {self.gpt_model} \n
+Benchmark: {self.benchmark_dir} \n
 Programs: \n{self.nl.join(map(str, benchmark_programs))} \n
 n: {self.n_solutions}
 Retries: {self.retries}
