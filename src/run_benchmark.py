@@ -275,7 +275,7 @@ Prompt: \n{self.prompt}\n
         """
         
         successes = 0
-        failures = 0
+        total = 0
         
         # Compile a string of the results_array
         summary_array = []
@@ -283,9 +283,10 @@ Prompt: \n{self.prompt}\n
             if no_mediums:
                 summary_array.append(f"Success: {project}")
                 successes += 1
+                total += 1
             else:
                 summary_array.append(f"Failure: {project}")
-                failures += 1
+                total += 1
                 
         
         summary_string = "\n".join(summary_array)
@@ -305,7 +306,7 @@ End of Benchmark Run
 {summary_string}
 Time taken: {duration} \n
 Summary of results:
-{successes} / {failures}
+{successes} / {total}
 --------------------------
 \n\n\n
                          """)
