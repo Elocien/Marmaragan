@@ -181,7 +181,7 @@ The following mediums
                     
                     
                     solution_found_flag = self.extract_compile_and_log(
-                        llm_response, gpr_file_path, response_number_counter, retry_counter, original_package_body)
+                        llm_response, gpr_file_path, benchmark_file_path[1], response_number_counter, retry_counter, original_package_body)
                     
                     if solution_found_flag[0]:
                         break   
