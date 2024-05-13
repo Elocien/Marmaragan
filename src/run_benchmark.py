@@ -117,7 +117,7 @@ class run_benchmark:
                 # Extract the fixed code, compile and log the results. This returns a tuple indicating if a solution was found and if any mediums can be included in the retry.
                 # If the code couldn't be extracted, or the filename couldn't be extracted, then solution_found_flag[1] is False
                 solution_found_flag, gnatprove_output_flag = self.extract_compile_and_log(
-                    llm_response, gpr_file_path, response_number_counter, retry_counter, original_package_body)
+                    llm_response, gpr_file_path, benchmark_file_path[1], response_number_counter, retry_counter, original_package_body)
                 
                 if solution_found_flag:
                     break
@@ -353,8 +353,7 @@ Summary of results:
         
         return solutions
 
-
-    def extract_compile_and_log(self, llm_response: str, gpr_file_path: str, response_number_counter: int, retry_counter: int, original_package_body: str) -> Tuple[bool, bool]:
+    def extract_compile_and_log(self, llm_response: str, gpr_file_path: str, benchmark_file_name: str, response_number_counter: int, retry_counter: int, original_package_body: str) -> Tuple[bool, bool]:
         """
         This function extracts the code from the response, extracts the filepath and then overwrites the file in the temporary benchmark folder. 
         It then runs gnatprove on the project and logs the results. It returns a tuple indicating if a solution was found and if any mediums can be included in the retry.
@@ -362,6 +361,7 @@ Summary of results:
         Args:
             llm_response (str): The response from the LLM
             gpr_file_path (str): The path to the gpr file
+            benchmark_file_name (str): The name of the benchmark file
             response_number_counter (int): The index used to track the current llm response
             retry_counter (int): The index used to track the current retry number
             original_package_body (str): The original package body
@@ -385,7 +385,7 @@ Summary of results:
         except ValueError as e:
             compile_success = False
             self.logger.error(
-                f"\n-----------------------------------\nError extracting code from response number: {project_name} - attempt: {response_number_counter} - retry: {retry_counter}\nCode: {llm_response}\n-----------------------------------\n\n")
+                f"\n-----------------------------------\nError extracting code from response number: {project_name} - benchmark No.: {benchmark_file_name} - attempt: {response_number_counter} - retry: {retry_counter}\nCode: {llm_response}\n-----------------------------------\n\n")
 
         # If code is not empty, extract the filename
         if llm_code not in ["", None]:
@@ -409,7 +409,7 @@ Summary of results:
             except ValueError as e:
                 compile_success = False
                 self.logger.error(
-                    f"\n-----------------------------------\n\nError extracting filename from response: {project_name} - attempt: {response_number_counter} - retry: {retry_counter}\nCode: {llm_code}\n-----------------------------------\n\n")
+                    f"\n-----------------------------------\n\nError extracting filename from response: {project_name} - benchmark No.: {benchmark_file_name} - attempt: {response_number_counter} - retry: {retry_counter}\nCode: {llm_code}\n-----------------------------------\n\n")
 
         # Three cases:
         # 1. Code was successfully extracted and gnatprove made it to stage 2. of compilation
@@ -435,7 +435,7 @@ Summary of results:
 
                 # Logging
                 self.logger.info(
-                    f"Project: {project_name} - attempt: {response_number_counter} - retry: {retry_counter} \n\nResponse: \n{self.nl.join(compute_diff(original_package_body, llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                    f"Project: {project_name} - benchmark No.: {benchmark_file_name} - attempt: {response_number_counter} - retry: {retry_counter} \n\nResponse: \n{self.nl.join(compute_diff(original_package_body, llm_code))}\n\nNew Mediums: \n{new_mediums}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
 
                 # If the solution was medium free, break the loop
                 if len(new_mediums) == 0:
@@ -462,7 +462,7 @@ Summary of results:
 
                 # Logging
                 self.logger.info(
-                    f"Project: {project_name} - attempt: {response_number_counter} - retry: {retry_counter} \n\nResponse: \n{self.nl.join(compute_diff(original_package_body, llm_code))}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
+                    f"Project: {project_name} - benchmark No.: {benchmark_file_name} - attempt: {response_number_counter} - retry: {retry_counter} \n\nResponse: \n{self.nl.join(compute_diff(original_package_body, llm_code))}\n\nGnatprove Output: \n{gnatprove_output} \n-----------------------------------\n\n")
                 
                 # Add the llm generated code and gnatprove output to the dictionary
                 self.gnatprove_output_dict[response_number_counter] = llm_code, gnatprove_output
@@ -478,7 +478,7 @@ Summary of results:
 
             # Logging
             self.logger.info(
-                f"Project: {project_name} - attempt: {response_number_counter} - retry: {retry_counter}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{llm_code}\n-----------------------------------\n\n")
+                f"Project: {project_name} - benchmark No.: {benchmark_file_name} - attempt: {response_number_counter} - retry: {retry_counter}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{llm_code}\n-----------------------------------\n\n")
 
             return False, False
             
