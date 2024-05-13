@@ -13,6 +13,21 @@ well as a specification of the program. You must complete the package body of th
 You must not modify the code in any other way, except to add for loops and if statements that enclose only pragma statements, and do not modify the functionality.
 """
 
+old_system_message = """\
+You are a Spark2014/ADA programmer with strong logical reasoning abilities. 
+You are tasked with fixing implemenations of Spark2014/ADA programs. You will be given an Implementation of a program, as
+well as a specification of the program. You must complete the package body of the given program, inserting a single "pragma Loop_Invariant" statement.
+You must not modify the code in any other way.
+"""
+
+# The original 4/16 system message
+original_system_message = """\
+You are a Spark2014/ADA programmer with strong logical reasoning abilities.
+You are tasked with fixing implemenations of Spark2014/ADA programs. You will be given an Implementation of a program, as
+well as a specification of the program. You must complete the package body of the given program, inserting a single "pragma Loop_Invariant" statement.
+You must not modify the code in any other way.
+"""
+
 
 # Prompt
 # -----------------------------------------------------------------------
@@ -38,6 +53,52 @@ This is the package body (implementation):
 Add one or multiple pragma statements (e.g. pragma Loop_Invariant, pragma Assert) to the package body, so that the code runs error and medium free.
 You must not modify the code in any other way, except to add "for" loops and "if" statements that enclose only pragma statements.
 Do not modify the functionality in any way. Return the entire implementation file with the required additions.
+"""
+
+
+# Old prompt
+old_prompt = """\n
+Try to solve the following problem logically and step by step. The final answer should then be delimited in the following way:
+
+```ada
+
+code here
+
+```
+
+The following are the specifications and dependencies of a Spark2014/ADA project:
+
+{dependencies} \n
+
+This is the package body(implementation):
+
+{package_body} \n
+
+Add one or multiple pragma statements(e.g. pragma Loop_Invariant, pragma Assert) to the package body, so that the code runs error and medium free.
+Do not modify the code in any other way. Return the entire implementation file with the single addition.
+"""
+
+
+# 4/16 prompt from 20th of March. Slightly altered for new system
+# https: // github.com/Elocien/Marmaragan/blob/8ff2812f5169ea19ca90abd4637c8925f109bfd0/main.py
+original_prompt = """\n
+Try to solve the following problem logically and step by step. The final answer should then be delimited in the following way:
+
+```ada
+
+code here
+
+```
+
+The following code is a Spark2014/ADA project. It contains an Implementation file(.adb) and specification files(.ads).
+Project:
+
+{package_body}
+{dependencies}
+
+Add a single 'pragma Loop_Invariant' statement, so that the code runs error and medium free.
+Do not modify the code in any other way. Return the entire implementation file with the single addition.
+
 """
 
 
@@ -75,7 +136,7 @@ Do not modify the functionality in any way. Return the entire implementation fil
 
 # Benchmark
 # -----------------------------------------------------------------------
-benchmark_file_path = "benchmarks/4-one_assert"
+benchmark_file_path = "benchmarks/6-last_invariant_one_loop"
 # benchmark_file_path = "benchmarks/benchmark_rem_first_LoopInv"
 
 
@@ -118,9 +179,9 @@ benchmark_programs = list(range(1, 17))
 
 
 # Run the benchmark
-basic_benchmark = run_benchmark(
-                        system_message=system_message,
-                        prompt=prompt,
+benchmark = run_benchmark(
+                        system_message=original_system_message,
+                        prompt=original_prompt,
                         benchmark_dir=benchmark_file_path,
                         gpt_model=model,
                         n_solutions=n,
@@ -130,7 +191,7 @@ basic_benchmark = run_benchmark(
 
 
 
-basic_benchmark.run()
+benchmark.run()
 
 
 
