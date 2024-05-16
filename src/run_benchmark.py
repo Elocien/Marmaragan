@@ -6,6 +6,7 @@ import time
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, BaseMessage
 from langchain_core.outputs import ChatResult
+from langchain_community.callbacks import get_openai_callback
 from typing import List, Tuple
 
 
@@ -33,6 +34,9 @@ class run_benchmark:
         self.n_solutions = n_solutions
         self.retries = retries
         self.with_medium_in_prompt = with_medium_in_prompt
+        
+        # total cost tracking
+        self.total_cost = 0
         
         # Retrieve the benchmark files
         self.benchmark_txt_files = retrieve_benchmark_files(benchmark_dir, benchmark_program_indices)
@@ -305,6 +309,7 @@ End of Benchmark Run
 --------------------------
 {summary_string}
 Time taken: {duration} \n
+Total cost: {self.total_cost} \n
 Summary of results:
 {successes} / {total}
 --------------------------
@@ -339,7 +344,9 @@ Summary of results:
         message = HumanMessage(content=prompt)
         
         # Generate responses
-        response = chat_model._generate([message])  
+        with get_openai_callback() as cb:
+            response = chat_model._generate([message]) 
+            self.total_cost += cb.total_cost 
         
         # Check if the response is a ChatResult object
         assert isinstance(response, ChatResult)
