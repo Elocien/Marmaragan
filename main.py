@@ -13,6 +13,13 @@ well as a specification of the program. You must complete the package body of th
 You must not modify the code in any other way, except to add for loops and if statements that enclose only pragma statements, and do not modify the functionality.
 """
 
+system_message_with_mediums = """\
+You are a Spark2014/ADA programmer with strong logical reasoning abilities. 
+You will be given an Implementation of a program, a specification of the program and the mediums that GnatProve raised for it.
+You must complete the package body of the given program, inserting one or multiple pragma statements.
+You must not modify the code in any other way, except to add for loops and if statements that enclose only pragma statements, and do not modify the functionality.
+"""
+
 old_system_message = """\
 You are a Spark2014/ADA programmer with strong logical reasoning abilities. 
 You are tasked with fixing implemenations of Spark2014/ADA programs. You will be given an Implementation of a program, as
@@ -35,6 +42,32 @@ You must not modify the code in any other way.
 # Zero-shot-CoT prompt
 prompt = """\n
 Try to solve the following problem logically and step by step. The final answer should then be delimited in the following way:
+
+```ada
+
+code here
+
+```
+
+The following are the specifications and dependencies of a Spark2014/ADA project:
+
+{dependencies} \n
+
+This is the package body (implementation):
+
+{package_body} \n
+
+Add one or multiple pragma statements (e.g. pragma Loop_Invariant, pragma Assert) to the package body, so that the code runs error and medium free.
+You must not modify the code in any other way, except to add "for" loops and "if" statements that enclose only pragma statements.
+Do not modify the functionality in any way. Return the entire implementation file with the required additions.
+"""
+
+
+# Natural language step by step prompt
+natual_language_prompt = """\n
+Try to solve the following problem by first explaining in natural language what the underlying problem, leading to the medium, might be and how it could be solved. 
+Then provide the appropriate code, which should be delimited in the following way:
+
 
 ```ada
 
