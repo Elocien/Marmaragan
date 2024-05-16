@@ -516,12 +516,14 @@ Summary of results:
                 (extract_line_of_code_from_file(medium, project_dir), medium[1]))
 
         # Format medium code reference
-        medium_code_reference = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
+        medium_code_reference = "\n\n".join(f"Line: {line},\nExplanation: {explanation}\n" for line, explanation in medium_code_reference)
         
         prompt = prompt + f"""\n
 The following are the mediums from the gnatprove output, including the line of code the medium occurs at, and an explanation of the medium:
 {medium_code_reference}
 """
+
+        return prompt
 
 
     
