@@ -97,9 +97,6 @@ class run_benchmark:
                 
                 # Update the prompt, by appending the mediums from the gnatprove 
                 prompt = self.extract_mediums(gpr_file_path, prompt)
-                
-            print(prompt)
-                
             
 
             # Dict which keeps track of gnatprove output of each generation. 
