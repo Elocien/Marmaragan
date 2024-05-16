@@ -1,8 +1,7 @@
 import subprocess  # Make sure to import subprocess at the beginning
 import re
-from typing import List
+from typing import List, Tuple
 import textwrap
-from openai import OpenAI
 import os
 import subprocess
 
@@ -291,9 +290,7 @@ def run_gnatprove(gpr_filepath: str) -> str:
     return process.stdout
 
 
-    
-    
-def parse_gnatprove_output(gnatprove_output: str) -> List[str]:
+def parse_gnatprove_output(gnatprove_output: str) -> List[Tuple[str, str]]:
     """
     Parse the output of gnatprove and return a list of medium messages.
 

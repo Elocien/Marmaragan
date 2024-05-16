@@ -94,6 +94,15 @@ class run_benchmark:
             # Format the prompt
             prompt = self.prompt.format(dependencies=dependencies, package_body=package_body)
             
+            # If mediums are enabled, run gnatprove, extract the mediums and add them to the prompt
+            if self.with_medium_in_prompt:
+                
+                # Update the prompt, by appending the mediums from the gnatprove 
+                prompt = self.extract_mediums(gpr_file_path, prompt)
+                
+            print(prompt)
+                
+            
 
             # Dict which keeps track of gnatprove output of each generation. 
             # Key is the response number, value is a tuple containing the llm generated code and gnatprove output
@@ -143,29 +152,12 @@ class run_benchmark:
                     prompt = self.prompt.format(
                         dependencies=dependencies, package_body=llm_response)
                     
-                    
-                    # Format the mediums from the output
-                    mediums = parse_gnatprove_output(gnatprove_output)
+                    # If mediums are enabled, run gnatprove, extract the mediums and add them to the prompt
+                    if self.with_medium_in_prompt:
 
-                    project_dir = "/".join(gpr_file_path.split("/")[:-1])
+                        # Update the prompt, by appending the mediums from the gnatprove
+                        prompt = self.extract_mediums(gpr_file_path, prompt)
 
-                    # Compile the lines of code, which are referenced in the mediums
-                    # E.g. for medium: swap_ranges_p.adb:17:13: overflow check might fail, extract line 17 from file swap_ranges_p.adb
-                    medium_code_reference = []
-
-                    for medium in mediums:
-                        medium_code_reference.append(
-                            (extract_line_of_code_from_file(medium, project_dir), medium[1]))
-
-                    # Format medium code reference
-                    formatted_mediums = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
-
-                    
-                    prompt = prompt + f"""\n
-The following mediums 
-{formatted_mediums}
-                    """
-                
                 else:
                     # Same prompt as in the initial run
                     prompt = self.prompt.format(dependencies=dependencies, package_body=package_body)
@@ -488,39 +480,56 @@ Summary of results:
                 f"Project: {project_name} - benchmark No.: {benchmark_file_name} - attempt: {response_number_counter} - retry: {retry_counter}\nError: GnatProve did not run. Either the filename or code could not be extracted from the response.\n\nResponse: \n{llm_code}\n-----------------------------------\n\n")
 
             return False, False
-            
-        
 
 
 
-    
-    
-    
-    
-    
 
             
+    def extract_mediums(self, gpr_file_path: str, prompt: str) -> str:
+        """
+        Given a gpr file path and the prompt, this function runs gnatprove on the project and extracts the mediums from the output. 
+        It then formats the mediums as a string and appends them to the prompt.
+        
+        Args:
+            gpr_file_path (str): The path to the gpr file
+            prompt (str): The prompt to send to the LLM
+        
+        Returns:
+            str: A string containing the formatted_promt, with mediums appended
+        
+        """
+    
+        # Run gnatprove on the project
+        output = run_gnatprove(gpr_file_path)
+        
+        # Returns list of Tuples
+        medium_tuple = parse_gnatprove_output(output)
+
+        project_dir = "/".join(gpr_file_path.split("/")[:-1])
+
+        # Compile the lines of code, which are referenced in the mediums
+        # E.g. for medium: swap_ranges_p.adb:17:13: overflow check might fail, extract line 17 from file swap_ranges_p.adb
+        medium_code_reference = []
+
+        for medium in medium_tuple:
+            medium_code_reference.append(
+                (extract_line_of_code_from_file(medium, project_dir), medium[1]))
+
+        # Format medium code reference
+        medium_code_reference = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
+        
+        prompt = prompt + f"""\n
+The following are the mediums from the gnatprove output, including the line of code the medium occurs at, and an explanation of the medium:
+{medium_code_reference}
+"""
+
+
+    
+    
+    
+    
+    
+
+            
         
     
-    
-    
-# Precompile mediums 
-    #     # Run gnatprove on the project
-    #         output = run_gnatprove(gpr_file_path)
-    #         mediums = parse_gnatprove_output(output)
-
-    #         project_dir = "/".join(gpr_file_path.split("/")[:-1])
-
-    #         # Compile the lines of code, which are referenced in the mediums
-    #         # E.g. for medium: swap_ranges_p.adb:17:13: overflow check might fail, extract line 17 from file swap_ranges_p.adb
-    #         medium_code_reference = []
-
-    #         for medium in mediums:
-    #             medium_code_reference.append(
-    #                 (extract_line_of_code_from_file(medium, project_dir), medium[1]))
-
-    #         # retrieve the benchmark txt file
-    #         benchmark_file = open(benchmark_file_path[1], "r")
-
-    #         # Format medium code reference
-    #         medium_code_reference = "\n".join(f"Line: {line},\n Explanation: {explanation}\n" for line, explanation in medium_code_reference)
