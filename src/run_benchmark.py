@@ -35,8 +35,6 @@ class run_benchmark:
         self.retries = retries
         self.with_medium_in_prompt = with_medium_in_prompt
         
-        # total cost tracking
-        self.total_cost = 0
         
         # Retrieve the benchmark files
         self.benchmark_txt_files = retrieve_benchmark_files(benchmark_dir, benchmark_program_indices)
@@ -231,6 +229,8 @@ Prompt: \n{self.prompt}\n
 \n\n\n
                          """)
         
+        if self.with_medium_in_prompt:
+            self.logger.info("""*** The prompt will include individually extracted mediums from the gnatprove output ***""")
         
         
         # Array of tuples, containing the results, of the form:
@@ -301,7 +301,6 @@ End of Benchmark Run
 --------------------------
 {summary_string}
 Time taken: {duration} \n
-Total cost: {self.total_cost} \n
 Summary of results:
 {successes} / {total}
 --------------------------
@@ -336,9 +335,7 @@ Summary of results:
         message = HumanMessage(content=prompt)
         
         # Generate responses
-        with get_openai_callback() as cb:
-            response = chat_model._generate([message]) 
-            self.total_cost += cb.total_cost 
+        response = chat_model._generate([message]) 
         
         # Check if the response is a ChatResult object
         assert isinstance(response, ChatResult)
