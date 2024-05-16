@@ -170,7 +170,6 @@ Do not modify the code in any other way. Return the entire implementation file w
 # Benchmark
 # -----------------------------------------------------------------------
 benchmark_file_path = "benchmarks/6-last_invariant_one_loop"
-# benchmark_file_path = "benchmarks/benchmark_rem_first_LoopInv"
 
 
 # GPT Model
@@ -213,13 +212,13 @@ benchmark_programs = list(range(1, 17))
 
 # Run the benchmark
 benchmark = run_benchmark(
-                        system_message=original_system_message,
-                        prompt=original_prompt,
+                        system_message=system_message_with_mediums,
+                        prompt=natual_language_prompt,
                         benchmark_dir=benchmark_file_path,
                         gpt_model=model,
                         n_solutions=n,
                         retries=retries,
-                        with_medium_in_prompt=False,
+                        with_medium_in_prompt=True,
                         benchmark_program_indices=benchmark_programs)
 
 
