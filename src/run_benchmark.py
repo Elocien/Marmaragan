@@ -95,7 +95,7 @@ class run_benchmark:
             if self.with_medium_in_prompt:
                 
                 # Update the prompt, by appending the mediums from the gnatprove 
-                prompt = self.extract_mediums(gpr_file_path, prompt)
+                prompt = self.pre_extract_mediums(gpr_file_path, prompt)
             
 
             # Dict which keeps track of gnatprove output of each generation. 
@@ -131,7 +131,7 @@ class run_benchmark:
             
         
     # If retries are enabled, and no solution was found, retry with error message
-            while not solution_found_flag and self.retries > 0:
+            for retry_counter in range(self.retries):
                 
                 retry_counter += 1
                 
@@ -150,7 +150,7 @@ class run_benchmark:
                     if self.with_medium_in_prompt:
 
                         # Update the prompt, by appending the mediums from the gnatprove
-                        prompt = self.extract_mediums(gpr_file_path, prompt)
+                        prompt = self.extract_mediums(gpr_file_path, gnatprove_output, prompt)
 
                 else:
                     # Same prompt as in the initial run
@@ -475,16 +475,15 @@ Summary of results:
             return False, False
 
 
-
-
-            
-    def extract_mediums(self, gpr_file_path: str, prompt: str) -> str:
+    
+    def extract_mediums(self, gpr_file_path: str, gnatprove_output: str, prompt: str) -> str:
         """
-        Given a gpr file path and the prompt, this function runs gnatprove on the project and extracts the mediums from the output. 
+        GnatProve output and the prompt, this function rextracts the mediums from the output. 
         It then formats the mediums as a string and appends them to the prompt.
         
         Args:
             gpr_file_path (str): The path to the gpr file
+            gnatprove_output (str): The output from gnatprove
             prompt (str): The prompt to send to the LLM
         
         Returns:
@@ -493,10 +492,9 @@ Summary of results:
         """
     
         # Run gnatprove on the project
-        output = run_gnatprove(gpr_file_path)
         
         # Returns list of Tuples
-        medium_tuple = parse_gnatprove_output(output)
+        medium_tuple = parse_gnatprove_output(gnatprove_output)
 
         project_dir = "/".join(gpr_file_path.split("/")[:-1])
 
@@ -511,13 +509,38 @@ Summary of results:
         # Format medium code reference
         medium_code_reference = "\n\n".join(f"Line: {line},\nExplanation: {explanation}\n" for line, explanation in medium_code_reference)
         
-        prompt = prompt + f"""\n
+        formatted_prompt = prompt + f"""\n
 The following are the mediums from the gnatprove output, including the line of code the medium occurs at, and an explanation of the medium:
 {medium_code_reference}
 """
 
-        return prompt
-
+        return formatted_prompt
+    
+    
+    
+    
+    def pre_extract_mediums(self, gpr_file_path: str, prompt: str) -> str:
+        """
+        Given a gpr file path and the prompt, this function runs gnatprove on the project and extracts the mediums from the output. 
+        It then formats the mediums as a string and appends them to the prompt.
+        
+        Args:
+            gpr_file_path (str): The path to the gpr file
+            prompt (str): The prompt to send to the LLM
+        
+        Returns:
+            str: A string containing the formatted_promt, with mediums appended
+        
+        """
+        
+        # Run gnatprove on the project
+        output = run_gnatprove(gpr_file_path)
+        
+        formatted_prompt = self.extract_mediums(gpr_file_path, output, prompt)
+        
+        return formatted_prompt
+        
+        
 
     
     
