@@ -6,7 +6,6 @@ import time
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, BaseMessage
 from langchain_core.outputs import ChatResult
-from langchain_community.callbacks import get_openai_callback
 from typing import List, Tuple
 
 
