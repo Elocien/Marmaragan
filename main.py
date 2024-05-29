@@ -58,6 +58,7 @@ This is the package body (implementation):
 {package_body} \n
 
 Add one or multiple pragma statements (e.g. pragma Loop_Invariant, pragma Assert) to the package body, so that the code runs error and medium free.
+Make use of the mediums provided in the prompt to guide your solution.
 You must not modify the code in any other way, except to add "for" loops and "if" statements that enclose only pragma statements.
 Do not modify the functionality in any way. Return the entire implementation file with the required additions.
 """
@@ -176,7 +177,8 @@ benchmark_file_path = "benchmarks/6-last_invariant_one_loop"
 # -----------------------------------------------------------------------
 # model = "gpt-3.5-turbo-1106"
 # model = "gpt-4-0125-preview"
-model = "gpt-4-0613"
+# model = "gpt-4-0613"
+model = "gpt-4o-2024-05-13"
 
 
 # N solutions
@@ -191,34 +193,34 @@ retries = 0
 
 # With mediums in prompt (pre-compile program with gnatprove)
 # -----------------------------------------------------------------------
-with_medium_in_prompt = False
+with_medium_in_prompt = True
 
 
 # Which benchmark programs to run (default is all if option is excluded)
 # -----------------------------------------------------------------------
 # All programs 
-benchmark_programs = list(range(1, 17))
+# benchmark_programs = list(range(1, 17))
 
 # # Only argu
-# benchmark_programs = [2,3,4,5,6]
+# benchmark_programs = [1,2,3,4,5]
 
 # # Only non-argu
 # benchmark_programs = [1,7,8,9,10,11,12,13,14,15,16]
 
-# Only copy
-# benchmark_programs = [7]        
+# Copy
+benchmark_programs = [7]
 
 
 
 # Run the benchmark
 benchmark = run_benchmark(
                         system_message=system_message_with_mediums,
-                        prompt=natual_language_prompt,
+                        prompt=prompt,
                         benchmark_dir=benchmark_file_path,
                         gpt_model=model,
                         n_solutions=n,
                         retries=retries,
-                        with_medium_in_prompt=True,
+                        with_medium_in_prompt=with_medium_in_prompt,
                         benchmark_program_indices=benchmark_programs)
 
 
