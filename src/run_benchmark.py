@@ -82,6 +82,8 @@ class run_benchmark:
     # Iterate over each project in the benchmark
         for benchmark_file_path in benchmark_files:
             
+            solution_found_flag = False
+            
             gpr_file_path = benchmark_file_path[0]
             
             # Get dependencies and format as a string, get package_body
@@ -133,6 +135,9 @@ class run_benchmark:
     # If retries are enabled, and no solution was found, retry with error message
             for retry_counter in range(self.retries):
                 
+                if solution_found_flag:
+                    break
+                
                 retry_counter += 1
                 
                 # Reset the prompt
@@ -169,12 +174,9 @@ class run_benchmark:
                     
                     original_package_body = retrieve_package_body(benchmark_file_path[1])
                     
-                    
-                    solution_found_flag = self.extract_compile_and_log(
+                    solution_found_flag, gnatprove_output_flag = self.extract_compile_and_log(
                         llm_response, gpr_file_path, benchmark_file_path[1], response_number_counter, retry_counter, original_package_body)
-                    
-                    if solution_found_flag[0]:
-                        break   
+                       
         
         # End the run and log summary
         self.end_run(self.results)

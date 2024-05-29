@@ -344,8 +344,8 @@ def extract_line_of_code_from_file(medium: str, project_dir: str) -> str:
     with open(file_path, 'r') as file:
         lines = file.readlines()
         
-        # Get the line of code and strip whitespace
-        line_of_code = lines[int(line_number) - 1].strip()
+        # Get the line of code and the line below and strip whitespace
+        line_of_code = str(lines[int(line_number) - 1].strip()) + "\n" + str(lines[int(line_number)].strip())
         
         return line_of_code
     
