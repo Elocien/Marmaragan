@@ -48,16 +48,19 @@ class run_benchmark:
         self.logger = logging.getLogger('gen_1')
         self.logger.setLevel(logging.INFO)
 
-        # Create a file handler which logs even debug messages
-        fh = logging.FileHandler('benchmark_run.log')
-        fh.setLevel(logging.INFO)
+        # Check if the logger already has handlers
+        if not self.logger.handlers:
+            # Create a file handler which logs even debug messages
+            fh = logging.FileHandler('benchmark_run.log')
+            fh.setLevel(logging.INFO)
 
-        # Create a formatter and set the formatter for the handler.
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        fh.setFormatter(formatter)
+            # Create a formatter and set the formatter for the handler.
+            formatter = logging.Formatter(
+                '%(asctime)s - %(levelname)s - %(message)s')
+            fh.setFormatter(formatter)
 
-        # Add the handler to the logger
-        self.logger.addHandler(fh)
+            # Add the handler to the logger
+            self.logger.addHandler(fh)
         
         
         self.start_time = None;
