@@ -418,3 +418,73 @@ def compute_diff(original_lines: str, result_lines: str) -> list[str]:
         result_index += 1
     return diff_lines
 
+
+
+
+
+
+def extract_mediums(gpr_file_path: str, gnatprove_output: str, prompt: str) -> str:
+        """
+        GnatProve output and the prompt, this function rextracts the mediums from the output.
+        It then formats the mediums as a string and appends them to the prompt.
+
+        Args:
+            gpr_file_path (str): The path to the gpr file
+            gnatprove_output (str): The output from gnatprove
+            prompt (str): The prompt to send to the LLM
+
+        Returns:
+            str: A string containing the formatted_promt, with mediums appended
+
+        """
+
+        # Run gnatprove on the project
+
+        # Returns list of Tuples
+        medium_tuple = parse_gnatprove_output(gnatprove_output)
+
+        project_dir = "/".join(gpr_file_path.split("/")[:-1])
+
+        # Compile the lines of code, which are referenced in the mediums
+        # E.g. for medium: swap_ranges_p.adb:17:13: overflow check might fail, extract line 17 from file swap_ranges_p.adb
+        medium_code_reference = []
+
+        for medium in medium_tuple:
+            medium_code_reference.append(
+                (extract_line_of_code_from_file(medium, project_dir), medium[1]))
+
+        # Format medium code reference
+        medium_code_reference = "\n\n".join(
+            f"Line: {line},\nExplanation: {explanation}\n" for line, explanation in medium_code_reference)
+
+        formatted_prompt = prompt + f"""\n
+The following are the mediums from the gnatprove output, including the line of code the medium occurs at, and an explanation of the medium:
+{medium_code_reference}
+"""
+
+        return formatted_prompt
+
+
+
+
+def pre_extract_mediums(gpr_file_path: str, prompt: str) -> str:
+    """
+    Given a gpr file path and the prompt, this function runs gnatprove on the project and extracts the mediums from the output. 
+    It then formats the mediums as a string and appends them to the prompt.
+    
+    Args:
+        gpr_file_path (str): The path to the gpr file
+        prompt (str): The prompt to send to the LLM
+    
+    Returns:
+        str: A string containing the formatted_promt, with mediums appended
+    
+    """
+    
+    # Run gnatprove on the project
+    output = run_gnatprove(gpr_file_path)
+    
+    formatted_prompt = extract_mediums(gpr_file_path, output, prompt)
+    
+    return formatted_prompt
+
