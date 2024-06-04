@@ -467,7 +467,7 @@ The following are the mediums from the gnatprove output, including the line of c
 
 
 
-def pre_extract_mediums(gpr_file_path: str, prompt: str) -> str:
+def compile_and_extract_mediums(gpr_file_path: str, prompt: str) -> str:
     """
     Given a gpr file path and the prompt, this function runs gnatprove on the project and extracts the mediums from the output. 
     It then formats the mediums as a string and appends them to the prompt.
@@ -488,3 +488,27 @@ def pre_extract_mediums(gpr_file_path: str, prompt: str) -> str:
     
     return formatted_prompt
 
+
+
+def compile_and_append_stdout(gpr_file_path: str, prompt: str) -> str:
+    """
+    Compile the file with GnatProve and append the complete stdout from 
+    
+    
+    Args:
+        gpr_file_path (str): The path to the gpr file
+        prompt (str): The prompt to send to the LLM
+    
+    Returns:
+        str: A string containing the formatted_promt, with mediums appended    
+    """ 
+    
+    # Run gnatprove on the project
+    output = run_gnatprove(gpr_file_path)
+
+    formatted_prompt = prompt + f"""\n
+The following is the output from GnatProve from the failed compilation of the above code: \n\n
+{output}
+"""
+
+    return formatted_prompt
