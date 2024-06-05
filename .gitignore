@@ -5,5 +5,4 @@ spark_files/
 tmp_benchmark_dir/
 dry_run_results/
 results/
-benchmarks/
 .DS_Store
