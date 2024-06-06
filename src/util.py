@@ -349,6 +349,9 @@ def extract_line_of_code_from_file(medium: str, project_dir: str) -> str:
             line_of_code = str(lines[int(line_number) - 1].strip()) + "\n" + str(lines[int(line_number)].strip())
         
         except IndexError:
+            print(f"filepath: {file_path}")
+            print(f"Medium: {medium}")
+            print(f"Lines: {lines}")
             # If the line number is out of range, return the line of code
             line_of_code = str(lines[int(line_number) - 1].strip())
         
