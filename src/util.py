@@ -348,12 +348,11 @@ def extract_line_of_code_from_file(medium: str, project_dir: str) -> str:
             # Get the line of code and the line below and strip whitespace
             line_of_code = str(lines[int(line_number) - 1].strip()) + "\n" + str(lines[int(line_number)].strip())
         
+        
+        # It can occur that GnatProve returns a line number, which does not match the line number in the file. In this case, return an empty string as the relevant line
         except IndexError:
-            print(f"filepath: {file_path}")
-            print(f"Medium: {medium}")
-            print(f"Lines: {lines}")
-            # If the line number is out of range, return the line of code
-            line_of_code = str(lines[int(line_number) - 1].strip())
+            line_of_code = ""
+            
         
         return line_of_code
     
