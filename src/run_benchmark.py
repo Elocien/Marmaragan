@@ -163,12 +163,15 @@ class run_benchmark:
                     llm_responses = self.invoke_llm(prompt, self.gpt_model, 1)      
 
                     # Although the LLM is set to generate 1 response, it returns a list of responses, therfore we iterate over this
-                    for llm_response in llm_responses:
+                    llm_response = llm_responses[0]
                         
-                        original_package_body = retrieve_package_body(benchmark_file_path[1])
-                        
-                        solution_found_flag, gnatprove_output_flag = self.extract_compile_and_log(
-                            llm_response, gpr_file_path, benchmark_file_path[1], response_number_counter, retry_counter, original_package_body)
+                    original_package_body = retrieve_package_body(benchmark_file_path[1])
+                    
+                    solution_found_flag, gnatprove_output_flag = self.extract_compile_and_log(
+                        llm_response, gpr_file_path, benchmark_file_path[1], response_number_counter, retry_counter, original_package_body)
+                    
+                    if solution_found_flag:
+                        break       
                        
         
         # End the run and log summary
