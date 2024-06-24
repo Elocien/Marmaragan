@@ -118,6 +118,9 @@ class run_benchmark:
     # For each response, extract the fixed code and write to file in the benchmark_dir
             for llm_response in llm_responses:
                 
+                if solution_found_flag:
+                    break
+                
                 # Used to index the number of retries
                 retry_counter = 0
                 
@@ -129,13 +132,13 @@ class run_benchmark:
                 # If the code couldn't be extracted, or the filename couldn't be extracted, then solution_found_flag[1] is False
                 solution_found_flag, gnatprove_output_flag = self.extract_compile_and_log(
                     llm_response, gpr_file_path, benchmark_file_path[1], response_number_counter, retry_counter, original_package_body)
-                
-                if solution_found_flag:
-                    break
             
         
         # If retries are enabled, and no solution was found, retry with error message
                 for retry_counter in range(self.retries):
+                    
+                    if solution_found_flag:
+                        break      
                     
                     # Increment by 1 to display correct retry number
                     retry_counter += 1
@@ -168,10 +171,7 @@ class run_benchmark:
                     original_package_body = retrieve_package_body(benchmark_file_path[1])
                     
                     solution_found_flag, gnatprove_output_flag = self.extract_compile_and_log(
-                        llm_response, gpr_file_path, benchmark_file_path[1], response_number_counter, retry_counter, original_package_body)
-                    
-                    if solution_found_flag:
-                        break       
+                        llm_response, gpr_file_path, benchmark_file_path[1], response_number_counter, retry_counter, original_package_body) 
                        
         
         # End the run and log summary
