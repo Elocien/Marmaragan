@@ -20,13 +20,6 @@ You must complete the package body of the given program, inserting one or multip
 You must not modify the code in any other way, except to add for loops and if statements that enclose only pragma statements, and do not modify the functionality.
 """
 
-old_system_message = """\
-You are a Spark2014/ADA programmer with strong logical reasoning abilities. 
-You are tasked with fixing implemenations of Spark2014/ADA programs. You will be given an Implementation of a program, as
-well as a specification of the program. You must complete the package body of the given program, inserting a single "pragma Loop_Invariant" statement.
-You must not modify the code in any other way.
-"""
-
 # The original 4/16 system message
 original_system_message = """\
 You are a Spark2014/ADA programmer with strong logical reasoning abilities.
@@ -170,8 +163,14 @@ Do not modify the code in any other way. Return the entire implementation file w
 
 # Benchmark
 # -----------------------------------------------------------------------
-benchmark_file_path = "benchmarks/6-last_invariant_one_loop"
+# benchmark_file_paths = ["benchmarks/1-all_pragmas", "benchmarks/2-last_invariant_all_loops", 
+                        # "benchmarks/3-one_assert", "benchmarks/4-all_pragmas_one_loop", "benchmarks/5-last_invariant_one_loop"]
 
+benchmark_file_paths = ["benchmarks/1-all_pragmas"]
+# benchmark_file_paths = ["benchmarks/2-last_invariant_all_loops"]
+# benchmark_file_paths = ["benchmarks/3-one_assert"]
+# benchmark_file_paths = ["benchmarks/4-all_pragmas_one_loop"]
+# benchmark_file_paths = ["benchmarks/5-last_invariant_one_loop"]
 
 # GPT Model
 # -----------------------------------------------------------------------
@@ -183,12 +182,12 @@ model = "gpt-4o-2024-05-13"
 
 # N solutions
 # -----------------------------------------------------------------------
-n = 1
+n = 6
 
 
 # Retries
 # -----------------------------------------------------------------------
-retries = 0
+retries = 1
 
 
 # With mediums in prompt (pre-compile program with gnatprove)
@@ -207,27 +206,23 @@ with_medium_in_prompt = True
 # # Only non-argu
 # benchmark_programs = [1,7,8,9,10,11,12,13,14,15,16]
 
-# Copy
-benchmark_programs = [7]
+
+benchmark_programs = [3]
+
 
 
 
 # Run the benchmark
-benchmark = run_benchmark(
-                        system_message=system_message_with_mediums,
-                        prompt=prompt,
-                        benchmark_dir=benchmark_file_path,
-                        gpt_model=model,
-                        n_solutions=n,
-                        retries=retries,
-                        with_medium_in_prompt=with_medium_in_prompt,
-                        benchmark_program_indices=benchmark_programs)
 
+for benchmark_file in benchmark_file_paths:
+    benchmark = run_benchmark(
+        system_message=system_message_with_mediums,
+        prompt=natual_language_prompt,
+        benchmark_dir=benchmark_file,
+        gpt_model=model,
+        n_solutions=n,
+        retries=retries,
+        with_medium_in_prompt=with_medium_in_prompt,
+        benchmark_program_indices=benchmark_programs)
 
-
-benchmark.run()
-
-
-
-
-
+    benchmark.run()
